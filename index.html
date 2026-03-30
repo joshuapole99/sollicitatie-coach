@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sollicitatie Coach — CV & Motivatiebrief Analyse</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a18; min-height: 100vh; padding: 16px; }
+.app { max-width: 780px; margin: 0 auto; }
+.header { text-align: center; padding: 32px 0 24px; }
+.header h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+.header p { font-size: 15px; color: #666; }
+.badge { display: inline-block; background: #e8f5ee; color: #1a7a4a; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-left: 8px; }
+.usage-bar { background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.dots { display: flex; gap: 5px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot.used { background: #1a1a18; opacity: 0.4; }
+.dot.avail { background: #e8e6e0; border: 1px solid #d0cec8; }
+.upgrade-btn { margin-left: auto; background: #1a1a18; color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+@media (max-width: 560px) { .inputs { grid-template-columns: 1fr; } }
+.input-block label { display: block; font-size: 11px; font-weight: 600; color: #888; margin-bottom: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
+.input-block textarea { width: 100%; height: 180px; border: 1px solid #e0deda; border-radius: 12px; padding: 12px; font-size: 13px; font-family: inherit; color: #1a1a18; background: #fff; resize: none; line-height: 1.6; }
+.input-block textarea:focus { outline: none; border-color: #999; }
+.input-block textarea::placeholder { color: #bbb; }
+.btn { width: 100%; padding: 14px; background: #1a1a18; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+.btn:hover { opacity: 0.85; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.loading { text-align: center; padding: 40px; }
+.spinner { display: inline-block; width: 28px; height: 28px; border: 2px solid #e0deda; border-top-color: #1a1a18; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading p { margin-top: 14px; font-size: 13px; color: #888; }
+.error { background: #fdf0f0; border: 1px solid #f0c0c0; border-radius: 12px; padding: 14px 16px; font-size: 13px; color: #c0392b; margin-top: 16px; }
+.results { margin-top: 20px; }
+.score-card { background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 20px; }
+.score-ring { position: relative; width: 76px; height: 76px; flex-shrink: 0; }
+.score-ring svg { transform: rotate(-90deg); }
+.score-number { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 20px; font-weight: 700; }
+.score-info h3 { font-size: 16px; font-weight: 600; margin-bottom: 5px; }
+.score-info p { font-size: 13px; color: #666; line-height: 1.6; }
+.section { background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+.section-header { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.section-header h3 { font-size: 14px; font-weight: 600; }
+.section-content { padding: 0 16px 16px; font-size: 13px; line-height: 1.7; color: #555; white-space: pre-wrap; }
+.copy-btn { background: none; border: 1px solid #e0deda; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 600; color: #888; cursor: pointer; font-family: inherit; }
+.copy-btn:hover { border-color: #999; color: #1a1a18; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.tag { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.tag-match { background: #e8f5ee; color: #1a7a4a; }
+.tag-miss { background: #fdf0f0; color: #c0392b; }
+.bullet-list { list-style: none; }
+.bullet-list li { padding: 5px 0 5px 14px; border-left: 2px solid #e0deda; margin-bottom: 5px; }
+.bullet-list li.good { border-left-color: #1a7a4a; }
+.bullet-list li.bad { border-left-color: #c0392b; }
+.chevron { font-size: 11px; color: #bbb; transition: transform 0.2s; }
+.chevron.open { transform: rotate(180deg); }
+.locked { position: relative; }
+.locked .blur { filter: blur(5px); pointer-events: none; user-select: none; }
+.lock-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 16px 24px; text-align: center; }
+.lock-box p { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+.lock-box button { background: #1a1a18; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Sollicitatie Coach <span class="badge">GRATIS</span></h1>
+    <p>Plak je CV en vacature — krijg een match score, verbeterpunten en een motivatiebrief op maat.</p>
+  </div>
+
+  <div class="usage-bar">
+    <div class="dots" id="dots"></div>
+    <span id="usage-text" style="color:#888"></span>
+    <button class="upgrade-btn" onclick="showUpgrade()">Pro — €9,99/mnd</button>
+  </div>
+
+  <div class="inputs">
+    <div class="input-block">
+      <label>Jouw CV</label>
+      <textarea id="cv-input" placeholder="Plak hier de tekst van je CV...&#10;&#10;Naam, werkervaring, opleiding, skills..."></textarea>
+    </div>
+    <div class="input-block">
+      <label>Vacaturetekst</label>
+      <textarea id="job-input" placeholder="Plak hier de volledige vacaturetekst...&#10;&#10;Functiebeschrijving, vereisten, bedrijf..."></textarea>
+    </div>
+  </div>
+
+  <button class="btn" id="analyse-btn" onclick="runAnalysis()">Analyseer mijn sollicitatie</button>
+  <div id="results"></div>
+</div>
+
+<script>
+const FREE_LIMIT = 3;
+
+function getUses() {
+  return parseInt(localStorage.getItem('sol_uses') || '0');
+}
+function usesLeft() {
+  return Math.max(0, FREE_LIMIT - getUses());
+}
+function renderDots() {
+  const used = getUses();
+  const left = usesLeft();
+  document.getElementById('dots').innerHTML = Array.from({length: FREE_LIMIT}, (_,i) =>
+    `<div class="dot ${i < used ? 'used' : 'avail'}"></div>`
+  ).join('');
+  document.getElementById('usage-text').textContent =
+    left > 0 ? `${left} van ${FREE_LIMIT} gratis analyses over` : 'Geen gratis analyses meer';
+}
+renderDots();
+
+function showUpgrade() {
+  alert('Sollicitatie Coach Pro — €9,99/mnd\n\n✓ Ongelimiteerde analyses\n✓ LinkedIn profiel check\n✓ Interview voorbereiding\n✓ PDF export\n\nKoppel hier je Stripe betaallink.');
+}
+
+async function runAnalysis() {
+  if (usesLeft() <= 0) { showUpgrade(); return; }
+  const cv = document.getElementById('cv-input').value.trim();
+  const job = document.getElementById('job-input').value.trim();
+  if (cv.length < 50) { alert('Plak je CV in het linkerveld.'); return; }
+  if (job.length < 50) { alert('Plak de vacaturetekst in het rechterveld.'); return; }
+
+  document.getElementById('analyse-btn').disabled = true;
+  document.getElementById('results').innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>AI analyseert jouw match...</p>
+    </div>`;
+
+  try {
+    const resp = await fetch('/api/analyse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cv, job })
+    });
+    if (!resp.ok) throw new Error('Server fout: ' + resp.status);
+    const result = await resp.json();
+    localStorage.setItem('sol_uses', getUses() + 1);
+    renderDots();
+    renderResults(result);
+  } catch(e) {
+    document.getElementById('results').innerHTML =
+      `<div class="error">Er ging iets mis: ${e.message}. Probeer opnieuw.</div>`;
+  } finally {
+    document.getElementById('analyse-btn').disabled = false;
+  }
+}
+
+function scoreColor(s) {
+  if (s >= 75) return '#1a7a4a';
+  if (s >= 50) return '#c07800';
+  return '#c0392b';
+}
+
+function renderResults(r) {
+  const c = scoreColor(r.score);
+  const circ = 2 * Math.PI * 30;
+  const dash = circ * (1 - r.score / 100);
+  const locked = usesLeft() <= 0;
+
+  document.getElementById('results').innerHTML = `
+  <div class="results">
+    <div class="score-card">
+      <div class="score-ring">
+        <svg width="76" height="76" viewBox="0 0 76 76">
+          <circle cx="38" cy="38" r="30" fill="none" stroke="#e8e6e0" stroke-width="5"/>
+          <circle cx="38" cy="38" r="30" fill="none" stroke="${c}" stroke-width="5"
+            stroke-dasharray="${circ}" stroke-dashoffset="${dash}" stroke-linecap="round"/>
+        </svg>
+        <div class="score-number" style="color:${c}">${r.score}</div>
+      </div>
+      <div class="score-info">
+        <h3>Match score: ${r.score}/100</h3>
+        <p>${r.score_uitleg}</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <h3>Keywords match</h3>
+        <span class="chevron open">▼</span>
+      </div>
+      <div class="section-content">
+        <div style="font-size:11px;font-weight:600;color:#888;margin-bottom:6px">AANWEZIG IN JE CV</div>
+        <div class="tag-row">${(r.match_keywords||[]).map(k=>`<span class="tag tag-match">${k}</span>`).join('')}</div>
+        <div style="font-size:11px;font-weight:600;color:#888;margin:12px 0 6px">ONTBREEKT NOG</div>
+        <div class="tag-row">${(r.mis_keywords||[]).map(k=>`<span class="tag tag-miss">${k}</span>`).join('')}</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <h3>Sterke punten & verbeterpunten</h3>
+        <span class="chevron open">▼</span>
+      </div>
+      <div class="section-content">
+        <ul class="bullet-list">
+          ${(r.sterke_punten||[]).map(p=>`<li class="good">${p}</li>`).join('')}
+          ${(r.verbeterpunten||[]).map(p=>`<li class="bad">${p}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <h3>Motivatiebrief op maat</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="copy-btn" onclick="event.stopPropagation();copyEl('motiv')">Kopieer</button>
+          <span class="chevron open">▼</span>
+        </div>
+      </div>
+      ${locked ? `
+      <div class="locked">
+        <div class="blur section-content" id="motiv">${r.motivatiebrief}</div>
+        <div class="lock-box">
+          <p>Upgrade voor volledige toegang</p>
+          <button onclick="showUpgrade()">Pro — €9,99/mnd</button>
+        </div>
+      </div>` : `<div class="section-content" id="motiv">${r.motivatiebrief}</div>`}
+    </div>
+
+    <div class="section">
+      <div class="section-header" onclick="toggle(this)">
+        <h3>CV verbeterpunten</h3>
+        <span class="chevron open">▼</span>
+      </div>
+      <div class="section-content">${r.cv_tips}</div>
+    </div>
+  </div>`;
+}
+
+function toggle(header) {
+  const content = header.nextElementSibling;
+  const chevron = header.querySelector('.chevron');
+  const open = content.style.display !== 'none';
+  content.style.display = open ? 'none' : '';
+  chevron.classList.toggle('open', !open);
+}
+
+function copyEl(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText).then(() => {
+    const btn = document.querySelector(`button[onclick*="copyEl('${id}')"]`);
+    if (btn) { btn.textContent = 'Gekopieerd!'; setTimeout(()=>btn.textContent='Kopieer',1500); }
+  });
+}
+</script>
+</body>
+</html>
