@@ -3,22 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sollicitatie Coach — AI Motivatiebrief & CV Analyse</title>
+<title id="page-title">Sollicitatie Coach — AI Motivatiebrief & CV Analyse</title>
 <meta name="description" content="Schrijf in 30 seconden een professionele motivatiebrief op maat met AI. Analyseer je CV op een vacature. Gratis proberen, geen account nodig.">
-<meta name="keywords" content="motivatiebrief schrijven, motivatiebrief generator, CV analyse, sollicitatiebrief, AI sollicitatie">
+<meta name="keywords" content="motivatiebrief schrijven, motivatiebrief generator, CV analyse, sollicitatiebrief, AI sollicitatie, cover letter generator, job application AI">
 <script defer src="/_vercel/insights/script.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #f5f4f0; --card: #ffffff; --border: #e8e6e0;
-  --text: #1a1a18; --muted: #666; --faint: #999;
-  --green-bg: #e8f5ee; --green: #1a7a4a;
-}
+:root { --bg: #f5f4f0; --card: #ffffff; --border: #e8e6e0; --text: #1a1a18; --muted: #666; --faint: #999; --green-bg: #e8f5ee; --green: #1a7a4a; }
 @media (prefers-color-scheme: dark) {
   :root { --bg: #111110; --card: #1c1c1a; --border: #2e2e2b; --text: #e8e6e0; --muted: #999; --faint: #666; --green-bg: #0d2b1a; --green: #4ade80; }
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
-
+.nav { max-width: 780px; margin: 0 auto; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { font-size: 15px; font-weight: 700; text-decoration: none; color: var(--text); }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.nav-btn { background: var(--text); color: var(--bg); padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: opacity 0.15s; }
+.nav-btn:hover { opacity: 0.8; }
+.lang-switcher { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+.lang-btn { background: none; border: none; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: var(--muted); transition: all 0.15s; }
+.lang-btn.active { background: var(--text); color: var(--bg); }
 .hero { max-width: 680px; margin: 0 auto; padding: 72px 24px 56px; text-align: center; }
 .hero h1 { font-size: clamp(28px, 5vw, 46px); font-weight: 800; margin-bottom: 18px; line-height: 1.15; }
 .hero p { font-size: 17px; color: var(--muted); max-width: 500px; margin: 0 auto 36px; line-height: 1.7; }
@@ -26,14 +29,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .cta-btn:hover { opacity: 0.85; }
 .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
 .badge { background: var(--green-bg); color: var(--green); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
-
 .features { max-width: 780px; margin: 0 auto; padding: 0 24px 64px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
 .feature { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
 .feature-icon { font-size: 24px; margin-bottom: 12px; }
 .feature h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
 .feature p { font-size: 13px; color: var(--muted); line-height: 1.6; margin: 0; }
-
 .how { max-width: 680px; margin: 0 auto; padding: 0 24px 64px; }
 .how h2 { font-size: 24px; font-weight: 700; margin-bottom: 24px; text-align: center; }
 .steps { display: flex; flex-direction: column; gap: 16px; }
@@ -41,115 +42,207 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .step-num { background: var(--text); color: var(--bg); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
 .step-text strong { display: block; font-size: 15px; font-weight: 700; margin-bottom: 3px; }
 .step-text span { font-size: 13px; color: var(--muted); }
-
 .faq { max-width: 680px; margin: 0 auto; padding: 0 24px 64px; }
 .faq h2 { font-size: 24px; font-weight: 700; margin-bottom: 20px; text-align: center; }
 .faq-item { border-bottom: 1px solid var(--border); padding: 16px 0; }
 .faq-item:first-of-type { border-top: 1px solid var(--border); }
 .faq-item strong { display: block; font-size: 15px; font-weight: 700; margin-bottom: 6px; }
 .faq-item p { font-size: 13px; color: var(--muted); margin: 0; }
-
 .bottom { max-width: 680px; margin: 0 auto; padding: 0 24px 80px; text-align: center; }
 .bottom-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 40px 32px; }
 .bottom-card h2 { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
 .bottom-card p { font-size: 15px; color: var(--muted); margin-bottom: 24px; }
-
-.nav { max-width: 780px; margin: 0 auto; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
-.nav-logo { font-size: 15px; font-weight: 700; text-decoration: none; color: var(--text); }
-.nav-btn { background: var(--text); color: var(--bg); padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: opacity 0.15s; }
-.nav-btn:hover { opacity: 0.8; }
 </style>
 </head>
 <body>
 
 <nav class="nav">
   <a href="/" class="nav-logo">Sollicitatie Coach</a>
-  <a href="/app.html" class="nav-btn">Start gratis →</a>
+  <div class="nav-right">
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="btn-nl" onclick="setLang('nl')">NL</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <a href="/app.html" class="nav-btn" id="nav-cta">Start gratis →</a>
+  </div>
 </nav>
 
 <div class="hero">
-  <h1>Schrijf je motivatiebrief in 30 seconden</h1>
-  <p>Plak je CV en vacature — onze AI analyseert de match en schrijft een professionele motivatiebrief op maat. Gratis proberen, geen account nodig.</p>
-  <a href="/app.html" class="cta-btn">Start gratis →</a>
+  <h1 id="hero-title">Schrijf je motivatiebrief in 30 seconden</h1>
+  <p id="hero-sub">Plak je CV en vacature — onze AI analyseert de match en schrijft een professionele motivatiebrief op maat. Gratis proberen, geen account nodig.</p>
+  <a href="/app.html" class="cta-btn" id="hero-cta">Start gratis →</a>
   <div class="badges">
-    <span class="badge">Geen account nodig</span>
-    <span class="badge">Op maat per vacature</span>
-    <span class="badge">In 30 seconden klaar</span>
+    <span class="badge" id="badge1">Geen account nodig</span>
+    <span class="badge" id="badge2">Op maat per vacature</span>
+    <span class="badge" id="badge3">In 30 seconden klaar</span>
   </div>
 </div>
 
 <div class="features">
   <div class="feature">
     <div class="feature-icon">📊</div>
-    <h3>Match score</h3>
-    <p>Zie in één oogopslag hoe goed jouw CV aansluit op de vacature — score van 0 tot 100.</p>
+    <h3 id="f1-title">Match score</h3>
+    <p id="f1-sub">Zie in één oogopslag hoe goed jouw CV aansluit op de vacature — score van 0 tot 100.</p>
   </div>
   <div class="feature">
     <div class="feature-icon">🔑</div>
-    <h3>Keywords analyse</h3>
-    <p>Ontdek welke woorden uit de vacature ontbreken in jouw CV en verhoog je kansen direct.</p>
+    <h3 id="f2-title">Keywords analyse</h3>
+    <p id="f2-sub">Ontdek welke woorden uit de vacature ontbreken in jouw CV en verhoog je kansen direct.</p>
   </div>
   <div class="feature">
     <div class="feature-icon">✉️</div>
-    <h3>Motivatiebrief op maat</h3>
-    <p>Een complete, professionele motivatiebrief die perfect aansluit op de specifieke vacature.</p>
+    <h3 id="f3-title">Motivatiebrief op maat</h3>
+    <p id="f3-sub">Een complete, professionele motivatiebrief die perfect aansluit op de specifieke vacature.</p>
   </div>
 </div>
 
 <div class="how">
-  <h2>Hoe werkt het?</h2>
+  <h2 id="how-title">Hoe werkt het?</h2>
   <div class="steps">
     <div class="step">
       <div class="step-num">1</div>
       <div class="step-text">
-        <strong>Plak je CV</strong>
-        <span>Kopieer de tekst van je CV — werkervaring, opleiding en vaardigheden.</span>
+        <strong id="s1-title">Plak je CV</strong>
+        <span id="s1-sub">Kopieer de tekst van je CV — werkervaring, opleiding en vaardigheden.</span>
       </div>
     </div>
     <div class="step">
       <div class="step-num">2</div>
       <div class="step-text">
-        <strong>Plak de vacaturetekst</strong>
-        <span>Voeg de volledige vacaturetekst toe inclusief vereisten en functieomschrijving.</span>
+        <strong id="s2-title">Plak de vacaturetekst</strong>
+        <span id="s2-sub">Voeg de volledige vacaturetekst toe inclusief vereisten en functieomschrijving.</span>
       </div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
       <div class="step-text">
-        <strong>Ontvang je analyse</strong>
-        <span>Match score, verbeterpunten, ontbrekende keywords én een complete motivatiebrief in 30 seconden.</span>
+        <strong id="s3-title">Ontvang je analyse</strong>
+        <span id="s3-sub">Match score, verbeterpunten, ontbrekende keywords én een complete motivatiebrief in 30 seconden.</span>
       </div>
     </div>
   </div>
 </div>
 
 <div class="faq">
-  <h2>Veelgestelde vragen</h2>
+  <h2 id="faq-title">Veelgestelde vragen</h2>
   <div class="faq-item">
-    <strong>Is de motivatiebrief echt uniek per vacature?</strong>
-    <p>Ja. De AI analyseert zowel jouw CV als de specifieke vacaturetekst en schrijft een brief die de verbinding tussen beide benadrukt.</p>
+    <strong id="q1">Is de motivatiebrief echt uniek per vacature?</strong>
+    <p id="a1">Ja. De AI analyseert zowel jouw CV als de specifieke vacaturetekst en schrijft een brief die de verbinding tussen beide benadrukt.</p>
   </div>
   <div class="faq-item">
-    <strong>Hoe lang duurt het?</strong>
-    <p>Gemiddeld 20-30 seconden. De AI leest beide teksten, berekent een match score en schrijft de brief in één stap.</p>
+    <strong id="q2">Hoe lang duurt het?</strong>
+    <p id="a2">Gemiddeld 20-30 seconden. De AI leest beide teksten, berekent een match score en schrijft de brief in één stap.</p>
   </div>
   <div class="faq-item">
-    <strong>Is mijn CV veilig?</strong>
-    <p>Je CV wordt alleen gebruikt voor de analyse en niet opgeslagen. Elke analyse is een losse, anonieme API call.</p>
+    <strong id="q3">Is mijn CV veilig?</strong>
+    <p id="a3">Je CV wordt alleen gebruikt voor de analyse en niet opgeslagen. Elke analyse is een losse, anonieme API call.</p>
   </div>
   <div class="faq-item">
-    <strong>Wat zit er in de gratis versie?</strong>
-    <p>3 volledige analyses gratis — inclusief match score, keywords en verbeterpunten. De motivatiebrief is beschikbaar voor Pro gebruikers.</p>
+    <strong id="q4">Wat zit er in de gratis versie?</strong>
+    <p id="a4">3 volledige analyses gratis — inclusief match score, keywords en verbeterpunten. De motivatiebrief is beschikbaar voor Pro gebruikers.</p>
   </div>
 </div>
 
 <div class="bottom">
   <div class="bottom-card">
-    <h2>Klaar om te beginnen?</h2>
-    <p>Gratis proberen — geen account nodig — in 30 seconden klaar.</p>
-    <a href="/app.html" class="cta-btn">Analyseer mijn sollicitatie →</a>
+    <h2 id="bottom-title">Klaar om te beginnen?</h2>
+    <p id="bottom-sub">Gratis proberen — geen account nodig — in 30 seconden klaar.</p>
+    <a href="/app.html" class="cta-btn" id="bottom-cta">Analyseer mijn sollicitatie →</a>
   </div>
 </div>
 
+<script>
+const T = {
+  nl: {
+    navCta: 'Start gratis →',
+    heroTitle: 'Schrijf je motivatiebrief in 30 seconden',
+    heroSub: 'Plak je CV en vacature — onze AI analyseert de match en schrijft een professionele motivatiebrief op maat. Gratis proberen, geen account nodig.',
+    heroCta: 'Start gratis →',
+    badge1: 'Geen account nodig', badge2: 'Op maat per vacature', badge3: 'In 30 seconden klaar',
+    f1Title: 'Match score', f1Sub: 'Zie in één oogopslag hoe goed jouw CV aansluit op de vacature — score van 0 tot 100.',
+    f2Title: 'Keywords analyse', f2Sub: 'Ontdek welke woorden uit de vacature ontbreken in jouw CV en verhoog je kansen direct.',
+    f3Title: 'Motivatiebrief op maat', f3Sub: 'Een complete, professionele motivatiebrief die perfect aansluit op de specifieke vacature.',
+    howTitle: 'Hoe werkt het?',
+    s1Title: 'Plak je CV', s1Sub: 'Kopieer de tekst van je CV — werkervaring, opleiding en vaardigheden.',
+    s2Title: 'Plak de vacaturetekst', s2Sub: 'Voeg de volledige vacaturetekst toe inclusief vereisten en functieomschrijving.',
+    s3Title: 'Ontvang je analyse', s3Sub: 'Match score, verbeterpunten, ontbrekende keywords én een complete motivatiebrief in 30 seconden.',
+    faqTitle: 'Veelgestelde vragen',
+    q1: 'Is de motivatiebrief echt uniek per vacature?', a1: 'Ja. De AI analyseert zowel jouw CV als de specifieke vacaturetekst en schrijft een brief die de verbinding tussen beide benadrukt.',
+    q2: 'Hoe lang duurt het?', a2: 'Gemiddeld 20-30 seconden. De AI leest beide teksten, berekent een match score en schrijft de brief in één stap.',
+    q3: 'Is mijn CV veilig?', a3: 'Je CV wordt alleen gebruikt voor de analyse en niet opgeslagen. Elke analyse is een losse, anonieme API call.',
+    q4: 'Wat zit er in de gratis versie?', a4: '3 volledige analyses gratis — inclusief match score, keywords en verbeterpunten. De motivatiebrief is beschikbaar voor Pro gebruikers.',
+    bottomTitle: 'Klaar om te beginnen?', bottomSub: 'Gratis proberen — geen account nodig — in 30 seconden klaar.', bottomCta: 'Analyseer mijn sollicitatie →',
+  },
+  en: {
+    navCta: 'Start free →',
+    heroTitle: 'Write your cover letter in 30 seconds',
+    heroSub: 'Paste your CV and job posting — our AI analyses the match and writes a professional cover letter tailored to the vacancy. Free to try, no account needed.',
+    heroCta: 'Start free →',
+    badge1: 'No account needed', badge2: 'Tailored per vacancy', badge3: 'Ready in 30 seconds',
+    f1Title: 'Match score', f1Sub: 'See at a glance how well your CV matches the job posting — score from 0 to 100.',
+    f2Title: 'Keyword analysis', f2Sub: 'Discover which words from the job posting are missing in your CV and boost your chances instantly.',
+    f3Title: 'Tailored cover letter', f3Sub: 'A complete, professional cover letter perfectly aligned with the specific job posting.',
+    howTitle: 'How does it work?',
+    s1Title: 'Paste your CV', s1Sub: 'Copy the text of your CV — work experience, education and skills.',
+    s2Title: 'Paste the job posting', s2Sub: 'Add the full job posting including requirements and job description.',
+    s3Title: 'Receive your analysis', s3Sub: 'Match score, improvements, missing keywords and a complete cover letter in 30 seconds.',
+    faqTitle: 'Frequently asked questions',
+    q1: 'Is the cover letter really unique per vacancy?', a1: 'Yes. The AI analyses both your CV and the specific job posting and writes a letter that highlights the connection between the two.',
+    q2: 'How long does it take?', a2: 'On average 20-30 seconds. The AI reads both texts, calculates a match score and writes the letter in one step.',
+    q3: 'Is my CV safe?', a3: 'Your CV is only used for the analysis and is not stored. Every analysis is a separate, anonymous API call.',
+    q4: 'What is included in the free version?', a4: '3 full analyses for free — including match score, keywords and improvement points. The cover letter is available for Pro users.',
+    bottomTitle: 'Ready to start?', bottomSub: 'Free to try — no account needed — ready in 30 seconds.', bottomCta: 'Analyse my application →',
+  }
+};
+
+let lang = localStorage.getItem('sol_lang') || 'nl';
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('sol_lang', l);
+  document.getElementById('btn-nl').classList.toggle('active', l === 'nl');
+  document.getElementById('btn-en').classList.toggle('active', l === 'en');
+  document.documentElement.lang = l;
+  applyLang();
+}
+
+function applyLang() {
+  const t = T[lang];
+  document.getElementById('nav-cta').textContent = t.navCta;
+  document.getElementById('hero-title').textContent = t.heroTitle;
+  document.getElementById('hero-sub').textContent = t.heroSub;
+  document.getElementById('hero-cta').textContent = t.heroCta;
+  document.getElementById('badge1').textContent = t.badge1;
+  document.getElementById('badge2').textContent = t.badge2;
+  document.getElementById('badge3').textContent = t.badge3;
+  document.getElementById('f1-title').textContent = t.f1Title;
+  document.getElementById('f1-sub').textContent = t.f1Sub;
+  document.getElementById('f2-title').textContent = t.f2Title;
+  document.getElementById('f2-sub').textContent = t.f2Sub;
+  document.getElementById('f3-title').textContent = t.f3Title;
+  document.getElementById('f3-sub').textContent = t.f3Sub;
+  document.getElementById('how-title').textContent = t.howTitle;
+  document.getElementById('s1-title').textContent = t.s1Title;
+  document.getElementById('s1-sub').textContent = t.s1Sub;
+  document.getElementById('s2-title').textContent = t.s2Title;
+  document.getElementById('s2-sub').textContent = t.s2Sub;
+  document.getElementById('s3-title').textContent = t.s3Title;
+  document.getElementById('s3-sub').textContent = t.s3Sub;
+  document.getElementById('faq-title').textContent = t.faqTitle;
+  document.getElementById('q1').textContent = t.q1;
+  document.getElementById('a1').textContent = t.a1;
+  document.getElementById('q2').textContent = t.q2;
+  document.getElementById('a2').textContent = t.a2;
+  document.getElementById('q3').textContent = t.q3;
+  document.getElementById('a3').textContent = t.a3;
+  document.getElementById('q4').textContent = t.q4;
+  document.getElementById('a4').textContent = t.a4;
+  document.getElementById('bottom-title').textContent = t.bottomTitle;
+  document.getElementById('bottom-sub').textContent = t.bottomSub;
+  document.getElementById('bottom-cta').textContent = t.bottomCta;
+}
+
+setLang(lang);
+</script>
 </body>
 </html>
