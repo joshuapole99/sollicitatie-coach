@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sollicitatie Coach — AI CV & Motivatiebrief Analyse</title>
 <meta name="description" content="Analyseer je CV op een vacature met AI. Krijg een match score, verbeterpunten en een motivatiebrief op maat. Gratis proberen.">
+<script defer src="/_vercel/insights/script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -40,14 +42,12 @@
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; }
 .app { max-width: 800px; margin: 0 auto; }
 
-/* Header */
 .header { text-align: center; padding: 36px 0 28px; }
 .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
 .header p { font-size: 15px; color: var(--muted); max-width: 480px; margin: 0 auto; line-height: 1.6; }
 .badge { display: inline-block; background: var(--green-bg); color: var(--green); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-left: 8px; vertical-align: middle; }
 .badge.pro { background: #fef3c7; color: #92400e; }
 
-/* Usage bar */
 .usage-bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
 .dots { display: flex; gap: 5px; }
 .dot { width: 10px; height: 10px; border-radius: 50%; transition: background 0.2s; }
@@ -57,7 +57,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .upgrade-btn { margin-left: auto; background: var(--text); color: var(--bg); border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; transition: opacity 0.15s; }
 .upgrade-btn:hover { opacity: 0.8; }
 
-/* Inputs */
 .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 @media (max-width: 560px) { .inputs { grid-template-columns: 1fr; } }
 .input-block label { display: block; font-size: 11px; font-weight: 700; color: var(--faint); margin-bottom: 6px; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -65,21 +64,17 @@ textarea { width: 100%; height: 190px; border: 1px solid var(--border); border-r
 textarea:focus { outline: none; border-color: var(--border-hover); }
 textarea::placeholder { color: var(--faint); }
 
-/* Buttons */
 .analyse-btn { width: 100%; padding: 15px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
 .analyse-btn:hover:not(:disabled) { opacity: 0.85; }
 .analyse-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* Loading */
 .loading { text-align: center; padding: 48px 16px; }
 .spinner { display: inline-block; width: 32px; height: 32px; border: 2.5px solid var(--border); border-top-color: var(--text); border-radius: 50%; animation: spin 0.75s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading p { margin-top: 16px; font-size: 14px; color: var(--muted); }
 
-/* Error */
 .error-box { background: var(--red-bg); border: 1px solid var(--red); border-radius: 12px; padding: 14px 16px; font-size: 13px; color: var(--red); margin-top: 16px; line-height: 1.6; }
 
-/* Results */
 .results { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
 
 .score-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 20px; }
@@ -110,8 +105,11 @@ textarea::placeholder { color: var(--faint); }
 .bullet-list li.good { border-left: 3px solid var(--green); background: var(--green-bg); color: var(--text); }
 .bullet-list li.bad { border-left: 3px solid var(--red); background: var(--red-bg); color: var(--text); }
 
+.btn-row { display: flex; gap: 8px; align-items: center; }
 .copy-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: var(--faint); cursor: pointer; font-family: inherit; transition: all 0.15s; }
 .copy-btn:hover { border-color: var(--border-hover); color: var(--text); }
+.pdf-btn { background: var(--text); color: var(--bg); border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; display: flex; align-items: center; gap: 5px; }
+.pdf-btn:hover { opacity: 0.8; }
 
 .motiv-text { white-space: pre-wrap; }
 
@@ -124,8 +122,20 @@ textarea::placeholder { color: var(--faint); }
 .paywall-box small { font-size: 12px; color: var(--muted); display: block; margin-bottom: 14px; }
 .paywall-box .cta { background: var(--text); color: var(--bg); border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
 .paywall-box .cta:hover { opacity: 0.8; }
+
+/* Email capture modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+.modal-overlay.hidden { display: none; }
+.modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; max-width: 400px; width: 100%; text-align: center; }
+.modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.modal p { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+.modal input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 14px; font-family: inherit; color: var(--text); background: var(--bg); margin-bottom: 10px; }
+.modal input:focus { outline: none; border-color: var(--border-hover); }
+.modal-btn { width: 100%; padding: 11px; background: var(--text); color: var(--bg); border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; margin-bottom: 8px; }
+.modal-btn:hover { opacity: 0.8; }
+.modal-skip { font-size: 12px; color: var(--faint); cursor: pointer; background: none; border: none; font-family: inherit; }
+.modal-skip:hover { color: var(--muted); }
 </style>
-<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <div class="app">
@@ -155,6 +165,17 @@ textarea::placeholder { color: var(--faint); }
   <div id="results"></div>
 </div>
 
+<!-- Email capture modal -->
+<div class="modal-overlay hidden" id="email-modal">
+  <div class="modal">
+    <h3>🎯 Jouw analyse is klaar!</h3>
+    <p>Laat je e-mailadres achter voor tips over solliciteren en updates over nieuwe functies. Geen spam.</p>
+    <input type="email" id="email-input" placeholder="jouw@email.nl" />
+    <button class="modal-btn" onclick="submitEmail()">Stuur me tips →</button>
+    <button class="modal-skip" onclick="closeEmailModal()">Overslaan</button>
+  </div>
+</div>
+
 <script>
 const FREE_LIMIT = 3;
 const STRIPE_PAYMENT_LINK = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/dfcb053f-66f7-4458-8cd4-d7d5e129f649';
@@ -162,19 +183,15 @@ const STRIPE_SESSION_KEY = 'stripe_session_id';
 
 function getUses() { return parseInt(localStorage.getItem('sol_uses') || '0'); }
 function getSession() { return localStorage.getItem(STRIPE_SESSION_KEY) || null; }
-
-// VEILIG: isPro wordt alleen bepaald door de server (r.isPro), NOOIT door localStorage
-// localStorage wordt alleen gebruikt voor de usage bar weergave, niet voor toegang
 function usesLeft() { return Math.max(0, FREE_LIMIT - getUses()); }
+function hasGivenEmail() { return !!localStorage.getItem('sol_email'); }
 
 function renderUsageBar(serverConfirmedPro) {
   const pro = !!serverConfirmedPro;
   const used = getUses();
   const left = usesLeft();
-
   document.getElementById('tier-badge').textContent = pro ? 'PRO' : 'GRATIS';
   document.getElementById('tier-badge').className = 'badge' + (pro ? ' pro' : '');
-
   const dotsEl = document.getElementById('dots');
   if (pro) {
     dotsEl.innerHTML = '<span style="font-size:12px;color:var(--green);font-weight:700">Ongelimiteerd</span>';
@@ -188,7 +205,6 @@ function renderUsageBar(serverConfirmedPro) {
   }
 }
 
-// Check Stripe session via URL (na redirect van Stripe)
 const params = new URLSearchParams(window.location.search);
 const sessionFromUrl = params.get('session_id');
 if (sessionFromUrl) {
@@ -196,35 +212,57 @@ if (sessionFromUrl) {
   window.history.replaceState({}, '', window.location.pathname);
 }
 
-// Initieel renderen zonder Pro (server heeft nog niet bevestigd)
 renderUsageBar(false);
 
-function goUpgrade() {
-  window.location.href = STRIPE_PAYMENT_LINK;
+function goUpgrade() { window.location.href = STRIPE_PAYMENT_LINK; }
+
+// Email modal
+function showEmailModal() {
+  if (hasGivenEmail()) return;
+  document.getElementById('email-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('email-input').focus(), 100);
 }
 
-// Veilige fetch die altijd een object teruggeeft, ook bij HTML error responses
+function closeEmailModal() {
+  document.getElementById('email-modal').classList.add('hidden');
+  localStorage.setItem('sol_email', 'skipped');
+}
+
+function submitEmail() {
+  const email = document.getElementById('email-input').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('email-input').style.borderColor = 'var(--red)';
+    return;
+  }
+  // Sla op in localStorage (vervang door echte email service zoals Mailchimp/Brevo)
+  localStorage.setItem('sol_email', email);
+  console.log('Email captured:', email); // Hier koppel je Brevo/Mailchimp API
+  closeEmailModal();
+}
+
+// Sluit modal bij klik buiten
+document.getElementById('email-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeEmailModal();
+});
+
 async function safeFetch(url, options) {
   const resp = await fetch(url, options);
   const contentType = resp.headers.get('content-type') || '';
-
   if (!contentType.includes('application/json')) {
     const text = await resp.text().catch(() => '');
-    console.error('Non-JSON response van server:', resp.status, text.substring(0, 200));
+    console.error('Non-JSON response:', resp.status, text.substring(0, 200));
     throw new Error(
       resp.status === 500 ? 'Serverfout (500). Controleer of de API key correct is ingesteld.' :
-      resp.status === 404 ? 'API route niet gevonden (404). Controleer je deployment.' :
-      resp.status === 503 ? 'Service tijdelijk niet beschikbaar. Probeer over een minuut opnieuw.' :
+      resp.status === 404 ? 'API route niet gevonden (404).' :
+      resp.status === 503 ? 'Service tijdelijk niet beschikbaar. Probeer opnieuw.' :
       `Onverwachte serverfout (${resp.status}). Probeer opnieuw.`
     );
   }
-
   const data = await resp.json();
   return { resp, data };
 }
 
 async function runAnalysis() {
-  // Gebruik ALLEEN localStorage voor de client-side limiet check (niet voor Pro toegang)
   const session = getSession();
   const left = usesLeft();
   if (!session && left <= 0) { goUpgrade(); return; }
@@ -261,19 +299,18 @@ async function runAnalysis() {
       return;
     }
 
-    if (!resp.ok) {
-      throw new Error(data.error || `Serverfout (${resp.status})`);
-    }
+    if (!resp.ok) throw new Error(data.error || `Serverfout (${resp.status})`);
 
-    // VEILIG: alleen de server beslist of iemand Pro is
     const confirmedPro = !!data.isPro;
-
     if (!confirmedPro) {
       localStorage.setItem('sol_uses', getUses() + 1);
     }
 
     renderUsageBar(confirmedPro);
     renderResults(data);
+
+    // Toon email modal na eerste analyse (met kleine vertraging)
+    setTimeout(showEmailModal, 1500);
 
   } catch (e) {
     document.getElementById('results').innerHTML =
@@ -290,13 +327,44 @@ function scoreColor(s) {
   return 'var(--red)';
 }
 
+// PDF export functie
+function downloadPDF(motivatiebrief) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+  const margin = 20;
+  const pageWidth = 210;
+  const maxWidth = pageWidth - margin * 2;
+
+  // Header
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Motivatiebrief', margin, 30);
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(120, 120, 120);
+  doc.text('Gegenereerd door Sollicitatie Coach — sollicitatie-coach.vercel.app', margin, 38);
+
+  // Lijn
+  doc.setDrawColor(220, 220, 220);
+  doc.line(margin, 42, pageWidth - margin, 42);
+
+  // Brief tekst
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(30, 30, 30);
+
+  const lines = doc.splitTextToSize(motivatiebrief, maxWidth);
+  doc.text(lines, margin, 52);
+
+  doc.save('motivatiebrief.pdf');
+}
+
 function renderResults(r) {
   const color = scoreColor(r.score);
   const circ = 2 * Math.PI * 32;
   const offset = circ * (1 - r.score / 100);
-
-  // VEILIG: motivatiebrief alleen tonen als SERVER bevestigt dat het Pro is
-  // localStorage manipulation heeft hier GEEN effect meer
   const showMotiv = r.isPro === true;
 
   document.getElementById('results').innerHTML = `
@@ -346,8 +414,11 @@ function renderResults(r) {
     <div class="section">
       <div class="section-header" onclick="toggleSection(this)">
         <h3>Motivatiebrief op maat</h3>
-        <div style="display:flex;gap:8px;align-items:center">
-          ${showMotiv ? `<button class="copy-btn" onclick="event.stopPropagation();copyText('motiv-text')">Kopieer</button>` : ''}
+        <div class="btn-row">
+          ${showMotiv ? `
+            <button class="copy-btn" onclick="event.stopPropagation();copyText('motiv-text')">Kopieer</button>
+            <button class="pdf-btn" onclick="event.stopPropagation();downloadPDF(${JSON.stringify(r.motivatiebrief)})">↓ PDF</button>
+          ` : ''}
           <span class="chevron up">▼</span>
         </div>
       </div>
@@ -359,7 +430,7 @@ function renderResults(r) {
                <div class="paywall-overlay">
                  <div class="paywall-box">
                    <p>Motivatiebrief alleen voor Pro</p>
-                   <small>Upgrade voor ongelimiteerde analyses + volledige brief</small>
+                   <small>Upgrade voor ongelimiteerde analyses + PDF download</small>
                    <button class="cta" onclick="goUpgrade()">Pro — €9,99/mnd</button>
                  </div>
                </div>
