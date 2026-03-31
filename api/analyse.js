@@ -1,5 +1,3 @@
-import Stripe from 'stripe';
-
 const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000;
 const RATE_LIMIT_FREE = 3;
@@ -28,21 +26,17 @@ function checkRateLimit(ip) {
 }
 
 function extractJSON(text) {
-  // Stap 1: strip markdown code blocks
   let cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
 
-  // Stap 2: zoek eerste { en laatste }
   const start = cleaned.indexOf('{');
   const end = cleaned.lastIndexOf('}');
   if (start === -1 || end === -1) throw new Error('Geen JSON gevonden in response');
   cleaned = cleaned.slice(start, end + 1);
 
-  // Stap 3: probeer direct te parsen
   try {
     return JSON.parse(cleaned);
   } catch (_) {}
 
-  // Stap 4: auto-repair veelvoorkomende problemen
   cleaned = cleaned
     .replace(/,\s*}/g, '}')
     .replace(/,\s*]/g, ']')
@@ -60,25 +54,21 @@ async function checkProAccess(req) {
   if (!process.env.STRIPE_SECRET_KEY) return false;
 
   try {
+    const Stripe = (await import('stripe')).default;
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ['subscription']
     });
 
     if (session.payment_status !== 'paid') return false;
+    if (!session.subscription) return true;
 
-    // One-time payment (geen subscription) — ook geldig als Pro
-    if (!session.subscription) {
-      return true;
-    }
-
-    // Subscription flow
     const sub = session.subscription;
-    // Als subscription al geëxpandeerd is (object), gebruik direct
     if (typeof sub === 'object' && sub !== null) {
       return sub.status === 'active';
     }
-    // Anders nog ophalen
+
     const subscription = await stripe.subscriptions.retrieve(sub);
     return subscription.status === 'active';
   } catch (err) {
@@ -122,7 +112,6 @@ BELANGRIJK: Geef alleen dit JSON object terug. Niets anders.`;
 }
 
 export default async function handler(req, res) {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-stripe-session');
@@ -132,7 +121,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Zorg dat we ALTIJD JSON terugsturen, ook bij onverwachte crashes
   try {
     const { cv, job } = req.body || {};
 
@@ -143,10 +131,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Vacature te kort of ontbreekt' });
     }
 
-    // Check Pro toegang
     const isPro = await checkProAccess(req);
 
-    // Rate limiting alleen voor gratis users
     if (!isPro) {
       const ip = getIP(req);
       const { allowed, remaining } = checkRateLimit(ip);
@@ -166,7 +152,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Serverconfiguratie fout. Neem contact op met de beheerder.' });
     }
 
-    // API call met timeout
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 25000);
 
@@ -217,7 +202,6 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'AI response kon niet worden verwerkt. Probeer opnieuw.' });
     }
 
-    // Valideer verplichte velden
     const required = ['score', 'score_uitleg', 'sterke_punten', 'verbeterpunten',
                       'match_keywords', 'mis_keywords', 'motivatiebrief', 'cv_tips'];
     for (const field of required) {
@@ -227,10 +211,8 @@ export default async function handler(req, res) {
       }
     }
 
-    // Score moet een getal zijn tussen 0 en 100
     result.score = Math.min(100, Math.max(0, parseInt(result.score) || 0));
 
-    // Zorg dat arrays altijd arrays zijn
     for (const field of ['sterke_punten', 'verbeterpunten', 'match_keywords', 'mis_keywords']) {
       if (!Array.isArray(result[field])) result[field] = [];
     }
