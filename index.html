@@ -199,6 +199,27 @@ function goUpgrade() {
   window.location.href = STRIPE_PAYMENT_LINK;
 }
 
+// Veilige fetch die altijd een object teruggeeft, ook bij HTML error responses
+async function safeFetch(url, options) {
+  const resp = await fetch(url, options);
+  const contentType = resp.headers.get('content-type') || '';
+
+  if (!contentType.includes('application/json')) {
+    // Server stuurde geen JSON terug (bijv. een HTML foutpagina van Vercel)
+    const text = await resp.text().catch(() => '');
+    console.error('Non-JSON response van server:', resp.status, text.substring(0, 200));
+    throw new Error(
+      resp.status === 500 ? 'Serverfout (500). Controleer of de API key correct is ingesteld.' :
+      resp.status === 404 ? 'API route niet gevonden (404). Controleer je deployment.' :
+      resp.status === 503 ? 'Service tijdelijk niet beschikbaar. Probeer over een minuut opnieuw.' :
+      `Onverwachte serverfout (${resp.status}). Probeer opnieuw.`
+    );
+  }
+
+  const data = await resp.json();
+  return { resp, data };
+}
+
 async function runAnalysis() {
   const left = usesLeft();
   if (left <= 0) { goUpgrade(); return; }
@@ -220,13 +241,11 @@ async function runAnalysis() {
     const session = getSession();
     if (session) headers['x-stripe-session'] = session;
 
-    const resp = await fetch('/api/analyse', {
+    const { resp, data } = await safeFetch('/api/analyse', {
       method: 'POST',
       headers,
       body: JSON.stringify({ cv, job })
     });
-
-    const data = await resp.json();
 
     if (resp.status === 429) {
       document.getElementById('results').innerHTML = `
@@ -238,7 +257,9 @@ async function runAnalysis() {
       return;
     }
 
-    if (!resp.ok) throw new Error(data.error || 'Onbekende fout');
+    if (!resp.ok) {
+      throw new Error(data.error || `Serverfout (${resp.status})`);
+    }
 
     if (!isPro()) {
       localStorage.setItem('sol_uses', getUses() + 1);
@@ -249,7 +270,8 @@ async function runAnalysis() {
 
   } catch (e) {
     document.getElementById('results').innerHTML =
-      `<div class="error-box">Er ging iets mis: ${e.message}.<br>Controleer je internetverbinding en probeer opnieuw.</div>`;
+      `<div class="error-box">${escHtml(e.message)}<br><br>
+       <small style="opacity:0.7">Als dit blijft gebeuren, controleer dan of de server correct is geconfigureerd.</small></div>`;
   } finally {
     document.getElementById('analyse-btn').disabled = false;
   }
