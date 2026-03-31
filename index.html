@@ -161,11 +161,13 @@ const STRIPE_SESSION_KEY = 'stripe_session_id';
 
 function getUses() { return parseInt(localStorage.getItem('sol_uses') || '0'); }
 function getSession() { return localStorage.getItem(STRIPE_SESSION_KEY) || null; }
-function isPro() { return !!getSession(); }
-function usesLeft() { return isPro() ? Infinity : Math.max(0, FREE_LIMIT - getUses()); }
 
-function renderUsageBar() {
-  const pro = isPro();
+// VEILIG: isPro wordt alleen bepaald door de server (r.isPro), NOOIT door localStorage
+// localStorage wordt alleen gebruikt voor de usage bar weergave, niet voor toegang
+function usesLeft() { return Math.max(0, FREE_LIMIT - getUses()); }
+
+function renderUsageBar(serverConfirmedPro) {
+  const pro = !!serverConfirmedPro;
   const used = getUses();
   const left = usesLeft();
 
@@ -193,7 +195,8 @@ if (sessionFromUrl) {
   window.history.replaceState({}, '', window.location.pathname);
 }
 
-renderUsageBar();
+// Initieel renderen zonder Pro (server heeft nog niet bevestigd)
+renderUsageBar(false);
 
 function goUpgrade() {
   window.location.href = STRIPE_PAYMENT_LINK;
@@ -205,7 +208,6 @@ async function safeFetch(url, options) {
   const contentType = resp.headers.get('content-type') || '';
 
   if (!contentType.includes('application/json')) {
-    // Server stuurde geen JSON terug (bijv. een HTML foutpagina van Vercel)
     const text = await resp.text().catch(() => '');
     console.error('Non-JSON response van server:', resp.status, text.substring(0, 200));
     throw new Error(
@@ -221,8 +223,10 @@ async function safeFetch(url, options) {
 }
 
 async function runAnalysis() {
+  // Gebruik ALLEEN localStorage voor de client-side limiet check (niet voor Pro toegang)
+  const session = getSession();
   const left = usesLeft();
-  if (left <= 0) { goUpgrade(); return; }
+  if (!session && left <= 0) { goUpgrade(); return; }
 
   const cv = document.getElementById('cv-input').value.trim();
   const job = document.getElementById('job-input').value.trim();
@@ -238,7 +242,6 @@ async function runAnalysis() {
 
   try {
     const headers = { 'Content-Type': 'application/json' };
-    const session = getSession();
     if (session) headers['x-stripe-session'] = session;
 
     const { resp, data } = await safeFetch('/api/analyse', {
@@ -261,11 +264,14 @@ async function runAnalysis() {
       throw new Error(data.error || `Serverfout (${resp.status})`);
     }
 
-    if (!isPro()) {
+    // VEILIG: alleen de server beslist of iemand Pro is
+    const confirmedPro = !!data.isPro;
+
+    if (!confirmedPro) {
       localStorage.setItem('sol_uses', getUses() + 1);
-      renderUsageBar();
     }
 
+    renderUsageBar(confirmedPro);
     renderResults(data);
 
   } catch (e) {
@@ -287,7 +293,10 @@ function renderResults(r) {
   const color = scoreColor(r.score);
   const circ = 2 * Math.PI * 32;
   const offset = circ * (1 - r.score / 100);
-  const showMotiv = isPro() || r.isPro;
+
+  // VEILIG: motivatiebrief alleen tonen als SERVER bevestigt dat het Pro is
+  // localStorage manipulation heeft hier GEEN effect meer
+  const showMotiv = r.isPro === true;
 
   document.getElementById('results').innerHTML = `
   <div class="results">
