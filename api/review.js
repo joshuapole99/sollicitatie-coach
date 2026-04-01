@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         from: 'reviews@sollicitatie-coach.vercel.app',
-        to: 'joshuapole99@gmail.com',
+        to: 'joshuapole@live.nl',
         subject: `New review: ${stars} (${rating}/5)`,
         html: `
           <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px">
