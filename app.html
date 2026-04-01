@@ -28,11 +28,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .back-link { font-size: 12px; color: var(--faint); text-decoration: none; }
 .back-link:hover { color: var(--muted); }
 
-.header { text-align: center; padding: 24px 0 24px; }
+.header { text-align: center; padding: 24px 0 20px; }
 .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
-.header p { font-size: 15px; color: var(--muted); max-width: 480px; margin: 0 auto; line-height: 1.6; }
+.header p { font-size: 15px; color: var(--muted); max-width: 480px; margin: 0 auto 16px; line-height: 1.6; }
 .badge { display: inline-block; background: var(--green-bg); color: var(--green); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-left: 8px; vertical-align: middle; }
 .badge.pro { background: #fef3c7; color: #92400e; }
+
+/* Voorbeeld knop */
+.example-bar { text-align: center; margin-bottom: 16px; }
+.example-btn { background: none; border: 1px dashed var(--border-hover); border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.example-btn:hover { border-color: var(--text); color: var(--text); background: var(--card); }
 
 .usage-bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
 .dots { display: flex; gap: 5px; }
@@ -133,7 +138,11 @@ textarea::placeholder { color: var(--faint); }
 
   <div class="header">
     <h1 id="app-title">Sollicitatie Coach <span class="badge" id="tier-badge">GRATIS</span></h1>
-    <p id="hero-sub">Plak je CV en vacature — krijg een match score, verbeterpunten en een motivatiebrief op maat in 30 seconden.</p>
+    <p id="hero-sub">Zie in 30 seconden of jij de beste kandidaat bent voor de baan.</p>
+  </div>
+
+  <div class="example-bar">
+    <button class="example-btn" id="example-btn" onclick="fillExample()">✨ Probeer met voorbeeldtekst</button>
   </div>
 
   <div class="usage-bar">
@@ -157,17 +166,17 @@ textarea::placeholder { color: var(--faint); }
   <div id="results"></div>
 
 <div class="review-form" id="review-form" style="display:none">
-  <h3 id="review-title">How was your experience?</h3>
+  <h3 id="review-title">Wat vond je ervan?</h3>
   <div class="stars-row" id="stars-row">
-    <span class="star" data-val="1" onclick="setStar(1)">★</span>
-    <span class="star" data-val="2" onclick="setStar(2)">★</span>
-    <span class="star" data-val="3" onclick="setStar(3)">★</span>
-    <span class="star" data-val="4" onclick="setStar(4)">★</span>
-    <span class="star" data-val="5" onclick="setStar(5)">★</span>
+    <span class="star" data-val="1" onclick="setStar(1)">&#9733;</span>
+    <span class="star" data-val="2" onclick="setStar(2)">&#9733;</span>
+    <span class="star" data-val="3" onclick="setStar(3)">&#9733;</span>
+    <span class="star" data-val="4" onclick="setStar(4)">&#9733;</span>
+    <span class="star" data-val="5" onclick="setStar(5)">&#9733;</span>
   </div>
-  <textarea class="review-input" id="review-input" placeholder="Tell us what you think..."></textarea>
-  <button class="review-submit" id="review-submit" onclick="submitReview()">Submit review</button>
-  <div class="review-thanks" id="review-thanks" style="display:none">Thanks for your feedback!</div>
+  <textarea class="review-input" id="review-input" placeholder="Vertel ons wat je vond..."></textarea>
+  <button class="review-submit" id="review-submit" onclick="submitReview()">Review versturen</button>
+  <div class="review-thanks" id="review-thanks" style="display:none">Bedankt voor je feedback!</div>
 </div>
 
 </div>
@@ -177,7 +186,7 @@ textarea::placeholder { color: var(--faint); }
     <h3 id="modal-title">Jouw analyse is klaar!</h3>
     <p id="modal-sub">Laat je e-mailadres achter voor tips over solliciteren. Geen spam.</p>
     <input type="email" id="email-input" placeholder="jouw@email.nl" />
-    <button class="modal-btn" onclick="submitEmail()" id="modal-btn">Stuur me tips →</button>
+    <button class="modal-btn" onclick="submitEmail()" id="modal-btn">Stuur me tips &rarr;</button>
     <button class="modal-skip" onclick="closeEmailModal()" id="modal-skip">Overslaan</button>
   </div>
 </div>
@@ -187,10 +196,102 @@ const FREE_LIMIT = 3;
 const PAYMENT_LINK = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/dfcb053f-66f7-4458-8cd4-d7d5e129f649';
 const SESSION_KEY = 'stripe_session_id';
 
+// Voorbeeldteksten NL + EN
+const EXAMPLES = {
+  nl: {
+    cv: `Lisa de Vries
+Marketing Manager | linkedin.com/in/lisadevries | lisa@email.nl
+
+WERKERVARING
+Marketing Manager — TechStartup BV (2021–heden)
+• Verhoogde organisch websiteverkeer met 140% via SEO en contentmarketing
+• Beheerde €200.000 jaarlijks advertentiebudget (Google Ads, Meta)
+• Leidde team van 4 marketeers en werkte nauw samen met sales
+
+Junior Marketeer — Retailbedrijf NV (2019–2021)
+• Verantwoordelijk voor social media (Instagram, LinkedIn) — +8.000 volgers in 1 jaar
+• Organiseerde 12 events met gemiddeld 200 bezoekers
+
+OPLEIDING
+Bachelor Marketing — Hogeschool Utrecht (2019)
+
+VAARDIGHEDEN
+Google Analytics, SEO, Google Ads, Meta Ads, HubSpot, Figma, Copywriting, A/B-testing`,
+
+    job: `Vacature: Senior Digital Marketeer — ScaleUp BV (Amsterdam)
+
+Over ons:
+ScaleUp BV is een snelgroeiend SaaS-bedrijf met 80 medewerkers. We zoeken een ervaren marketeer die onze groei verder versnelt.
+
+Functieomschrijving:
+Je bent verantwoordelijk voor onze digitale marketingstrategie. Je werkt samen met sales en product en rapporteert aan de CMO.
+
+Taken:
+• Ontwikkelen en uitvoeren van SEO/SEA strategie
+• Beheren van advertentiebudget (Google Ads, LinkedIn Ads)
+• Opzetten van marketing automation (HubSpot)
+• Analyseren van campagneresultaten en bijsturen op basis van data
+
+Vereisten:
+• Minimaal 3 jaar ervaring in digitale marketing
+• Aantoonbare ervaring met Google Ads en SEO
+• Ervaring met HubSpot of vergelijkbaar CRM
+• Analytisch sterk, resultaatgericht
+• HBO/WO werk- en denkniveau
+
+Wij bieden: €45.000–€55.000 | 25 vakantiedagen | Hybride werken | Laptop`
+  },
+  en: {
+    cv: `James Carter
+Software Engineer | github.com/jamescarter | james@email.com
+
+WORK EXPERIENCE
+Senior Software Engineer — FinTech Ltd (2021–present)
+• Built microservices architecture handling 2M+ daily transactions
+• Reduced API response time by 60% through caching and query optimization
+• Led migration from monolith to microservices (Node.js, PostgreSQL, Redis)
+• Mentored 3 junior developers
+
+Software Engineer — WebAgency (2019–2021)
+• Developed React frontends for 15+ client projects
+• Implemented CI/CD pipelines using GitHub Actions
+
+EDUCATION
+BSc Computer Science — University of Amsterdam (2019)
+
+SKILLS
+JavaScript, TypeScript, Node.js, React, PostgreSQL, Redis, Docker, AWS, Git, REST APIs`,
+
+    job: `Job: Full Stack Engineer — GrowthApp (Amsterdam)
+
+About us:
+GrowthApp is a fast-growing B2B SaaS startup with 50 employees. We're looking for a skilled engineer to help scale our platform.
+
+Role:
+You'll work across the full stack, building new features and improving performance. You'll collaborate closely with design and product.
+
+Responsibilities:
+• Build and maintain React frontend and Node.js backend
+• Design and optimize PostgreSQL database schemas
+• Deploy and monitor services on AWS
+• Participate in code reviews and architecture decisions
+
+Requirements:
+• 3+ years experience in full stack development
+• Strong proficiency in React and Node.js
+• Experience with PostgreSQL and Redis
+• Familiarity with Docker and AWS
+• Strong problem-solving skills
+
+We offer: €55.000–€70.000 | 25 days PTO | Remote-friendly | MacBook Pro`
+  }
+};
+
 const T = {
   nl: {
     title: 'Sollicitatie Coach',
-    hero: 'Plak je CV en vacature — krijg een match score, verbeterpunten en een motivatiebrief op maat in 30 seconden.',
+    hero: 'Zie in 30 seconden of jij de beste kandidaat bent voor de baan.',
+    exampleBtn: '✨ Probeer met voorbeeldtekst',
     labelCv: 'Jouw CV',
     labelJob: 'Vacaturetekst',
     cvPlaceholder: 'Plak hier de tekst van je CV...',
@@ -228,7 +329,8 @@ const T = {
   },
   en: {
     title: 'Application Coach',
-    hero: 'Paste your CV and job posting — get a match score, improvements and a cover letter in 30 seconds.',
+    hero: 'Find out in 30 seconds if you're the best candidate for the job.',
+    exampleBtn: '✨ Try with example text',
     labelCv: 'Your CV',
     labelJob: 'Job posting',
     cvPlaceholder: 'Paste your CV text here...',
@@ -286,18 +388,34 @@ function setLang(l) {
 
 function applyLang() {
   document.getElementById('hero-sub').textContent = t('hero');
+  document.getElementById('example-btn').textContent = t('exampleBtn');
   document.getElementById('label-cv').textContent = t('labelCv');
   document.getElementById('label-job').textContent = t('labelJob');
   document.getElementById('cv-input').placeholder = t('cvPlaceholder');
   document.getElementById('job-input').placeholder = t('jobPlaceholder');
   document.getElementById('analyse-btn').textContent = t('analyseBtn');
   document.getElementById('upgrade-btn').textContent = t('upgradeBtn');
-  document.getElementById('app-title').innerHTML = t('title') + ' <span class="badge" id="tier-badge">' + t(getSession() ? 'pro' : 'free') + '</span></h1>';
+  document.getElementById('app-title').innerHTML = t('title') + ' <span class="badge" id="tier-badge">' + t(getSession() ? 'pro' : 'free') + '</span>';
   document.getElementById('modal-title').textContent = t('modalTitle');
   document.getElementById('modal-sub').textContent = t('modalSub');
   document.getElementById('modal-btn').textContent = t('modalBtn');
   document.getElementById('modal-skip').textContent = t('modalSkip');
   renderUsageBar(!!getSession());
+}
+
+// Vul voorbeeldtekst in
+function fillExample() {
+  const ex = EXAMPLES[lang] || EXAMPLES.nl;
+  document.getElementById('cv-input').value = ex.cv;
+  document.getElementById('job-input').value = ex.job;
+  document.getElementById('cv-input').style.borderColor = 'var(--green)';
+  document.getElementById('job-input').style.borderColor = 'var(--green)';
+  setTimeout(() => {
+    document.getElementById('cv-input').style.borderColor = '';
+    document.getElementById('job-input').style.borderColor = '';
+  }, 1000);
+  // Scroll naar de knop
+  document.getElementById('analyse-btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function getUses() { return parseInt(localStorage.getItem('sol_uses') || '0'); }
@@ -309,8 +427,7 @@ function renderUsageBar(pro) {
   const used = getUses();
   const left = usesLeft();
   const badge = document.getElementById('tier-badge');
-  badge.textContent = pro ? t('pro') : t('free');
-  badge.className = 'badge' + (pro ? ' pro' : '');
+  if (badge) { badge.textContent = pro ? t('pro') : t('free'); badge.className = 'badge' + (pro ? ' pro' : ''); }
   const dotsEl = document.getElementById('dots');
   if (pro) {
     dotsEl.innerHTML = `<span style="font-size:12px;color:var(--green);font-weight:700">${t('usagePro')}</span>`;
@@ -455,7 +572,7 @@ function renderResults(r) {
 
     <div class="section">
       <div class="section-header" onclick="toggleSection(this)">
-        <h3>${t('keywords')}</h3><span class="chevron up">▼</span>
+        <h3>${t('keywords')}</h3><span class="chevron up">&#9660;</span>
       </div>
       <div class="section-body">
         <div class="tag-group-label">${t('present')}</div>
@@ -467,7 +584,7 @@ function renderResults(r) {
 
     <div class="section">
       <div class="section-header" onclick="toggleSection(this)">
-        <h3>${t('strengths')}</h3><span class="chevron up">▼</span>
+        <h3>${t('strengths')}</h3><span class="chevron up">&#9660;</span>
       </div>
       <div class="section-body">
         <ul class="bullet-list">
@@ -485,7 +602,7 @@ function renderResults(r) {
             <button class="copy-btn" onclick="event.stopPropagation();copyText('motiv-text')">${t('copy')}</button>
             <button class="pdf-btn" onclick="event.stopPropagation();downloadPDF(${JSON.stringify(r.motivatiebrief)})">${t('pdf')}</button>
           ` : ''}
-          <span class="chevron up">▼</span>
+          <span class="chevron up">&#9660;</span>
         </div>
       </div>
       <div class="section-body">
@@ -507,7 +624,7 @@ function renderResults(r) {
 
     <div class="section">
       <div class="section-header" onclick="toggleSection(this)">
-        <h3>${t('cvTips')}</h3><span class="chevron up">▼</span>
+        <h3>${t('cvTips')}</h3><span class="chevron up">&#9660;</span>
       </div>
       <div class="section-body"><p>${escHtml(r.cv_tips)}</p></div>
     </div>
@@ -531,8 +648,6 @@ function copyText(id) {
   });
 }
 
-
-// Review system
 let reviewRating = 0;
 
 function setStar(val) {
@@ -545,10 +660,9 @@ function setStar(val) {
 function showReviewForm() {
   if (localStorage.getItem('sol_reviewed')) return;
   document.getElementById('review-form').style.display = 'block';
-  const t = lang || 'en';
-  document.getElementById('review-title').textContent = t === 'nl' ? 'Wat vond je ervan?' : 'How was your experience?';
-  document.getElementById('review-input').placeholder = t === 'nl' ? 'Vertel ons wat je vond...' : 'Tell us what you think...';
-  document.getElementById('review-submit').textContent = t === 'nl' ? 'Review versturen' : 'Submit review';
+  document.getElementById('review-title').textContent = lang === 'nl' ? 'Wat vond je ervan?' : 'How was your experience?';
+  document.getElementById('review-input').placeholder = lang === 'nl' ? 'Vertel ons wat je vond...' : 'Tell us what you think...';
+  document.getElementById('review-submit').textContent = lang === 'nl' ? 'Review versturen' : 'Submit review';
 }
 
 async function submitReview() {
