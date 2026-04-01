@@ -569,10 +569,14 @@ async function submitReview() {
   btn.textContent = lang === 'nl' ? 'Versturen...' : 'Sending...';
 
   try {
-    const resp = await fetch('/api/review', {
+    const stars = '★'.repeat(reviewRating) + '☆'.repeat(5 - reviewRating);
+    const resp = await fetch('https://formspree.io/f/xnjozwbr', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rating: reviewRating, message })
+      body: JSON.stringify({
+        rating: stars + ' (' + reviewRating + '/5)',
+        message: message
+      })
     });
     if (!resp.ok) throw new Error('Failed');
     localStorage.setItem('sol_reviewed', '1');
