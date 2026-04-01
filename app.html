@@ -460,7 +460,7 @@ function submitReview() {
   // Open mail with review (no backend needed)
   const subject = encodeURIComponent('Sollicitatie Coach Review — ' + selectedStars + ' sterren');
   const body = encodeURIComponent(`Beoordeling: ${selectedStars}/5 sterren\n\n${text || '(geen tekst)'}`);
-  window.open(`mailto:jouw@email.nl?subject=${subject}&body=${body}`);
+  window.open(`mailto:joshuapole@live.nl?subject=${subject}&body=${body}`);
   if (form) form.style.display = 'none';
   if (thanks) thanks.style.display = 'block';
 }
