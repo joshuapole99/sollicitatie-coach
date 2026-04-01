@@ -1,105 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Cover Letter Generator & CV Analyser — Sollicitatie Coach</title>
-<meta name="description" content="Generate a tailored cover letter in 30 seconds. Paste your CV and job description — get a match score, missing keywords and a professional cover letter. Free to try.">
-<meta name="keywords" content="AI cover letter generator, CV analysis tool, job application AI, cover letter writer, resume analyser, AI job application">
-<meta property="og:title" content="AI Cover Letter Generator — Free to Try">
-<meta property="og:description" content="Paste your CV and job description. Get a match score, missing keywords and a tailored cover letter in 30 seconds.">
+<title id="page-title">Sollicitatie Coach — AI Motivatiebrief & CV Analyse</title>
+<meta name="description" content="Schrijf in 30 seconden een professionele motivatiebrief op maat met AI. Analyseer je CV op een vacature. Gratis proberen, geen account nodig.">
+<meta name="keywords" content="AI cover letter generator, CV analysis tool, job application AI, motivatiebrief schrijven, CV analyse, sollicitatiebrief">
 <script defer src="/_vercel/insights/script.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root { --bg: #f5f4f0; --card: #fff; --border: #e8e6e0; --text: #1a1a18; --muted: #666; --faint: #999; --green-bg: #e8f5ee; --green: #1a7a4a; --amber: #c07800; }
+:root { --bg: #f5f4f0; --card: #fff; --border: #e8e6e0; --text: #1a1a18; --muted: #666; --faint: #999; --green-bg: #e8f5ee; --green: #1a7a4a; }
 @media (prefers-color-scheme: dark) {
   :root { --bg: #111110; --card: #1c1c1a; --border: #2e2e2b; --text: #e8e6e0; --muted: #999; --faint: #666; --green-bg: #0d2b1a; --green: #4ade80; }
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
-
-/* Nav */
 .nav { max-width: 780px; margin: 0 auto; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
 .nav-logo { font-size: 15px; font-weight: 700; text-decoration: none; color: var(--text); }
-.nav-btn { background: var(--text); color: var(--bg); padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: opacity 0.15s; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.nav-btn { background: var(--text); color: var(--bg); padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: opacity 0.15s; }
 .nav-btn:hover { opacity: 0.8; }
-
-/* Hero */
-.hero { max-width: 680px; margin: 0 auto; padding: 80px 24px 64px; text-align: center; }
+.lang-switcher { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+.lang-btn { background: none; border: none; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: var(--muted); transition: all 0.15s; }
+.lang-btn.active { background: var(--text); color: var(--bg); }
+.hero { max-width: 680px; margin: 0 auto; padding: 72px 24px 56px; text-align: center; }
 .hero-badge { display: inline-block; background: var(--green-bg); color: var(--green); font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 20px; margin-bottom: 20px; }
-.hero h1 { font-size: clamp(32px, 5.5vw, 52px); font-weight: 800; margin-bottom: 20px; line-height: 1.1; letter-spacing: -0.02em; }
-.hero h1 span { color: var(--green); }
-.hero p { font-size: 18px; color: var(--muted); max-width: 520px; margin: 0 auto 36px; line-height: 1.7; }
-.hero-cta { display: inline-block; background: var(--text); color: var(--bg); padding: 18px 40px; border-radius: 12px; font-size: 17px; font-weight: 700; text-decoration: none; transition: opacity 0.15s; }
-.hero-cta:hover { opacity: 0.85; }
-.hero-sub { font-size: 13px; color: var(--faint); margin-top: 14px; }
-.badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
-.badge { background: var(--card); border: 1px solid var(--border); color: var(--muted); font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 20px; }
-
-/* Section */
-.section { max-width: 780px; margin: 0 auto; padding: 0 24px 80px; }
+.hero h1 { font-size: clamp(30px, 5vw, 48px); font-weight: 800; margin-bottom: 18px; line-height: 1.1; letter-spacing: -0.02em; }
+.hero p { font-size: 17px; color: var(--muted); max-width: 500px; margin: 0 auto 36px; line-height: 1.7; }
+.cta-btn { display: inline-block; background: var(--text); color: var(--bg); padding: 16px 36px; border-radius: 12px; font-size: 16px; font-weight: 700; text-decoration: none; transition: opacity 0.15s; }
+.cta-btn:hover { opacity: 0.85; }
+.hero-sub-text { font-size: 13px; color: var(--faint); margin-top: 14px; }
+.badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+.badge { background: var(--card); border: 1px solid var(--border); color: var(--muted); font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+.section { max-width: 780px; margin: 0 auto; padding: 0 24px 72px; }
 .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
 .section h2 { font-size: clamp(22px, 3.5vw, 32px); font-weight: 800; margin-bottom: 12px; line-height: 1.2; }
-.section-sub { font-size: 16px; color: var(--muted); margin-bottom: 40px; max-width: 520px; }
-
-/* Steps */
-.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.section-sub { font-size: 15px; color: var(--muted); margin-bottom: 36px; max-width: 500px; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 @media (max-width: 600px) { .steps { grid-template-columns: 1fr; } }
-.step-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
-.step-num { width: 32px; height: 32px; background: var(--text); color: var(--bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
-.step-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.step-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
+.step-num { width: 30px; height: 30px; background: var(--text); color: var(--bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+.step-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
 .step-card p { font-size: 13px; color: var(--muted); margin: 0; line-height: 1.6; }
-
-/* Features */
 .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-@media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
-.feature { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; display: flex; gap: 16px; align-items: flex-start; }
+@media (max-width: 580px) { .features { grid-template-columns: 1fr; } }
+.feature { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: flex; gap: 14px; }
 .feature-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
-.feature h3 { font-size: 15px; font-weight: 700; margin-bottom: 5px; }
+.feature h3 { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
 .feature p { font-size: 13px; color: var(--muted); margin: 0; line-height: 1.6; }
-
-/* Pricing */
 .pricing-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 560px) { .pricing-cards { grid-template-columns: 1fr; } }
 .pricing-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
-.pricing-card.featured { border-color: var(--text); }
+.pricing-card.featured { border-color: var(--text); border-width: 2px; }
 .pricing-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin-bottom: 10px; }
 .pricing-tag.pro { color: var(--green); }
-.pricing-price { font-size: 32px; font-weight: 800; margin-bottom: 6px; }
+.pricing-price { font-size: 30px; font-weight: 800; margin-bottom: 6px; }
 .pricing-price span { font-size: 14px; font-weight: 400; color: var(--muted); }
-.pricing-desc { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
-.pricing-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
-.pricing-list li { font-size: 13px; display: flex; gap: 8px; align-items: flex-start; }
+.pricing-desc { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.6; }
+.pricing-list { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-bottom: 22px; }
+.pricing-list li { font-size: 13px; display: flex; gap: 8px; }
 .pricing-list li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
-.pricing-btn { display: block; text-align: center; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; transition: opacity 0.15s; }
+.pricing-btn { display: block; text-align: center; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; transition: opacity 0.15s; }
 .pricing-btn.free { background: var(--bg); border: 1px solid var(--border); color: var(--text); }
 .pricing-btn.paid { background: var(--text); color: var(--bg); }
 .pricing-btn:hover { opacity: 0.8; }
-
-/* Reviews */
-.reviews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-@media (max-width: 600px) { .reviews { grid-template-columns: 1fr; } }
+.reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 600px) { .reviews-grid { grid-template-columns: 1fr; } }
 .review-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
-.review-stars { color: #f59e0b; font-size: 14px; margin-bottom: 10px; letter-spacing: 2px; }
+.review-stars { color: #f59e0b; font-size: 15px; margin-bottom: 10px; }
 .review-text { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; font-style: italic; }
 .review-name { font-size: 12px; font-weight: 700; color: var(--faint); }
-.review-placeholder { text-align: center; padding: 12px 0; }
+.review-placeholder { text-align: center; padding: 16px 0; }
 .review-placeholder p { font-size: 13px; color: var(--faint); margin-bottom: 8px; }
 .review-placeholder a { font-size: 13px; font-weight: 700; color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border); }
-
-/* FAQ */
 .faq-list { display: flex; flex-direction: column; }
-.faq-item { border-bottom: 1px solid var(--border); padding: 18px 0; cursor: pointer; }
+.faq-item { border-bottom: 1px solid var(--border); padding: 16px 0; cursor: pointer; }
 .faq-item:first-child { border-top: 1px solid var(--border); }
-.faq-q { font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-.faq-q span { font-size: 18px; color: var(--faint); transition: transform 0.2s; flex-shrink: 0; }
-.faq-q span.open { transform: rotate(45deg); }
+.faq-q { font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 16px; user-select: none; }
+.faq-icon { font-size: 18px; color: var(--faint); transition: transform 0.2s; flex-shrink: 0; }
+.faq-icon.open { transform: rotate(45deg); }
 .faq-a { font-size: 13px; color: var(--muted); line-height: 1.7; margin-top: 10px; display: none; }
 .faq-a.open { display: block; }
-
-/* Bottom CTA */
 .bottom-cta { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 56px 32px; text-align: center; margin-bottom: 80px; }
-.bottom-cta h2 { font-size: clamp(22px, 3.5vw, 36px); font-weight: 800; margin-bottom: 12px; }
-.bottom-cta p { font-size: 16px; color: var(--muted); margin-bottom: 28px; }
+.bottom-cta h2 { font-size: clamp(22px, 3.5vw, 34px); font-weight: 800; margin-bottom: 12px; }
+.bottom-cta p { font-size: 15px; color: var(--muted); margin-bottom: 28px; }
 .bottom-cta a { display: inline-block; background: var(--text); color: var(--bg); padding: 16px 36px; border-radius: 12px; font-size: 16px; font-weight: 700; text-decoration: none; transition: opacity 0.15s; }
 .bottom-cta a:hover { opacity: 0.85; }
 </style>
@@ -108,205 +91,380 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <nav class="nav">
   <a href="/" class="nav-logo">Sollicitatie Coach</a>
-  <a href="/app.html" class="nav-btn">Try for free →</a>
+  <div class="nav-right">
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="btn-nl" onclick="setLang('nl')">NL</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <a href="/app.html" class="nav-btn" id="nav-cta">Start gratis →</a>
+  </div>
 </nav>
 
-<!-- Hero -->
 <div class="hero">
-  <div class="hero-badge">Free to try — no account needed</div>
-  <h1>Write your <span>cover letter</span> in 30 seconds</h1>
-  <p>Paste your CV and job description. Our AI analyses the match and writes a professional, tailored cover letter instantly.</p>
-  <a href="/app.html" class="hero-cta">Try it free →</a>
-  <p class="hero-sub">First 3 analyses completely free · No signup required</p>
+  <div class="hero-badge" id="hero-badge">Gratis proberen — geen account nodig</div>
+  <h1 id="hero-title">Schrijf je motivatiebrief in 30 seconden</h1>
+  <p id="hero-sub">Plak je CV en vacature — onze AI analyseert de match en schrijft een professionele motivatiebrief op maat. Gratis proberen, geen account nodig.</p>
+  <a href="/app.html" class="cta-btn" id="hero-cta">Start gratis →</a>
+  <p class="hero-sub-text" id="hero-sub2">Eerste 3 analyses volledig gratis · Geen account nodig</p>
   <div class="badges">
-    <span class="badge">Match score 0–100</span>
-    <span class="badge">Missing keywords</span>
-    <span class="badge">Tailored cover letter</span>
-    <span class="badge">CV improvement tips</span>
+    <span class="badge" id="badge1">Match score 0–100</span>
+    <span class="badge" id="badge2">Ontbrekende keywords</span>
+    <span class="badge" id="badge3">Motivatiebrief op maat</span>
+    <span class="badge" id="badge4">CV verbeterpunten</span>
   </div>
 </div>
 
-<!-- How it works -->
 <div class="section">
-  <div class="section-label">How it works</div>
-  <h2>Three steps. Thirty seconds.</h2>
-  <p class="section-sub">No writing from scratch. No templates. Just paste and go.</p>
+  <div class="section-label" id="how-label">Hoe het werkt</div>
+  <h2 id="how-title">Drie stappen. Dertig seconden.</h2>
+  <p class="section-sub" id="how-sub">Geen sjablonen. Geen gedoe. Gewoon plakken en gaan.</p>
   <div class="steps">
     <div class="step-card">
       <div class="step-num">1</div>
-      <h3>Paste your CV</h3>
-      <p>Copy the text from your CV — work experience, education, and skills.</p>
+      <h3 id="s1-title">Plak je CV</h3>
+      <p id="s1-sub">Kopieer de tekst van je CV — werkervaring, opleiding en vaardigheden.</p>
     </div>
     <div class="step-card">
       <div class="step-num">2</div>
-      <h3>Paste the job description</h3>
-      <p>Add the full job posting including requirements and responsibilities.</p>
+      <h3 id="s2-title">Plak de vacaturetekst</h3>
+      <p id="s2-sub">Voeg de volledige vacaturetekst toe inclusief vereisten en functieomschrijving.</p>
     </div>
     <div class="step-card">
       <div class="step-num">3</div>
-      <h3>Get your results</h3>
-      <p>Match score, missing keywords, strengths, weaknesses and a complete cover letter — all in one click.</p>
+      <h3 id="s3-title">Ontvang je analyse</h3>
+      <p id="s3-sub">Match score, verbeterpunten, ontbrekende keywords én een complete motivatiebrief in 30 seconden.</p>
     </div>
   </div>
 </div>
 
-<!-- Features -->
 <div class="section">
-  <div class="section-label">Features</div>
-  <h2>Everything you need to land the job</h2>
-  <p class="section-sub">Built for job seekers who want better results with less effort.</p>
+  <div class="section-label" id="feat-label">Features</div>
+  <h2 id="feat-title">Alles wat je nodig hebt om de baan te krijgen</h2>
+  <p class="section-sub" id="feat-sub">Gebouwd voor mensen die betere sollicitaties willen met minder moeite.</p>
   <div class="features">
     <div class="feature">
       <div class="feature-icon">📊</div>
       <div>
-        <h3>Match score</h3>
-        <p>See exactly how well your CV matches the vacancy — scored from 0 to 100 with a clear explanation.</p>
+        <h3 id="f1-title">Match score</h3>
+        <p id="f1-sub">Zie in één oogopslag hoe goed jouw CV aansluit op de vacature — score van 0 tot 100.</p>
       </div>
     </div>
     <div class="feature">
       <div class="feature-icon">🔑</div>
       <div>
-        <h3>Keyword analysis</h3>
-        <p>Find out which required keywords are missing from your CV and add them before you apply.</p>
+        <h3 id="f2-title">Keyword analyse</h3>
+        <p id="f2-sub">Ontdek welke woorden uit de vacature ontbreken in jouw CV en verhoog je kansen direct.</p>
       </div>
     </div>
     <div class="feature">
       <div class="feature-icon">✉️</div>
       <div>
-        <h3>Tailored cover letter</h3>
-        <p>A complete, professional cover letter written specifically for the job you're applying to.</p>
+        <h3 id="f3-title">Motivatiebrief op maat</h3>
+        <p id="f3-sub">Een complete, professionele motivatiebrief die perfect aansluit op de specifieke vacature.</p>
       </div>
     </div>
     <div class="feature">
       <div class="feature-icon">📝</div>
       <div>
-        <h3>CV improvement tips</h3>
-        <p>Concrete suggestions to make your CV stronger for this specific role.</p>
+        <h3 id="f4-title">CV verbeterpunten</h3>
+        <p id="f4-sub">Concrete suggesties om je CV sterker te maken voor deze specifieke rol.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Pricing -->
 <div class="section">
-  <div class="section-label">Pricing</div>
-  <h2>Start free. Upgrade when you're ready.</h2>
-  <p class="section-sub">No credit card needed to get started.</p>
+  <div class="section-label" id="price-label">Prijzen</div>
+  <h2 id="price-title">Begin gratis. Upgrade wanneer je klaar bent.</h2>
+  <p class="section-sub" id="price-sub">Geen creditcard nodig om te beginnen.</p>
   <div class="pricing-cards">
     <div class="pricing-card">
-      <div class="pricing-tag">Free</div>
-      <div class="pricing-price">€0 <span>forever</span></div>
-      <p class="pricing-desc">Try the full tool with no commitment.</p>
+      <div class="pricing-tag" id="pt-free">Gratis</div>
+      <div class="pricing-price">€0 <span id="pp-free">voor altijd</span></div>
+      <p class="pricing-desc" id="pd-free">Probeer de volledige tool zonder verplichting.</p>
       <ul class="pricing-list">
-        <li>3 complete analyses</li>
-        <li>Match score + explanation</li>
-        <li>Keyword analysis</li>
-        <li>Strengths & weaknesses</li>
-        <li>Tailored cover letter</li>
-        <li>CV improvement tips</li>
+        <li id="pl1">3 volledige analyses</li>
+        <li id="pl2">Match score + uitleg</li>
+        <li id="pl3">Keyword analyse</li>
+        <li id="pl4">Sterke punten & verbeterpunten</li>
+        <li id="pl5">Motivatiebrief op maat</li>
+        <li id="pl6">CV verbeterpunten</li>
       </ul>
-      <a href="/app.html" class="pricing-btn free">Start for free →</a>
+      <a href="/app.html" class="pricing-btn free" id="pb-free">Gratis starten →</a>
     </div>
     <div class="pricing-card featured">
-      <div class="pricing-tag pro">Pro</div>
-      <div class="pricing-price">€9,99 <span>/ month</span></div>
-      <p class="pricing-desc">For active job seekers who apply regularly.</p>
+      <div class="pricing-tag pro" id="pt-pro">Pro</div>
+      <div class="pricing-price">€9,99 <span id="pp-pro">/ maand</span></div>
+      <p class="pricing-desc" id="pd-pro">Voor actieve sollicitanten die regelmatig solliciteren.</p>
       <ul class="pricing-list">
-        <li>Unlimited analyses</li>
-        <li>Everything in Free</li>
-        <li>PDF export of cover letter</li>
-        <li>Priority support</li>
+        <li id="pl7">Ongelimiteerde analyses</li>
+        <li id="pl8">Alles in Gratis</li>
+        <li id="pl9">PDF export van motivatiebrief</li>
+        <li id="pl10">Prioriteit support</li>
       </ul>
-      <a href="https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/dfcb053f-66f7-4458-8cd4-d7d5e129f649" class="pricing-btn paid">Upgrade to Pro →</a>
+      <a href="https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/dfcb053f-66f7-4458-8cd4-d7d5e129f649" class="pricing-btn paid" id="pb-pro">Upgrade naar Pro →</a>
     </div>
   </div>
 </div>
 
-<!-- Reviews -->
 <div class="section">
-  <div class="section-label">Reviews</div>
-  <h2>What users say</h2>
-  <p class="section-sub">Real feedback from people who used the tool.</p>
-  <div class="reviews">
-    <!-- REAL REVIEW TEMPLATE — replace placeholder with real reviews like this:
+  <div class="section-label" id="rev-label">Reviews</div>
+  <h2 id="rev-title">Wat gebruikers zeggen</h2>
+  <p class="section-sub" id="rev-sub">Echte feedback van mensen die de tool hebben gebruikt.</p>
+  <div class="reviews-grid">
+    <!-- VERVANG PLACEHOLDERS MET ECHTE REVIEWS ZO:
     <div class="review-card">
       <div class="review-stars">★★★★★</div>
-      <p class="review-text">"Your review text here."</p>
-      <div class="review-name">Name — Job title</div>
+      <p class="review-text">"Jouw review tekst hier."</p>
+      <div class="review-name">Naam — Functietitel</div>
     </div>
     -->
     <div class="review-card">
       <div class="review-placeholder">
-        <p>⭐ Review coming soon</p>
-        <a href="/app.html">Be the first to try it →</a>
+        <p id="rp1">⭐ Review komt binnenkort</p>
+        <a href="/app.html" id="rp1-link">Wees de eerste om het te proberen →</a>
       </div>
     </div>
     <div class="review-card">
       <div class="review-placeholder">
-        <p>⭐ Review coming soon</p>
-        <a href="/app.html">Try it free →</a>
+        <p id="rp2">⭐ Review komt binnenkort</p>
+        <a href="/app.html" id="rp2-link">Gratis proberen →</a>
       </div>
     </div>
     <div class="review-card">
       <div class="review-placeholder">
-        <p>⭐ Review coming soon</p>
-        <a href="/app.html">Try it free →</a>
+        <p id="rp3">⭐ Review komt binnenkort</p>
+        <a href="/app.html" id="rp3-link">Gratis proberen →</a>
       </div>
     </div>
   </div>
 </div>
 
-<!-- FAQ -->
 <div class="section">
-  <div class="section-label">FAQ</div>
-  <h2>Frequently asked questions</h2>
-  <p class="section-sub">Everything you need to know before you start.</p>
+  <div class="section-label" id="faq-label">FAQ</div>
+  <h2 id="faq-title">Veelgestelde vragen</h2>
+  <p class="section-sub" id="faq-sub">Alles wat je moet weten voordat je begint.</p>
   <div class="faq-list">
     <div class="faq-item" onclick="toggleFaq(this)">
-      <div class="faq-q">Is it really free? <span>+</span></div>
-      <div class="faq-a">Yes. The first 3 analyses are completely free — including the cover letter. No credit card required. After that you can upgrade to Pro for unlimited usage.</div>
+      <div class="faq-q"><span id="q1">Is het echt gratis?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a" id="a1">Ja. De eerste 3 analyses zijn volledig gratis — inclusief de motivatiebrief. Geen creditcard nodig. Daarna kun je upgraden naar Pro voor ongelimiteerd gebruik.</div>
     </div>
     <div class="faq-item" onclick="toggleFaq(this)">
-      <div class="faq-q">Do I need an account? <span>+</span></div>
-      <div class="faq-a">No. You can use the tool immediately without signing up. Just paste your CV and job description and click analyse.</div>
+      <div class="faq-q"><span id="q2">Heb ik een account nodig?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a" id="a2">Nee. Je kunt de tool direct gebruiken zonder te registreren. Plak gewoon je CV en vacature en klik analyseren.</div>
     </div>
     <div class="faq-item" onclick="toggleFaq(this)">
-      <div class="faq-q">How accurate is the analysis? <span>+</span></div>
-      <div class="faq-a">The AI uses Claude by Anthropic — one of the most advanced language models available. It reads both your CV and the job description and gives a detailed, relevant analysis. Results may vary depending on how detailed your CV is.</div>
+      <div class="faq-q"><span id="q3">Hoe nauwkeurig is de analyse?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a" id="a3">De AI gebruikt Claude van Anthropic — een van de meest geavanceerde taalmodellen. Het leest zowel je CV als de vacature en geeft een gedetailleerde, relevante analyse. Resultaten variëren afhankelijk van hoe gedetailleerd je CV is.</div>
     </div>
     <div class="faq-item" onclick="toggleFaq(this)">
-      <div class="faq-q">Can I use it for any job? <span>+</span></div>
-      <div class="faq-a">Yes. The tool works for any job in any industry. The more detailed your CV and job description, the better the results.</div>
+      <div class="faq-q"><span id="q4">Werkt het voor elke baan?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a" id="a4">Ja. De tool werkt voor elke baan in elke sector. Hoe gedetailleerder je CV en vacature, hoe beter de resultaten.</div>
     </div>
     <div class="faq-item" onclick="toggleFaq(this)">
-      <div class="faq-q">Is my CV safe? <span>+</span></div>
-      <div class="faq-a">Your CV is only used for the analysis and is never stored. Every analysis is a separate, anonymous API call. We do not save any personal data.</div>
+      <div class="faq-q"><span id="q5">Is mijn CV veilig?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a" id="a5">Je CV wordt alleen gebruikt voor de analyse en nooit opgeslagen. Elke analyse is een losse, anonieme API call. We slaan geen persoonlijke gegevens op.</div>
     </div>
     <div class="faq-item" onclick="toggleFaq(this)">
-      <div class="faq-q">What language does it work in? <span>+</span></div>
-      <div class="faq-a">The tool works in Dutch and English. The cover letter will be written in the same language as your CV and job description.</div>
+      <div class="faq-q"><span id="q6">Welke talen worden ondersteund?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a" id="a6">De tool werkt in Nederlands en Engels. De motivatiebrief wordt geschreven in dezelfde taal als je CV en vacature.</div>
     </div>
   </div>
 </div>
 
-<!-- Bottom CTA -->
 <div class="section">
   <div class="bottom-cta">
-    <h2>Ready to write a better cover letter?</h2>
-    <p>Join job seekers who use AI to get more interviews. Free to try, no account needed.</p>
-    <a href="/app.html">Try it free now →</a>
-    <p style="font-size:13px;color:var(--faint);margin-top:14px">First 3 analyses completely free · No credit card required</p>
+    <h2 id="bottom-title">Klaar voor een betere motivatiebrief?</h2>
+    <p id="bottom-sub">Gratis proberen — geen account nodig — in 30 seconden klaar.</p>
+    <a href="/app.html" id="bottom-cta">Start gratis →</a>
+    <p style="font-size:13px;color:var(--faint);margin-top:14px" id="bottom-note">Eerste 3 analyses volledig gratis · Geen creditcard nodig</p>
   </div>
 </div>
 
 <script>
-function toggleFaq(item) {
-  const q = item.querySelector('.faq-q span');
-  const a = item.querySelector('.faq-a');
-  const isOpen = a.classList.contains('open');
-  document.querySelectorAll('.faq-a.open').forEach(el => { el.classList.remove('open'); el.previousElementSibling.querySelector('span').classList.remove('open'); });
-  if (!isOpen) { a.classList.add('open'); q.classList.add('open'); }
+const T = {
+  nl: {
+    pageTitle: 'Sollicitatie Coach — AI Motivatiebrief & CV Analyse',
+    navCta: 'Start gratis →',
+    heroBadge: 'Gratis proberen — geen account nodig',
+    heroTitle: 'Schrijf je motivatiebrief in 30 seconden',
+    heroSub: 'Plak je CV en vacature — onze AI analyseert de match en schrijft een professionele motivatiebrief op maat. Gratis proberen, geen account nodig.',
+    heroCta: 'Start gratis →',
+    heroSub2: 'Eerste 3 analyses volledig gratis · Geen account nodig',
+    badge1: 'Match score 0–100', badge2: 'Ontbrekende keywords', badge3: 'Motivatiebrief op maat', badge4: 'CV verbeterpunten',
+    howLabel: 'Hoe het werkt', howTitle: 'Drie stappen. Dertig seconden.', howSub: 'Geen sjablonen. Geen gedoe. Gewoon plakken en gaan.',
+    s1Title: 'Plak je CV', s1Sub: 'Kopieer de tekst van je CV — werkervaring, opleiding en vaardigheden.',
+    s2Title: 'Plak de vacaturetekst', s2Sub: 'Voeg de volledige vacaturetekst toe inclusief vereisten en functieomschrijving.',
+    s3Title: 'Ontvang je analyse', s3Sub: 'Match score, verbeterpunten, ontbrekende keywords én een complete motivatiebrief in 30 seconden.',
+    featLabel: 'Features', featTitle: 'Alles wat je nodig hebt om de baan te krijgen', featSub: 'Gebouwd voor mensen die betere sollicitaties willen met minder moeite.',
+    f1Title: 'Match score', f1Sub: 'Zie in één oogopslag hoe goed jouw CV aansluit op de vacature — score van 0 tot 100.',
+    f2Title: 'Keyword analyse', f2Sub: 'Ontdek welke woorden uit de vacature ontbreken in jouw CV en verhoog je kansen direct.',
+    f3Title: 'Motivatiebrief op maat', f3Sub: 'Een complete, professionele motivatiebrief die perfect aansluit op de specifieke vacature.',
+    f4Title: 'CV verbeterpunten', f4Sub: 'Concrete suggesties om je CV sterker te maken voor deze specifieke rol.',
+    priceLabel: 'Prijzen', priceTitle: 'Begin gratis. Upgrade wanneer je klaar bent.', priceSub: 'Geen creditcard nodig om te beginnen.',
+    ptFree: 'Gratis', ppFree: 'voor altijd', pdFree: 'Probeer de volledige tool zonder verplichting.',
+    pl1: '3 volledige analyses', pl2: 'Match score + uitleg', pl3: 'Keyword analyse', pl4: 'Sterke punten & verbeterpunten', pl5: 'Motivatiebrief op maat', pl6: 'CV verbeterpunten',
+    pbFree: 'Gratis starten →',
+    ptPro: 'Pro', ppPro: '/ maand', pdPro: 'Voor actieve sollicitanten die regelmatig solliciteren.',
+    pl7: 'Ongelimiteerde analyses', pl8: 'Alles in Gratis', pl9: 'PDF export van motivatiebrief', pl10: 'Prioriteit support',
+    pbPro: 'Upgrade naar Pro →',
+    revLabel: 'Reviews', revTitle: 'Wat gebruikers zeggen', revSub: 'Echte feedback van mensen die de tool hebben gebruikt.',
+    rp1: '⭐ Review komt binnenkort', rp1Link: 'Wees de eerste om het te proberen →',
+    rp2: '⭐ Review komt binnenkort', rp2Link: 'Gratis proberen →',
+    rp3: '⭐ Review komt binnenkort', rp3Link: 'Gratis proberen →',
+    faqLabel: 'FAQ', faqTitle: 'Veelgestelde vragen', faqSub: 'Alles wat je moet weten voordat je begint.',
+    q1: 'Is het echt gratis?', a1: 'Ja. De eerste 3 analyses zijn volledig gratis — inclusief de motivatiebrief. Geen creditcard nodig. Daarna kun je upgraden naar Pro voor ongelimiteerd gebruik.',
+    q2: 'Heb ik een account nodig?', a2: 'Nee. Je kunt de tool direct gebruiken zonder te registreren. Plak gewoon je CV en vacature en klik analyseren.',
+    q3: 'Hoe nauwkeurig is de analyse?', a3: 'De AI gebruikt Claude van Anthropic — een van de meest geavanceerde taalmodellen. Het leest zowel je CV als de vacature en geeft een gedetailleerde, relevante analyse.',
+    q4: 'Werkt het voor elke baan?', a4: 'Ja. De tool werkt voor elke baan in elke sector. Hoe gedetailleerder je CV en vacature, hoe beter de resultaten.',
+    q5: 'Is mijn CV veilig?', a5: 'Je CV wordt alleen gebruikt voor de analyse en nooit opgeslagen. Elke analyse is een losse, anonieme API call. We slaan geen persoonlijke gegevens op.',
+    q6: 'Welke talen worden ondersteund?', a6: 'De tool werkt in Nederlands en Engels. De motivatiebrief wordt geschreven in dezelfde taal als je CV en vacature.',
+    bottomTitle: 'Klaar voor een betere motivatiebrief?', bottomSub: 'Gratis proberen — geen account nodig — in 30 seconden klaar.', bottomCta: 'Start gratis →', bottomNote: 'Eerste 3 analyses volledig gratis · Geen creditcard nodig',
+  },
+  en: {
+    pageTitle: 'AI Cover Letter Generator & CV Analyser — Sollicitatie Coach',
+    navCta: 'Start free →',
+    heroBadge: 'Free to try — no account needed',
+    heroTitle: 'Write your cover letter in 30 seconds',
+    heroSub: 'Paste your CV and job posting — our AI analyses the match and writes a professional, tailored cover letter instantly. Free to try, no account needed.',
+    heroCta: 'Try it free →',
+    heroSub2: 'First 3 analyses completely free · No account needed',
+    badge1: 'Match score 0–100', badge2: 'Missing keywords', badge3: 'Tailored cover letter', badge4: 'CV improvement tips',
+    howLabel: 'How it works', howTitle: 'Three steps. Thirty seconds.', howSub: 'No templates. No hassle. Just paste and go.',
+    s1Title: 'Paste your CV', s1Sub: 'Copy the text from your CV — work experience, education and skills.',
+    s2Title: 'Paste the job posting', s2Sub: 'Add the full job posting including requirements and responsibilities.',
+    s3Title: 'Get your results', s3Sub: 'Match score, improvements, missing keywords and a complete cover letter in 30 seconds.',
+    featLabel: 'Features', featTitle: 'Everything you need to land the job', featSub: 'Built for job seekers who want better results with less effort.',
+    f1Title: 'Match score', f1Sub: 'See exactly how well your CV matches the job posting — scored from 0 to 100.',
+    f2Title: 'Keyword analysis', f2Sub: 'Find out which required keywords are missing from your CV and boost your chances instantly.',
+    f3Title: 'Tailored cover letter', f3Sub: 'A complete, professional cover letter perfectly aligned with the specific job posting.',
+    f4Title: 'CV improvement tips', f4Sub: 'Concrete suggestions to make your CV stronger for this specific role.',
+    priceLabel: 'Pricing', priceTitle: 'Start free. Upgrade when you\'re ready.', priceSub: 'No credit card needed to get started.',
+    ptFree: 'Free', ppFree: 'forever', pdFree: 'Try the full tool with no commitment.',
+    pl1: '3 complete analyses', pl2: 'Match score + explanation', pl3: 'Keyword analysis', pl4: 'Strengths & weaknesses', pl5: 'Tailored cover letter', pl6: 'CV improvement tips',
+    pbFree: 'Start for free →',
+    ptPro: 'Pro', ppPro: '/ month', pdPro: 'For active job seekers who apply regularly.',
+    pl7: 'Unlimited analyses', pl8: 'Everything in Free', pl9: 'PDF export of cover letter', pl10: 'Priority support',
+    pbPro: 'Upgrade to Pro →',
+    revLabel: 'Reviews', revTitle: 'What users say', revSub: 'Real feedback from people who used the tool.',
+    rp1: '⭐ Review coming soon', rp1Link: 'Be the first to try it →',
+    rp2: '⭐ Review coming soon', rp2Link: 'Try it free →',
+    rp3: '⭐ Review coming soon', rp3Link: 'Try it free →',
+    faqLabel: 'FAQ', faqTitle: 'Frequently asked questions', faqSub: 'Everything you need to know before you start.',
+    q1: 'Is it really free?', a1: 'Yes. The first 3 analyses are completely free — including the cover letter. No credit card required. After that you can upgrade to Pro for unlimited usage.',
+    q2: 'Do I need an account?', a2: 'No. You can use the tool immediately without signing up. Just paste your CV and job description and click analyse.',
+    q3: 'How accurate is the analysis?', a3: 'The AI uses Claude by Anthropic — one of the most advanced language models available. It reads both your CV and the job posting and gives a detailed, relevant analysis.',
+    q4: 'Can I use it for any job?', a4: 'Yes. The tool works for any job in any industry. The more detailed your CV and job description, the better the results.',
+    q5: 'Is my CV safe?', a5: 'Your CV is only used for the analysis and is never stored. Every analysis is a separate, anonymous API call. We do not save any personal data.',
+    q6: 'What languages are supported?', a6: 'The tool works in Dutch and English. The cover letter will be written in the same language as your CV and job description.',
+    bottomTitle: 'Ready to write a better cover letter?', bottomSub: 'Free to try — no account needed — ready in 30 seconds.', bottomCta: 'Try it free now →', bottomNote: 'First 3 analyses completely free · No credit card required',
+  }
+};
+
+let lang = localStorage.getItem('sol_lang') || 'nl';
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('sol_lang', l);
+  document.getElementById('btn-nl').classList.toggle('active', l === 'nl');
+  document.getElementById('btn-en').classList.toggle('active', l === 'en');
+  document.documentElement.lang = l;
+  applyLang();
 }
+
+function applyLang() {
+  const t = T[lang];
+  document.title = t.pageTitle;
+  document.getElementById('nav-cta').textContent = t.navCta;
+  document.getElementById('hero-badge').textContent = t.heroBadge;
+  document.getElementById('hero-title').textContent = t.heroTitle;
+  document.getElementById('hero-sub').textContent = t.heroSub;
+  document.getElementById('hero-cta').textContent = t.heroCta;
+  document.getElementById('hero-sub2').textContent = t.heroSub2;
+  document.getElementById('badge1').textContent = t.badge1;
+  document.getElementById('badge2').textContent = t.badge2;
+  document.getElementById('badge3').textContent = t.badge3;
+  document.getElementById('badge4').textContent = t.badge4;
+  document.getElementById('how-label').textContent = t.howLabel;
+  document.getElementById('how-title').textContent = t.howTitle;
+  document.getElementById('how-sub').textContent = t.howSub;
+  document.getElementById('s1-title').textContent = t.s1Title;
+  document.getElementById('s1-sub').textContent = t.s1Sub;
+  document.getElementById('s2-title').textContent = t.s2Title;
+  document.getElementById('s2-sub').textContent = t.s2Sub;
+  document.getElementById('s3-title').textContent = t.s3Title;
+  document.getElementById('s3-sub').textContent = t.s3Sub;
+  document.getElementById('feat-label').textContent = t.featLabel;
+  document.getElementById('feat-title').textContent = t.featTitle;
+  document.getElementById('feat-sub').textContent = t.featSub;
+  document.getElementById('f1-title').textContent = t.f1Title;
+  document.getElementById('f1-sub').textContent = t.f1Sub;
+  document.getElementById('f2-title').textContent = t.f2Title;
+  document.getElementById('f2-sub').textContent = t.f2Sub;
+  document.getElementById('f3-title').textContent = t.f3Title;
+  document.getElementById('f3-sub').textContent = t.f3Sub;
+  document.getElementById('f4-title').textContent = t.f4Title;
+  document.getElementById('f4-sub').textContent = t.f4Sub;
+  document.getElementById('price-label').textContent = t.priceLabel;
+  document.getElementById('price-title').textContent = t.priceTitle;
+  document.getElementById('price-sub').textContent = t.priceSub;
+  document.getElementById('pt-free').textContent = t.ptFree;
+  document.getElementById('pp-free').textContent = t.ppFree;
+  document.getElementById('pd-free').textContent = t.pdFree;
+  document.getElementById('pl1').textContent = t.pl1;
+  document.getElementById('pl2').textContent = t.pl2;
+  document.getElementById('pl3').textContent = t.pl3;
+  document.getElementById('pl4').textContent = t.pl4;
+  document.getElementById('pl5').textContent = t.pl5;
+  document.getElementById('pl6').textContent = t.pl6;
+  document.getElementById('pb-free').textContent = t.pbFree;
+  document.getElementById('pt-pro').textContent = t.ptPro;
+  document.getElementById('pp-pro').textContent = t.ppPro;
+  document.getElementById('pd-pro').textContent = t.pdPro;
+  document.getElementById('pl7').textContent = t.pl7;
+  document.getElementById('pl8').textContent = t.pl8;
+  document.getElementById('pl9').textContent = t.pl9;
+  document.getElementById('pl10').textContent = t.pl10;
+  document.getElementById('pb-pro').textContent = t.pbPro;
+  document.getElementById('rev-label').textContent = t.revLabel;
+  document.getElementById('rev-title').textContent = t.revTitle;
+  document.getElementById('rev-sub').textContent = t.revSub;
+  document.getElementById('rp1').textContent = t.rp1;
+  document.getElementById('rp1-link').textContent = t.rp1Link;
+  document.getElementById('rp2').textContent = t.rp2;
+  document.getElementById('rp2-link').textContent = t.rp2Link;
+  document.getElementById('rp3').textContent = t.rp3;
+  document.getElementById('rp3-link').textContent = t.rp3Link;
+  document.getElementById('faq-label').textContent = t.faqLabel;
+  document.getElementById('faq-title').textContent = t.faqTitle;
+  document.getElementById('faq-sub').textContent = t.faqSub;
+  document.getElementById('q1').textContent = t.q1;
+  document.getElementById('a1').textContent = t.a1;
+  document.getElementById('q2').textContent = t.q2;
+  document.getElementById('a2').textContent = t.a2;
+  document.getElementById('q3').textContent = t.q3;
+  document.getElementById('a3').textContent = t.a3;
+  document.getElementById('q4').textContent = t.q4;
+  document.getElementById('a4').textContent = t.a4;
+  document.getElementById('q5').textContent = t.q5;
+  document.getElementById('a5').textContent = t.a5;
+  document.getElementById('q6').textContent = t.q6;
+  document.getElementById('a6').textContent = t.a6;
+  document.getElementById('bottom-title').textContent = t.bottomTitle;
+  document.getElementById('bottom-sub').textContent = t.bottomSub;
+  document.getElementById('bottom-cta').textContent = t.bottomCta;
+  document.getElementById('bottom-note').textContent = t.bottomNote;
+}
+
+function toggleFaq(item) {
+  const icon = item.querySelector('.faq-icon');
+  const answer = item.querySelector('.faq-a');
+  const isOpen = answer.classList.contains('open');
+  document.querySelectorAll('.faq-a.open').forEach(el => { el.classList.remove('open'); el.parentElement.querySelector('.faq-icon').classList.remove('open'); });
+  if (!isOpen) { answer.classList.add('open'); icon.classList.add('open'); }
+}
+
+setLang(lang);
 </script>
 </body>
 </html>
