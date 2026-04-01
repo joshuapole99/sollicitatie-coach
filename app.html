@@ -14,9 +14,10 @@
   --text: #1a1a18; --muted: #666; --faint: #999;
   --green-bg: #e8f5ee; --green: #1a7a4a;
   --red-bg: #fdf0f0; --red: #c0392b; --amber: #c07800;
+  --star: #f59e0b;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #111110; --card: #1c1c1a; --border: #2e2e2b; --border-hover: #555; --text: #e8e6e0; --muted: #999; --faint: #666; --green-bg: #0d2b1a; --green: #4ade80; --red-bg: #2b0d0d; --red: #f87171; --amber: #fbbf24; }
+  :root { --bg: #111110; --card: #1c1c1a; --border: #2e2e2b; --border-hover: #555; --text: #e8e6e0; --muted: #999; --faint: #666; --green-bg: #0d2b1a; --green: #4ade80; --red-bg: #2b0d0d; --red: #f87171; --amber: #fbbf24; --star: #fbbf24; }
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; }
 .app { max-width: 800px; margin: 0 auto; }
@@ -89,6 +90,8 @@ textarea::placeholder { color: var(--faint); }
 .pdf-btn { background: var(--text); color: var(--bg); border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
 .pdf-btn:hover { opacity: 0.8; }
 .motiv-text { white-space: pre-wrap; }
+
+/* Paywall — only shown for pro-only features after free limit */
 .paywall-wrap { position: relative; }
 .paywall-blur { filter: blur(5px); pointer-events: none; user-select: none; }
 .paywall-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
@@ -97,6 +100,25 @@ textarea::placeholder { color: var(--faint); }
 .paywall-box small { font-size: 12px; color: var(--muted); display: block; margin-bottom: 14px; }
 .paywall-box .cta { background: var(--text); color: var(--bg); border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
 .paywall-box .cta:hover { opacity: 0.8; }
+
+/* Free motiv banner — shown below free letter to upsell PDF/unlimited */
+.motiv-upsell { margin-top: 12px; background: var(--green-bg); border: 1px solid var(--green); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.motiv-upsell span { font-size: 12px; color: var(--green); font-weight: 600; }
+.motiv-upsell button { background: var(--green); color: #fff; border: none; border-radius: 7px; padding: 6px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; white-space: nowrap; }
+.motiv-upsell button:hover { opacity: 0.85; }
+
+/* Review section */
+.review-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.review-section .section-header { cursor: pointer; }
+.star-input { display: flex; gap: 6px; margin-bottom: 12px; }
+.star-input span { font-size: 26px; cursor: pointer; color: var(--border); transition: color 0.1s; line-height: 1; }
+.star-input span.active { color: var(--star); }
+.review-textarea { width: 100%; height: 80px; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; font-family: inherit; color: var(--text); background: var(--bg); resize: none; line-height: 1.6; }
+.review-textarea:focus { outline: none; border-color: var(--border-hover); }
+.review-submit { background: var(--text); color: var(--bg); border: none; border-radius: 8px; padding: 9px 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+.review-submit:hover { opacity: 0.8; }
+.review-thanks { font-size: 13px; color: var(--green); font-weight: 600; display: none; margin-top: 8px; }
+
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
 .modal-overlay.hidden { display: none; }
 .modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; max-width: 400px; width: 100%; text-align: center; }
@@ -184,8 +206,10 @@ const T = {
     missing: 'Ontbreekt nog',
     strengths: 'Sterke punten & verbeterpunten',
     motiv: 'Motivatiebrief op maat',
-    motivOnly: 'Motivatiebrief alleen voor Pro',
-    motivSub: 'Upgrade voor ongelimiteerde analyses + PDF download',
+    motivProOnly: 'Motivatiebrief alleen voor Pro',
+    motivProSub: 'Upgrade voor ongelimiteerde analyses + PDF download',
+    motivUpsell: 'Wil je onbeperkt analyses + PDF download?',
+    motivUpsellBtn: 'Upgrade naar Pro →',
     cvTips: 'CV verbeterpunten',
     copy: 'Kopieer',
     copied: 'Gekopieerd!',
@@ -198,6 +222,11 @@ const T = {
     modalSkip: 'Overslaan',
     free: 'GRATIS',
     pro: 'PRO',
+    reviewTitle: 'Wat vond je van de analyse?',
+    reviewPlaceholder: 'Deel je ervaring... (optioneel)',
+    reviewSubmit: 'Verstuur review',
+    reviewThanks: '🙏 Bedankt voor je feedback!',
+    reviewStarHint: 'Geef een beoordeling',
   },
   en: {
     title: 'Application Coach',
@@ -208,7 +237,7 @@ const T = {
     jobPlaceholder: 'Paste the full job posting here...',
     analyseBtn: 'Analyse my application',
     upgradeBtn: 'Pro — €9.99/mo',
-    usageLeft: (n, t) => `${n} of ${t} free analyses left`,
+    usageLeft: (n, total) => `${n} of ${total} free analyses left`,
     usageNone: 'No analyses left — upgrade to Pro',
     usagePro: 'Pro subscription active',
     loading: 'AI is analysing your match... please wait',
@@ -222,8 +251,10 @@ const T = {
     missing: 'Missing',
     strengths: 'Strengths & improvements',
     motiv: 'Tailored cover letter',
-    motivOnly: 'Cover letter for Pro only',
-    motivSub: 'Upgrade for unlimited analyses + PDF download',
+    motivProOnly: 'Cover letter for Pro only',
+    motivProSub: 'Upgrade for unlimited analyses + PDF download',
+    motivUpsell: 'Want unlimited analyses + PDF download?',
+    motivUpsellBtn: 'Upgrade to Pro →',
     cvTips: 'CV improvement tips',
     copy: 'Copy',
     copied: 'Copied!',
@@ -236,11 +267,17 @@ const T = {
     modalSkip: 'Skip',
     free: 'FREE',
     pro: 'PRO',
+    reviewTitle: 'What did you think of the analysis?',
+    reviewPlaceholder: 'Share your experience... (optional)',
+    reviewSubmit: 'Submit review',
+    reviewThanks: '🙏 Thanks for your feedback!',
+    reviewStarHint: 'Rate your experience',
   }
 };
 
 let lang = localStorage.getItem('sol_lang') || 'nl';
 let lastResult = null;
+let selectedStars = 0;
 
 function t(key, ...args) {
   const val = T[lang][key];
@@ -265,7 +302,7 @@ function applyLang() {
   document.getElementById('job-input').placeholder = t('jobPlaceholder');
   document.getElementById('analyse-btn').textContent = t('analyseBtn');
   document.getElementById('upgrade-btn').textContent = t('upgradeBtn');
-  document.getElementById('app-title').innerHTML = t('title') + ' <span class="badge" id="tier-badge">' + t(getSession() ? 'pro' : 'free') + '</span></h1>';
+  document.getElementById('app-title').innerHTML = t('title') + ' <span class="badge' + (getSession() ? ' pro' : '') + '" id="tier-badge">' + t(getSession() ? 'pro' : 'free') + '</span>';
   document.getElementById('modal-title').textContent = t('modalTitle');
   document.getElementById('modal-sub').textContent = t('modalSub');
   document.getElementById('modal-btn').textContent = t('modalBtn');
@@ -282,8 +319,10 @@ function renderUsageBar(pro) {
   const used = getUses();
   const left = usesLeft();
   const badge = document.getElementById('tier-badge');
-  badge.textContent = pro ? t('pro') : t('free');
-  badge.className = 'badge' + (pro ? ' pro' : '');
+  if (badge) {
+    badge.textContent = pro ? t('pro') : t('free');
+    badge.className = 'badge' + (pro ? ' pro' : '');
+  }
   const dotsEl = document.getElementById('dots');
   if (pro) {
     dotsEl.innerHTML = `<span style="font-size:12px;color:var(--green);font-weight:700">${t('usagePro')}</span>`;
@@ -402,11 +441,40 @@ function downloadPDF(text) {
   doc.save(lang === 'nl' ? 'motivatiebrief.pdf' : 'cover-letter.pdf');
 }
 
+// Star rating interaction
+function setStars(n) {
+  selectedStars = n;
+  document.querySelectorAll('.star-input span').forEach((el, i) => {
+    el.classList.toggle('active', i < n);
+  });
+}
+
+function submitReview() {
+  const text = document.getElementById('review-text')?.value?.trim() || '';
+  const thanks = document.getElementById('review-thanks');
+  const form = document.getElementById('review-form');
+  if (selectedStars === 0) {
+    document.getElementById('star-hint').style.color = 'var(--red)';
+    return;
+  }
+  // Open mail with review (no backend needed)
+  const subject = encodeURIComponent('Sollicitatie Coach Review — ' + selectedStars + ' sterren');
+  const body = encodeURIComponent(`Beoordeling: ${selectedStars}/5 sterren\n\n${text || '(geen tekst)'}`);
+  window.open(`mailto:jouw@email.nl?subject=${subject}&body=${body}`);
+  if (form) form.style.display = 'none';
+  if (thanks) thanks.style.display = 'block';
+}
+
 function renderResults(r) {
   const color = scoreColor(r.score);
   const circ = 2 * Math.PI * 32;
   const offset = circ * (1 - r.score / 100);
-  const showMotiv = r.isPro === true;
+
+  // Show motivatiebrief if pro OR if free user still has analyses (uses BEFORE this one counted)
+  // After runAnalysis increments sol_uses, free users who just used their last one still see it
+  const isPro = r.isPro === true;
+  const usedAfter = getUses(); // already incremented above
+  const showMotiv = isPro || usedAfter <= FREE_LIMIT;
 
   document.getElementById('results').innerHTML = `
   <div class="results">
@@ -453,22 +521,29 @@ function renderResults(r) {
       <div class="section-header" onclick="toggleSection(this)">
         <h3>${t('motiv')}</h3>
         <div class="btn-row">
-          ${showMotiv ? `
+          ${showMotiv && isPro ? `
             <button class="copy-btn" onclick="event.stopPropagation();copyText('motiv-text')">${t('copy')}</button>
             <button class="pdf-btn" onclick="event.stopPropagation();downloadPDF(${JSON.stringify(r.motivatiebrief)})">${t('pdf')}</button>
+          ` : showMotiv ? `
+            <button class="copy-btn" onclick="event.stopPropagation();copyText('motiv-text')">${t('copy')}</button>
           ` : ''}
           <span class="chevron up">▼</span>
         </div>
       </div>
       <div class="section-body">
         ${showMotiv
-          ? `<p class="motiv-text" id="motiv-text">${escHtml(r.motivatiebrief)}</p>`
+          ? `<p class="motiv-text" id="motiv-text">${escHtml(r.motivatiebrief)}</p>
+             ${!isPro ? `
+             <div class="motiv-upsell">
+               <span>${t('motivUpsell')}</span>
+               <button onclick="goUpgrade()">${t('motivUpsellBtn')}</button>
+             </div>` : ''}`
           : `<div class="paywall-wrap">
                <div class="paywall-blur motiv-text">${escHtml(r.motivatiebrief)}</div>
                <div class="paywall-overlay">
                  <div class="paywall-box">
-                   <p>${t('motivOnly')}</p>
-                   <small>${t('motivSub')}</small>
+                   <p>${t('motivProOnly')}</p>
+                   <small>${t('motivProSub')}</small>
                    <button class="cta" onclick="goUpgrade()">${t('upgradeBtn')}</button>
                  </div>
                </div>
@@ -483,7 +558,34 @@ function renderResults(r) {
       </div>
       <div class="section-body"><p>${escHtml(r.cv_tips)}</p></div>
     </div>
+
+    <div class="review-section section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <h3>${t('reviewTitle')}</h3><span class="chevron up">▼</span>
+      </div>
+      <div class="section-body" id="review-form">
+        <p id="star-hint" style="font-size:12px;color:var(--faint);margin-bottom:8px">${t('reviewStarHint')}</p>
+        <div class="star-input">
+          <span onclick="setStars(1)">★</span>
+          <span onclick="setStars(2)">★</span>
+          <span onclick="setStars(3)">★</span>
+          <span onclick="setStars(4)">★</span>
+          <span onclick="setStars(5)">★</span>
+        </div>
+        <textarea class="review-textarea" id="review-text" placeholder="${t('reviewPlaceholder')}"></textarea>
+        <div style="margin-top:10px">
+          <button class="review-submit" onclick="submitReview()">${t('reviewSubmit')}</button>
+        </div>
+      </div>
+      <div class="section-body" id="review-thanks" style="display:none;padding-top:12px">
+        <p style="color:var(--green);font-weight:600;font-size:13px">${t('reviewThanks')}</p>
+      </div>
+    </div>
+
   </div>`;
+
+  // Reset stars for new render
+  selectedStars = 0;
 }
 
 function toggleSection(header) {
