@@ -87,8 +87,8 @@ textarea::placeholder { color: var(--faint); }
 .copy-btn:hover { border-color: var(--border-hover); color: var(--text); }
 .pdf-btn { background: var(--text); color: var(--bg); border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
 .pdf-btn:hover { opacity: 0.8; }
-.motiv-text { white-space: pre-wrap; }
-.paywall-wrap { position: relative; }
+.motiv-text { white-space: pre-wrap; color: var(--text); }
+.paywall-wrap { position: relative; min-height: 120px; }
 .paywall-blur { filter: blur(5px); pointer-events: none; user-select: none; }
 .paywall-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .paywall-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px 28px; text-align: center; }
@@ -186,15 +186,24 @@ textarea::placeholder { color: var(--faint); }
   </div>
 </div>
 
-<!-- Upgrade modal — created dynamically, see showUpgradeModal() -->
-
 <script>
 const FREE_LIMIT = 3;
 const PLUS_LIMIT = 10;
-const PRO_LIMIT = 100;
+const PRO_LIMIT  = 100;
 const PAYMENT_LINK_PLUS = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/a6f5fe91-e8c0-4dc5-8157-9d816da2591d';
 const PAYMENT_LINK_PRO  = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/dfcb053f-66f7-4458-8cd4-d7d5e129f649';
 const SESSION_KEY = 'stripe_session_id';
+
+// ── SECURITY: tier is ONLY trusted if the server confirms isPro=true ─────────
+// localStorage tier is used only for UI hints (badge/dots).
+// All actual feature unlocks (motivatiebrief zichtbaar, PDF) depend on
+// data.isPro returned by the server — which verifies the Stripe session.
+// Faking localStorage doesn't help: the server still returns isPro=false.
+// lastAnalysisIsPro is set fresh after every API call and never from localStorage.
+let lastAnalysisIsPro = false;
+
+// PDF fix: motivatiebrief stored in a variable, never injected into onclick HTML
+let currentMotivText = '';
 
 const EXAMPLES = {
   nl: {
@@ -291,18 +300,19 @@ function t(key, ...args) {
 }
 
 function getTier() {
+  // UI hint only — never used for feature gating
   if (!localStorage.getItem(SESSION_KEY)) return 'free';
   return localStorage.getItem('sol_tier') || 'plus';
 }
 function getLimit() {
   const tier = getTier();
-  if (tier === 'pro') return PRO_LIMIT;
+  if (tier === 'pro')  return PRO_LIMIT;
   if (tier === 'plus') return PLUS_LIMIT;
   return FREE_LIMIT;
 }
-function getUses()     { return parseInt(localStorage.getItem('sol_uses') || '0'); }
-function getSession()  { return localStorage.getItem(SESSION_KEY) || null; }
-function usesLeft()    { return Math.max(0, getLimit() - getUses()); }
+function getUses()       { return parseInt(localStorage.getItem('sol_uses') || '0'); }
+function getSession()    { return localStorage.getItem(SESSION_KEY) || null; }
+function usesLeft()      { return Math.max(0, getLimit() - getUses()); }
 function hasGivenEmail() { return !!localStorage.getItem('sol_email'); }
 
 function setLang(l) {
@@ -316,18 +326,18 @@ function setLang(l) {
 }
 
 function applyLang() {
-  document.getElementById('hero-sub').textContent       = t('hero');
-  document.getElementById('example-btn').textContent   = t('exampleBtn');
-  document.getElementById('label-cv').textContent      = t('labelCv');
-  document.getElementById('label-job').textContent     = t('labelJob');
-  document.getElementById('cv-input').placeholder      = t('cvPlaceholder');
-  document.getElementById('job-input').placeholder     = t('jobPlaceholder');
-  document.getElementById('analyse-btn').textContent   = t('analyseBtn');
-  document.getElementById('upgrade-btn').textContent   = t('upgradeBtn');
-  document.getElementById('modal-title').textContent   = t('modalTitle');
-  document.getElementById('modal-sub').textContent     = t('modalSub');
-  document.getElementById('modal-btn').textContent     = t('modalBtn');
-  document.getElementById('modal-skip').textContent    = t('modalSkip');
+  document.getElementById('hero-sub').textContent     = t('hero');
+  document.getElementById('example-btn').textContent  = t('exampleBtn');
+  document.getElementById('label-cv').textContent     = t('labelCv');
+  document.getElementById('label-job').textContent    = t('labelJob');
+  document.getElementById('cv-input').placeholder     = t('cvPlaceholder');
+  document.getElementById('job-input').placeholder    = t('jobPlaceholder');
+  document.getElementById('analyse-btn').textContent  = t('analyseBtn');
+  document.getElementById('upgrade-btn').textContent  = t('upgradeBtn');
+  document.getElementById('modal-title').textContent  = t('modalTitle');
+  document.getElementById('modal-sub').textContent    = t('modalSub');
+  document.getElementById('modal-btn').textContent    = t('modalBtn');
+  document.getElementById('modal-skip').textContent   = t('modalSkip');
   const tier = getTier();
   const tierLabel = tier === 'pro' ? t('pro') : tier === 'plus' ? t('plus') : t('free');
   const tierClass = tier === 'pro' ? ' pro' : tier === 'plus' ? ' plus' : '';
@@ -367,7 +377,6 @@ function renderUsageBar() {
   }
 }
 
-// Handle session redirect from payment
 const params = new URLSearchParams(window.location.search);
 const sessionFromUrl = params.get('session_id');
 if (sessionFromUrl) {
@@ -385,7 +394,6 @@ function goUpgrade() {
   const div = document.createElement('div');
   div.id = 'upgrade-modal';
   div.className = 'modal-overlay';
-  // Build innerHTML using template literals — no nested quote issues
   div.innerHTML = `
     <div class="modal">
       <h3 style="margin-bottom:8px">${t('planTitle')}</h3>
@@ -429,7 +437,6 @@ document.getElementById('email-modal').addEventListener('click', function(e) {
 
 // ── Main analysis ────────────────────────────────────────────────────────────
 async function runAnalysis() {
-  const session = getSession();
   if (usesLeft() <= 0) { goUpgrade(); return; }
 
   const cv  = document.getElementById('cv-input').value.trim();
@@ -442,6 +449,7 @@ async function runAnalysis() {
     '<div class="loading"><div class="spinner"></div><p>' + t('loading') + '</p></div>';
 
   try {
+    const session = getSession();
     const headers = { 'Content-Type': 'application/json' };
     if (session) headers['x-stripe-session'] = session;
 
@@ -463,8 +471,11 @@ async function runAnalysis() {
     }
     if (!resp.ok) throw new Error(data.error || 'Fout (' + resp.status + ')');
 
-    const confirmedPro = !!data.isPro;
-    if (!confirmedPro) localStorage.setItem('sol_uses', getUses() + 1);
+    // SECURITY: isPro comes exclusively from the server response
+    // localStorage is never trusted for feature gating
+    lastAnalysisIsPro = data.isPro === true;
+
+    if (!lastAnalysisIsPro) localStorage.setItem('sol_uses', getUses() + 1);
     renderUsageBar();
     lastResult = data;
     renderResults(data);
@@ -486,31 +497,49 @@ function scoreColor(s) {
   return 'var(--red)';
 }
 
-function downloadPDF(text) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const margin = 20;
-  doc.setFontSize(20); doc.setFont('helvetica', 'bold');
-  doc.text(lang === 'nl' ? 'Motivatiebrief' : 'Cover Letter', margin, 30);
-  doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(120,120,120);
-  doc.text('Sollicitatie Coach — sollicitatie-coach.vercel.app', margin, 38);
-  doc.setDrawColor(220,220,220); doc.line(margin, 42, 190, 42);
-  doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(30,30,30);
-  doc.text(doc.splitTextToSize(text, 170), margin, 52);
-  doc.save(lang === 'nl' ? 'motivatiebrief.pdf' : 'cover-letter.pdf');
+// PDF FIX: reads from currentMotivText variable — no text injected into onclick
+function downloadPDF() {
+  if (!currentMotivText) return;
+  try {
+    const { jsPDF } = window.jspdf;
+    if (!jsPDF) throw new Error('jsPDF niet geladen');
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const margin = 20;
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(lang === 'nl' ? 'Motivatiebrief' : 'Cover Letter', margin, 30);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(120, 120, 120);
+    doc.text('Sollicitatie Coach — sollicitatie-coach.vercel.app', margin, 38);
+    doc.setDrawColor(220, 220, 220);
+    doc.line(margin, 42, 190, 42);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(30, 30, 30);
+    const lines = doc.splitTextToSize(currentMotivText, 170);
+    doc.text(lines, margin, 52);
+    doc.save(lang === 'nl' ? 'motivatiebrief.pdf' : 'cover-letter.pdf');
+  } catch (err) {
+    alert(lang === 'nl'
+      ? 'PDF kon niet worden aangemaakt: ' + err.message
+      : 'PDF could not be created: ' + err.message);
+  }
 }
 
 function renderResults(r) {
   const color  = scoreColor(r.score);
   const circ   = 2 * Math.PI * 32;
   const offset = circ * (1 - r.score / 100);
-  const tier   = getTier();
 
-  // FIX 1: gratis users zien motivatiebrief bij alle 3 gratis analyses
-  // isPro === true  → betaalde Plus/Pro user (server bevestigd)
-  // tier !== 'free' → lokaal opgeslagen tier na betaling
-  // getUses() <= FREE_LIMIT → gratis user die nog analyses heeft
-  const showMotiv = r.isPro === true || tier !== 'free' || getUses() <= FREE_LIMIT;
+  // SECURITY: showMotiv and canPdf depend ONLY on lastAnalysisIsPro (server-confirmed)
+  // or on the free usage counter. localStorage hacks have zero effect here.
+  const freeUsesLeft = FREE_LIMIT - getUses(); // already incremented above
+  const showMotiv = lastAnalysisIsPro || freeUsesLeft >= 0;
+  const canPdf    = lastAnalysisIsPro; // PDF only for confirmed paid users
+
+  // PDF FIX: store motivatiebrief in variable, never inject into HTML onclick
+  if (r.motivatiebrief) currentMotivText = r.motivatiebrief;
 
   const keywordsHtml =
     '<div class="section">' +
@@ -530,8 +559,6 @@ function renderResults(r) {
     (r.verbeterpunten||[]).map(p => '<li class="bad">'  + escHtml(p) + '</li>').join('') +
     '</ul></div></div>';
 
-  // Motivatiebrief section — copy button always, pdf only for pro/plus
-  const canPdf    = r.isPro === true || tier !== 'free';
   const motivBody = showMotiv
     ? '<p class="motiv-text" id="motiv-text">' + escHtml(r.motivatiebrief) + '</p>'
     : '<div class="paywall-wrap">' +
@@ -543,9 +570,10 @@ function renderResults(r) {
       '<button class="btn-pro"  onclick="window.location.href=PAYMENT_LINK_PRO">'  + t('btnPro')  + '</button>' +
       '</div></div></div></div>';
 
+  // PDF button calls downloadPDF() — no arguments, no injected text
   const copyPdfBtns = showMotiv
     ? '<button class="copy-btn" onclick="event.stopPropagation();copyMotiv()">' + t('copy') + '</button>' +
-      (canPdf ? '<button class="pdf-btn" onclick="event.stopPropagation();downloadPDF(' + JSON.stringify(r.motivatiebrief) + ')">' + t('pdf') + '</button>' : '')
+      (canPdf ? '<button class="pdf-btn" onclick="event.stopPropagation();downloadPDF()">' + t('pdf') + '</button>' : '')
     : '';
 
   const motivHtml =
@@ -564,7 +592,8 @@ function renderResults(r) {
     '<div class="score-card">' +
     '<div class="score-ring"><svg width="80" height="80" viewBox="0 0 80 80">' +
     '<circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" stroke-width="5"/>' +
-    '<circle cx="40" cy="40" r="32" fill="none" stroke="' + color + '" stroke-width="5" stroke-dasharray="' + circ.toFixed(1) + '" stroke-dashoffset="' + offset.toFixed(1) + '" stroke-linecap="round"/>' +
+    '<circle cx="40" cy="40" r="32" fill="none" stroke="' + color + '" stroke-width="5"' +
+    ' stroke-dasharray="' + circ.toFixed(1) + '" stroke-dashoffset="' + offset.toFixed(1) + '" stroke-linecap="round"/>' +
     '</svg><div class="score-number" style="color:' + color + '">' + r.score + '</div></div>' +
     '<div class="score-info"><h3>' + t('scoreLabel') + ': ' + r.score + '/100</h3><p>' + escHtml(r.score_uitleg) + '</p></div></div>' +
     keywordsHtml + strengthsHtml + motivHtml + cvTipsHtml +
