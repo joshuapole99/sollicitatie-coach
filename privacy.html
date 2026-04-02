@@ -37,15 +37,15 @@ a { color: var(--text); }
 <body>
 <nav class="nav">
   <a href="/" class="nav-logo">Sollicitatie Coach</a>
-  <a href="/app.html" class="nav-btn">Try for free →</a>
+  <a href="/app.html" class="nav-btn">Try for free &rarr;</a>
 </nav>
 <div class="wrap">
   <div class="label">Legal</div>
   <h1>Privacy Policy</h1>
-  <p class="meta">Last updated: April 2, 2026 · Effective immediately</p>
+  <p class="meta">Last updated: April 2, 2026 &middot; Effective immediately</p>
 
   <div class="highlight">
-    <p>We take your privacy seriously. This policy explains what data we collect, how we use it, and your rights as a user — including under GDPR.</p>
+    <p>We take your privacy seriously. This policy explains what data we collect, how we use it, and your rights as a user &mdash; including under GDPR.</p>
   </div>
 
   <h2>1. Who We Are</h2>
@@ -59,62 +59,24 @@ a { color: var(--text); }
   <p>As a service operating within the EU, we comply with the General Data Protection Regulation (GDPR).</p>
 
   <h2>2. What Data We Collect</h2>
-
   <h3>2.1 Data you provide directly</h3>
   <table>
-    <tr>
-      <th>Data type</th>
-      <th>How it's collected</th>
-      <th>Purpose</th>
-    </tr>
-    <tr>
-      <td>CV text</td>
-      <td>You paste it into the app</td>
-      <td>AI analysis only</td>
-    </tr>
-    <tr>
-      <td>Job description text</td>
-      <td>You paste it into the app</td>
-      <td>AI analysis only</td>
-    </tr>
-    <tr>
-      <td>Email address</td>
-      <td>Optional, via email capture form</td>
-      <td>Product updates, tips (with consent)</td>
-    </tr>
-    <tr>
-      <td>Review / feedback</td>
-      <td>Optional, via review form</td>
-      <td>Product improvement</td>
-    </tr>
+    <tr><th>Data type</th><th>How it&apos;s collected</th><th>Purpose</th></tr>
+    <tr><td>CV text</td><td>You paste it into the app</td><td>AI analysis only</td></tr>
+    <tr><td>Job description text</td><td>You paste it into the app</td><td>AI analysis only</td></tr>
+    <tr><td>Email address</td><td>Optional, via email capture form</td><td>Product updates, tips (with consent)</td></tr>
+    <tr><td>Review / feedback</td><td>Optional, via review form</td><td>Product improvement</td></tr>
   </table>
 
   <h3>2.2 Data collected automatically</h3>
   <table>
-    <tr>
-      <th>Data type</th>
-      <th>Source</th>
-      <th>Purpose</th>
-    </tr>
-    <tr>
-      <td>IP address</td>
-      <td>Server logs</td>
-      <td>Rate limiting and abuse prevention</td>
-    </tr>
-    <tr>
-      <td>Usage data (page views, interactions)</td>
-      <td>Vercel Analytics</td>
-      <td>Understanding how the service is used</td>
-    </tr>
-    <tr>
-      <td>Browser local storage</td>
-      <td>Your browser</td>
-      <td>Storing usage count, language preference, session ID</td>
-    </tr>
+    <tr><th>Data type</th><th>Source</th><th>Purpose</th></tr>
+    <tr><td>IP address + User-Agent</td><td>Server logs</td><td>Rate limiting and abuse prevention (hashed fingerprint)</td></tr>
+    <tr><td>Usage data (page views, interactions)</td><td>Vercel Analytics</td><td>Understanding how the service is used</td></tr>
+    <tr><td>Browser local storage</td><td>Your browser</td><td>Storing usage count, language preference, session ID</td></tr>
   </table>
 
   <h2>3. How We Process Your Data</h2>
-
   <h3>3.1 CV and job description</h3>
   <div class="highlight">
     <p><strong>We do not store your CV or job description.</strong> When you run an analysis, your text is sent directly to the Anthropic API for processing and immediately discarded after the response is returned. No CV or job description text is saved to any database.</p>
@@ -127,102 +89,62 @@ a { color: var(--text); }
     <li>No text is stored at any point in this process</li>
   </ul>
 
-  <h3>3.2 IP addresses</h3>
-  <p>IP addresses are used temporarily in server memory to enforce rate limits. They are not written to persistent storage and are cleared periodically. We do not track or profile users by IP address.</p>
+  <h3>3.2 IP addresses and fingerprinting</h3>
+  <p>IP addresses and User-Agent strings are combined into a hashed fingerprint (SHA-256) used temporarily in server memory to enforce rate limits. The raw IP address is not written to persistent storage. Fingerprints are cleared periodically. We do not track or profile users.</p>
 
   <h3>3.3 Email addresses</h3>
   <p>If you voluntarily provide your email address via the optional email capture form, it is stored locally in your browser (localStorage) until we implement a proper email list integration. We will only send you product-related communications. You can opt out at any time.</p>
 
   <h3>3.4 Reviews and feedback</h3>
-  <p>If you submit a review, the star rating and text are sent to us via email (using Resend). We may display anonymised feedback on the website. We will not publish your name without your explicit consent.</p>
+  <p>If you submit a review, the star rating and text are sent to us via Formspree.io. We may display anonymised feedback on the website. We will not publish your name without your explicit consent.</p>
 
   <h2>4. Local Storage</h2>
-  <p>We use your browser's localStorage (not cookies) to store:</p>
+  <p>We use your browser&apos;s localStorage (not cookies) to store:</p>
   <ul>
-    <li><strong>sol_uses:</strong> Number of analyses you've run (for free tier tracking)</li>
+    <li><strong>sol_uses:</strong> Number of analyses you&apos;ve run (for free tier tracking)</li>
     <li><strong>sol_lang:</strong> Your language preference (NL or EN)</li>
-    <li><strong>stripe_session_id:</strong> Your subscription session (for Pro access)</li>
-    <li><strong>sol_email:</strong> Your email address if provided (or "skipped")</li>
-    <li><strong>sol_reviewed:</strong> Whether you've submitted a review</li>
+    <li><strong>ls_session_id:</strong> Your Lemon Squeezy subscription session (for tier validation — Plus or Pro)</li>
+    <li><strong>sol_email:</strong> Your email address if provided (or &ldquo;skipped&rdquo;)</li>
+    <li><strong>sol_reviewed:</strong> Whether you&apos;ve submitted a review</li>
   </ul>
-  <p>This data stays in your browser only and is never sent to our servers unless explicitly described above. You can clear this data at any time by clearing your browser's local storage.</p>
+  <p>This data stays in your browser only and is never sent to our servers unless explicitly described above. You can clear this data at any time by clearing your browser&apos;s local storage.</p>
 
   <h2>5. Third-Party Services</h2>
-
   <h3>5.1 Anthropic (AI Processing)</h3>
-  <p>Your CV and job description text is sent to Anthropic's API for AI analysis. Anthropic is a US-based company. By using Sollicitatie Coach, you acknowledge that your input text will be processed by Anthropic's systems.</p>
-  <p>Anthropic's privacy policy: <a href="https://www.anthropic.com/privacy" target="_blank">anthropic.com/privacy</a></p>
+  <p>Your CV and job description text is sent to Anthropic&apos;s API for AI analysis. Anthropic is a US-based company. By using Sollicitatie Coach, you acknowledge that your input text will be processed by Anthropic&apos;s systems.</p>
+  <p>Anthropic&apos;s privacy policy: <a href="https://www.anthropic.com/privacy" target="_blank">anthropic.com/privacy</a></p>
 
   <h3>5.2 Lemon Squeezy (Payments)</h3>
-  <p>If you subscribe to Plus or Pro, your payment is processed by Lemon Squeezy. We receive a session confirmation but do not store your payment details (card number, billing address). Lemon Squeezy acts as the Merchant of Record.</p>
-  <p>Lemon Squeezy's privacy policy: <a href="https://www.lemonsqueezy.com/privacy" target="_blank">lemonsqueezy.com/privacy</a></p>
+  <p>If you subscribe to Plus or Pro, your payment is processed by Lemon Squeezy. We receive an order session ID to validate your subscription tier but do not store your payment details (card number, billing address). Lemon Squeezy acts as the Merchant of Record and validates subscription status via their API.</p>
+  <p>Lemon Squeezy&apos;s privacy policy: <a href="https://www.lemonsqueezy.com/privacy" target="_blank">lemonsqueezy.com/privacy</a></p>
 
   <h3>5.3 Vercel (Hosting)</h3>
   <p>Our service is hosted on Vercel. Vercel may process request metadata (IP addresses, headers) as part of normal infrastructure operation.</p>
-  <p>Vercel's privacy policy: <a href="https://vercel.com/legal/privacy-policy" target="_blank">vercel.com/legal/privacy-policy</a></p>
+  <p>Vercel&apos;s privacy policy: <a href="https://vercel.com/legal/privacy-policy" target="_blank">vercel.com/legal/privacy-policy</a></p>
 
-  <h3>5.4 Formspree.io (Email)</h3>
-  <p>We use Formspree.io to receive review notifications by email. Review content (rating and message) is transmitted via Formspree.io's infrastructure.</p>
-  <p>Formspree.io's privacy policy: <a href="https://formspree.io/legal/privacy-policy/" target="_blank">formspree.io/legal/privacy-policy</a></p>
+  <h3>5.4 Formspree.io (Review notifications)</h3>
+  <p>We use Formspree.io to receive review notifications. Review content (star rating and message) is transmitted via Formspree.io&apos;s infrastructure. No CV or personal identification data is included in these submissions.</p>
+  <p>Formspree.io&apos;s privacy policy: <a href="https://formspree.io/legal/privacy-policy/" target="_blank">formspree.io/legal/privacy-policy</a></p>
 
   <h2>6. Legal Basis for Processing (GDPR)</h2>
   <table>
-    <tr>
-      <th>Processing activity</th>
-      <th>Legal basis</th>
-    </tr>
-    <tr>
-      <td>CV and job description analysis</td>
-      <td>Performance of a contract (providing the service you requested)</td>
-    </tr>
-    <tr>
-      <td>Rate limiting via IP address</td>
-      <td>Legitimate interest (preventing abuse, ensuring fair access)</td>
-    </tr>
-    <tr>
-      <td>Email marketing (if opted in)</td>
-      <td>Consent (you voluntarily provided your email)</td>
-    </tr>
-    <tr>
-      <td>Analytics (Vercel)</td>
-      <td>Legitimate interest (understanding usage to improve the service)</td>
-    </tr>
-    <tr>
-      <td>Payment processing</td>
-      <td>Performance of a contract (processing your subscription)</td>
-    </tr>
+    <tr><th>Processing activity</th><th>Legal basis</th></tr>
+    <tr><td>CV and job description analysis</td><td>Performance of a contract (providing the service you requested)</td></tr>
+    <tr><td>Rate limiting via hashed IP fingerprint</td><td>Legitimate interest (preventing abuse, ensuring fair access)</td></tr>
+    <tr><td>Email marketing (if opted in)</td><td>Consent (you voluntarily provided your email)</td></tr>
+    <tr><td>Analytics (Vercel)</td><td>Legitimate interest (understanding usage to improve the service)</td></tr>
+    <tr><td>Payment processing and tier validation</td><td>Performance of a contract (processing your subscription)</td></tr>
   </table>
 
   <h2>7. Data Retention</h2>
   <table>
-    <tr>
-      <th>Data type</th>
-      <th>Retention period</th>
-    </tr>
-    <tr>
-      <td>CV and job description text</td>
-      <td>Not stored — discarded immediately after processing</td>
-    </tr>
-    <tr>
-      <td>IP addresses (rate limiting)</td>
-      <td>In-memory only — cleared on server restart (typically within hours)</td>
-    </tr>
-    <tr>
-      <td>Email address (if provided)</td>
-      <td>Until you request deletion or unsubscribe</td>
-    </tr>
-    <tr>
-      <td>Review submissions</td>
-      <td>Until you request deletion</td>
-    </tr>
-    <tr>
-      <td>Payment records</td>
-      <td>Managed by Lemon Squeezy per their policy</td>
-    </tr>
-    <tr>
-      <td>Local storage data</td>
-      <td>Until you clear your browser data</td>
-    </tr>
+    <tr><th>Data type</th><th>Retention period</th></tr>
+    <tr><td>CV and job description text</td><td>Not stored &mdash; discarded immediately after processing</td></tr>
+    <tr><td>IP fingerprints (rate limiting)</td><td>In-memory only &mdash; cleared on server restart (typically within hours)</td></tr>
+    <tr><td>Email address (if provided)</td><td>Until you request deletion or unsubscribe</td></tr>
+    <tr><td>Review submissions</td><td>Until you request deletion</td></tr>
+    <tr><td>Payment and subscription records</td><td>Managed by Lemon Squeezy per their policy</td></tr>
+    <tr><td>Local storage data</td><td>Until you clear your browser data</td></tr>
   </table>
 
   <h2>8. Your Rights Under GDPR</h2>
@@ -231,7 +153,7 @@ a { color: var(--text); }
     <ul>
       <li><strong>Right of access:</strong> Request a copy of any personal data we hold about you</li>
       <li><strong>Right to rectification:</strong> Request correction of inaccurate data</li>
-      <li><strong>Right to erasure:</strong> Request deletion of your personal data ("right to be forgotten")</li>
+      <li><strong>Right to erasure:</strong> Request deletion of your personal data (&ldquo;right to be forgotten&rdquo;)</li>
       <li><strong>Right to restrict processing:</strong> Ask us to limit how we use your data</li>
       <li><strong>Right to data portability:</strong> Receive your data in a portable format</li>
       <li><strong>Right to object:</strong> Object to processing based on legitimate interest</li>
@@ -247,18 +169,19 @@ a { color: var(--text); }
     <li>All data is transmitted over HTTPS (TLS encryption)</li>
     <li>API keys and secrets are stored as environment variables and never exposed client-side</li>
     <li>We do not store sensitive personal data (CV text, payment details)</li>
-    <li>Server-side rate limiting protects against abuse</li>
+    <li>Server-side rate limiting with hashed fingerprints protects against abuse</li>
+    <li>Subscription tier is validated server-side via Lemon Squeezy API &mdash; cannot be faked client-side</li>
   </ul>
   <p>However, no method of transmission over the internet is 100% secure. We cannot guarantee absolute security of data in transit.</p>
 
-  <h2>10. Children's Privacy</h2>
+  <h2>10. Children&apos;s Privacy</h2>
   <p>Sollicitatie Coach is not intended for users under the age of 16. We do not knowingly collect personal data from children. If you believe a child has provided us with personal data, please contact us and we will delete it promptly.</p>
 
   <h2>11. International Data Transfers</h2>
-  <p>By using Sollicitatie Coach, your data may be transferred to and processed in the United States (Anthropic, Lemon Squeezy, Vercel). These transfers are subject to appropriate safeguards including Standard Contractual Clauses (SCCs) as required by GDPR.</p>
+  <p>By using Sollicitatie Coach, your data may be transferred to and processed in the United States (Anthropic, Lemon Squeezy, Vercel, Formspree.io). These transfers are subject to appropriate safeguards including Standard Contractual Clauses (SCCs) as required by GDPR.</p>
 
   <h2>12. Changes to This Policy</h2>
-  <p>We may update this Privacy Policy from time to time. We will update the "last updated" date at the top of this page. Continued use of the service after changes constitutes acceptance of the updated policy. For significant changes, we will make reasonable efforts to notify users.</p>
+  <p>We may update this Privacy Policy from time to time. We will update the &ldquo;last updated&rdquo; date at the top of this page. Continued use of the service after changes constitutes acceptance of the updated policy. For significant changes, we will make reasonable efforts to notify users.</p>
 
   <h2>13. Contact Us</h2>
   <p>For any privacy-related questions or to exercise your rights:</p>
