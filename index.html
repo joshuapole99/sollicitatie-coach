@@ -48,7 +48,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .feature h3 { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
 .feature p { font-size: 13px; color: var(--muted); margin: 0; line-height: 1.6; }
 .pricing-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-@media (max-width: 560px) { .pricing-cards { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .pricing-cards { grid-template-columns: 1fr !important; } }
 .pricing-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
 .pricing-card.featured { border-color: var(--text); border-width: 2px; }
 .pricing-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin-bottom: 10px; }
@@ -177,32 +177,42 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="section-label" id="price-label">Prijzen</div>
   <h2 id="price-title">Begin gratis. Upgrade wanneer je klaar bent.</h2>
   <p class="section-sub" id="price-sub">Geen creditcard nodig om te beginnen.</p>
-  <div class="pricing-cards">
+  <div class="pricing-cards" style="grid-template-columns:repeat(3,1fr)">
     <div class="pricing-card">
       <div class="pricing-tag" id="pt-free">Gratis</div>
       <div class="pricing-price">€0 <span id="pp-free">voor altijd</span></div>
-      <p class="pricing-desc" id="pd-free">Probeer de volledige tool zonder verplichting.</p>
+      <p class="pricing-desc" id="pd-free">Probeer de tool zonder verplichting.</p>
       <ul class="pricing-list">
-        <li id="pl1">3 volledige analyses</li>
+        <li id="pl1">3 analyses</li>
         <li id="pl2">Match score + uitleg</li>
         <li id="pl3">Keyword analyse</li>
         <li id="pl4">Sterke punten & verbeterpunten</li>
-        <li id="pl5">Motivatiebrief op maat</li>
-        <li id="pl6">CV verbeterpunten</li>
+        <li id="pl5">CV verbeterpunten</li>
       </ul>
       <a href="/app.html" class="pricing-btn free" id="pb-free">Gratis starten →</a>
     </div>
     <div class="pricing-card featured">
-      <div class="pricing-tag pro" id="pt-pro">Pro</div>
-      <div class="pricing-price">€9,99 <span id="pp-pro">/ maand</span></div>
-      <p class="pricing-desc" id="pd-pro">Voor actieve sollicitanten die regelmatig solliciteren.</p>
+      <div class="pricing-tag pro" id="pt-plus">Plus</div>
+      <div class="pricing-price">€2,99 <span id="pp-plus">/ maand</span></div>
+      <p class="pricing-desc" id="pd-plus">Voor mensen die actief solliciteren.</p>
       <ul class="pricing-list">
-        <li id="pl7">Ongelimiteerde analyses</li>
-        <li id="pl8">Alles in Gratis</li>
-        <li id="pl9">PDF export van motivatiebrief</li>
-        <li id="pl10">Prioriteit support</li>
+        <li id="pl6">10 analyses per maand</li>
+        <li id="pl7">Alles in Gratis</li>
+        <li id="pl8">Motivatiebrief op maat</li>
       </ul>
-      <a href="https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/dfcb053f-66f7-4458-8cd4-d7d5e129f649" class="pricing-btn paid" id="pb-pro">Upgrade naar Pro →</a>
+      <a href="https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/a6f5fe91-e8c0-4dc5-8157-9d816da2591d" class="pricing-btn paid" id="pb-plus">Plus starten →</a>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-tag" id="pt-pro">Pro</div>
+      <div class="pricing-price">€9,99 <span id="pp-pro">/ maand</span></div>
+      <p class="pricing-desc" id="pd-pro">Voor serieuze sollicitanten.</p>
+      <ul class="pricing-list">
+        <li id="pl9">100 analyses per maand</li>
+        <li id="pl10">Alles in Plus</li>
+        <li id="pl11">PDF export van motivatiebrief</li>
+        <li id="pl12">Prioriteit support</li>
+      </ul>
+      <a href="https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/dfcb053f-66f7-4458-8cd4-d7d5e129f649" class="pricing-btn paid" id="pb-pro">Pro starten →</a>
     </div>
   </div>
 </div>
@@ -303,11 +313,14 @@ const T = {
     f4Title: 'CV verbeterpunten', f4Sub: 'Concrete suggesties om je CV sterker te maken voor deze specifieke rol.',
     priceLabel: 'Prijzen', priceTitle: 'Begin gratis. Upgrade wanneer je klaar bent.', priceSub: 'Geen creditcard nodig om te beginnen.',
     ptFree: 'Gratis', ppFree: 'voor altijd', pdFree: 'Probeer de volledige tool zonder verplichting.',
-    pl1: '3 volledige analyses', pl2: 'Match score + uitleg', pl3: 'Keyword analyse', pl4: 'Sterke punten & verbeterpunten', pl5: 'Motivatiebrief op maat', pl6: 'CV verbeterpunten',
+    pl1: '3 analyses', pl2: 'Match score + uitleg', pl3: 'Keyword analyse', pl4: 'Sterke punten & verbeterpunten', pl5: 'CV verbeterpunten',
     pbFree: 'Gratis starten →',
-    ptPro: 'Pro', ppPro: '/ maand', pdPro: 'Voor actieve sollicitanten die regelmatig solliciteren.',
-    pl7: 'Ongelimiteerde analyses', pl8: 'Alles in Gratis', pl9: 'PDF export van motivatiebrief', pl10: 'Prioriteit support',
-    pbPro: 'Upgrade naar Pro →',
+    ptPlus: 'Plus', ppPlus: '/ maand', pdPlus: 'Voor mensen die actief solliciteren.',
+    pl6: '10 analyses per maand', pl7: 'Alles in Gratis', pl8: 'Motivatiebrief op maat',
+    pbPlus: 'Plus starten →',
+    ptPro: 'Pro', ppPro: '/ maand', pdPro: 'Voor serieuze sollicitanten.',
+    pl9: '100 analyses per maand', pl10: 'Alles in Plus', pl11: 'PDF export van motivatiebrief', pl12: 'Prioriteit support',
+    pbPro: 'Pro starten →',
     revLabel: 'Reviews', revTitle: 'Wat gebruikers zeggen', revSub: 'Echte feedback van mensen die de tool hebben gebruikt.',
     rp1: '⭐ Review komt binnenkort', rp1Link: 'Wees de eerste om het te proberen →',
     rp2: '⭐ Review komt binnenkort', rp2Link: 'Gratis proberen →',
@@ -341,11 +354,14 @@ const T = {
     f4Title: 'CV improvement tips', f4Sub: 'Concrete suggestions to make your CV stronger for this specific role.',
     priceLabel: 'Pricing', priceTitle: 'Start free. Upgrade when you\'re ready.', priceSub: 'No credit card needed to get started.',
     ptFree: 'Free', ppFree: 'forever', pdFree: 'Try the full tool with no commitment.',
-    pl1: '3 complete analyses', pl2: 'Match score + explanation', pl3: 'Keyword analysis', pl4: 'Strengths & weaknesses', pl5: 'Tailored cover letter', pl6: 'CV improvement tips',
+    pl1: '3 analyses', pl2: 'Match score + explanation', pl3: 'Keyword analysis', pl4: 'Strengths & weaknesses', pl5: 'CV improvement tips',
     pbFree: 'Start for free →',
-    ptPro: 'Pro', ppPro: '/ month', pdPro: 'For active job seekers who apply regularly.',
-    pl7: 'Unlimited analyses', pl8: 'Everything in Free', pl9: 'PDF export of cover letter', pl10: 'Priority support',
-    pbPro: 'Upgrade to Pro →',
+    ptPlus: 'Plus', ppPlus: '/ month', pdPlus: 'For active job seekers.',
+    pl6: '10 analyses per month', pl7: 'Everything in Free', pl8: 'Tailored cover letter',
+    pbPlus: 'Start Plus →',
+    ptPro: 'Pro', ppPro: '/ month', pdPro: 'For serious job seekers.',
+    pl9: '100 analyses per month', pl10: 'Everything in Plus', pl11: 'PDF export of cover letter', pl12: 'Priority support',
+    pbPro: 'Start Pro →',
     revLabel: 'Reviews', revTitle: 'What users say', revSub: 'Real feedback from people who used the tool.',
     rp1: '⭐ Review coming soon', rp1Link: 'Be the first to try it →',
     rp2: '⭐ Review coming soon', rp2Link: 'Try it free →',
@@ -416,15 +432,21 @@ function applyLang() {
   document.getElementById('pl3').textContent = t.pl3;
   document.getElementById('pl4').textContent = t.pl4;
   document.getElementById('pl5').textContent = t.pl5;
-  document.getElementById('pl6').textContent = t.pl6;
   document.getElementById('pb-free').textContent = t.pbFree;
+  document.getElementById('pt-plus').textContent = t.ptPlus;
+  document.getElementById('pp-plus').textContent = t.ppPlus;
+  document.getElementById('pd-plus').textContent = t.pdPlus;
+  document.getElementById('pl6').textContent = t.pl6;
+  document.getElementById('pl7').textContent = t.pl7;
+  document.getElementById('pl8').textContent = t.pl8;
+  document.getElementById('pb-plus').textContent = t.pbPlus;
   document.getElementById('pt-pro').textContent = t.ptPro;
   document.getElementById('pp-pro').textContent = t.ppPro;
   document.getElementById('pd-pro').textContent = t.pdPro;
-  document.getElementById('pl7').textContent = t.pl7;
-  document.getElementById('pl8').textContent = t.pl8;
   document.getElementById('pl9').textContent = t.pl9;
   document.getElementById('pl10').textContent = t.pl10;
+  document.getElementById('pl11').textContent = t.pl11;
+  document.getElementById('pl12').textContent = t.pl12;
   document.getElementById('pb-pro').textContent = t.pbPro;
   document.getElementById('rev-label').textContent = t.revLabel;
   document.getElementById('rev-title').textContent = t.revTitle;
