@@ -1,6 +1,8 @@
 const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000;
 const RATE_LIMIT_FREE = 3;
+const PRO_MONTHLY_LIMIT = 100;
+const PRO_MONTH_WINDOW = 30 * 24 * 60 * 60 * 1000;
 
 function getIP(req) {
   return (
@@ -23,6 +25,21 @@ function checkRateLimit(ip) {
   }
   entry.count++;
   return { allowed: true, remaining: RATE_LIMIT_FREE - entry.count };
+}
+
+function checkProRateLimit(sessionId) {
+  const key = 'pro_' + sessionId;
+  const now = Date.now();
+  const entry = rateLimitMap.get(key);
+  if (!entry || now - entry.windowStart > PRO_MONTH_WINDOW) {
+    rateLimitMap.set(key, { count: 1, windowStart: now });
+    return { allowed: true, remaining: PRO_MONTHLY_LIMIT - 1 };
+  }
+  if (entry.count >= PRO_MONTHLY_LIMIT) {
+    return { allowed: false, remaining: 0 };
+  }
+  entry.count++;
+  return { allowed: true, remaining: PRO_MONTHLY_LIMIT - entry.count };
 }
 
 function extractJSON(text) {
@@ -133,7 +150,20 @@ export default async function handler(req, res) {
 
     const isPro = await checkProAccess(req);
 
-    if (!isPro) {
+    if (isPro) {
+      // Pro gebruikers: max 100 analyses per maand
+      const sessionId = req.headers['x-stripe-session'];
+      const { allowed, remaining } = checkProRateLimit(sessionId);
+      if (!allowed) {
+        return res.status(429).json({
+          error: 'Maandlimiet bereikt',
+          message: 'Je hebt je 100 Pro analyses voor deze maand gebruikt. Neem contact op als je meer nodig hebt.',
+          remaining: 0
+        });
+      }
+      res.setHeader('X-RateLimit-Remaining', remaining);
+    } else {
+      // Gratis gebruikers: max 3 per uur per IP
       const ip = getIP(req);
       const { allowed, remaining } = checkRateLimit(ip);
       if (!allowed) {
