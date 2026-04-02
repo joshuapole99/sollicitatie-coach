@@ -20,25 +20,21 @@
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; }
 .app { max-width: 800px; margin: 0 auto; }
-
 .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .lang-switcher { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
 .lang-btn { background: none; border: none; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: var(--muted); transition: all 0.15s; }
 .lang-btn.active { background: var(--text); color: var(--bg); }
 .back-link { font-size: 12px; color: var(--faint); text-decoration: none; }
 .back-link:hover { color: var(--muted); }
-
 .header { text-align: center; padding: 24px 0 20px; }
 .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
 .header p { font-size: 15px; color: var(--muted); max-width: 480px; margin: 0 auto 16px; line-height: 1.6; }
 .badge { display: inline-block; background: var(--green-bg); color: var(--green); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-left: 8px; vertical-align: middle; }
 .badge.pro { background: #fef3c7; color: #92400e; }
-
-/* Voorbeeld knop */
+.badge.plus { background: #e0f0ff; color: #1a5fa8; }
 .example-bar { text-align: center; margin-bottom: 16px; }
 .example-btn { background: none; border: 1px dashed var(--border-hover); border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.15s; }
 .example-btn:hover { border-color: var(--text); color: var(--text); background: var(--card); }
-
 .usage-bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
 .dots { display: flex; gap: 5px; }
 .dot { width: 10px; height: 10px; border-radius: 50%; transition: background 0.2s; }
@@ -47,7 +43,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 #usage-text { font-size: 13px; color: var(--muted); }
 .upgrade-btn { margin-left: auto; background: var(--text); color: var(--bg); border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; transition: opacity 0.15s; }
 .upgrade-btn:hover { opacity: 0.8; }
-
 .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 @media (max-width: 560px) { .inputs { grid-template-columns: 1fr; } }
 .input-block label { display: block; font-size: 11px; font-weight: 700; color: var(--faint); margin-bottom: 6px; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -57,7 +52,6 @@ textarea::placeholder { color: var(--faint); }
 .analyse-btn { width: 100%; padding: 15px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
 .analyse-btn:hover:not(:disabled) { opacity: 0.85; }
 .analyse-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
 .loading { text-align: center; padding: 48px 16px; }
 .spinner { display: inline-block; width: 32px; height: 32px; border: 2.5px solid var(--border); border-top-color: var(--text); border-radius: 50%; animation: spin 0.75s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -100,8 +94,10 @@ textarea::placeholder { color: var(--faint); }
 .paywall-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px 28px; text-align: center; }
 .paywall-box p { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
 .paywall-box small { font-size: 12px; color: var(--muted); display: block; margin-bottom: 14px; }
-.paywall-box .cta { background: var(--text); color: var(--bg); border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
-.paywall-box .cta:hover { opacity: 0.8; }
+.upgrade-options { display: flex; flex-direction: column; gap: 8px; }
+.upgrade-options .btn-plus { background: var(--text); color: var(--bg); border: none; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+.upgrade-options .btn-pro { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 9px 20px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; color: var(--muted); transition: all 0.15s; }
+.upgrade-options .btn-pro:hover { border-color: var(--border-hover); color: var(--text); }
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
 .modal-overlay.hidden { display: none; }
 .modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; max-width: 400px; width: 100%; text-align: center; }
@@ -111,7 +107,6 @@ textarea::placeholder { color: var(--faint); }
 .modal input:focus { outline: none; border-color: var(--border-hover); }
 .modal-btn { width: 100%; padding: 11px; background: var(--text); color: var(--bg); border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; margin-bottom: 8px; }
 .modal-skip { font-size: 12px; color: var(--faint); cursor: pointer; background: none; border: none; font-family: inherit; }
-
 .review-form { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-top: 12px; }
 .review-form h3 { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
 .stars-row { display: flex; gap: 6px; margin-bottom: 14px; }
@@ -129,7 +124,7 @@ textarea::placeholder { color: var(--faint); }
 <div class="app">
 
   <div class="topbar">
-    <a href="/" class="back-link">← Sollicitatie Coach</a>
+    <a href="/" class="back-link">&larr; Sollicitatie Coach</a>
     <div class="lang-switcher">
       <button class="lang-btn active" id="btn-nl" onclick="setLang('nl')">NL</button>
       <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
@@ -142,13 +137,13 @@ textarea::placeholder { color: var(--faint); }
   </div>
 
   <div class="example-bar">
-    <button class="example-btn" id="example-btn" onclick="fillExample()">✨ Probeer met voorbeeldtekst</button>
+    <button class="example-btn" id="example-btn" onclick="fillExample()">&#10024; Probeer met voorbeeldtekst</button>
   </div>
 
   <div class="usage-bar">
     <div class="dots" id="dots"></div>
     <span id="usage-text"></span>
-    <button class="upgrade-btn" id="upgrade-btn" onclick="goUpgrade()">Pro — €9,99/mnd</button>
+    <button class="upgrade-btn" id="upgrade-btn" onclick="goUpgrade()">Upgrade &rarr;</button>
   </div>
 
   <div class="inputs">
@@ -165,19 +160,19 @@ textarea::placeholder { color: var(--faint); }
   <button class="analyse-btn" id="analyse-btn" onclick="runAnalysis()">Analyseer mijn sollicitatie</button>
   <div id="results"></div>
 
-<div class="review-form" id="review-form" style="display:none">
-  <h3 id="review-title">Wat vond je ervan?</h3>
-  <div class="stars-row" id="stars-row">
-    <span class="star" data-val="1" onclick="setStar(1)">&#9733;</span>
-    <span class="star" data-val="2" onclick="setStar(2)">&#9733;</span>
-    <span class="star" data-val="3" onclick="setStar(3)">&#9733;</span>
-    <span class="star" data-val="4" onclick="setStar(4)">&#9733;</span>
-    <span class="star" data-val="5" onclick="setStar(5)">&#9733;</span>
+  <div class="review-form" id="review-form" style="display:none">
+    <h3 id="review-title">Wat vond je ervan?</h3>
+    <div class="stars-row" id="stars-row">
+      <span class="star" data-val="1" onclick="setStar(1)">&#9733;</span>
+      <span class="star" data-val="2" onclick="setStar(2)">&#9733;</span>
+      <span class="star" data-val="3" onclick="setStar(3)">&#9733;</span>
+      <span class="star" data-val="4" onclick="setStar(4)">&#9733;</span>
+      <span class="star" data-val="5" onclick="setStar(5)">&#9733;</span>
+    </div>
+    <textarea class="review-input" id="review-input" placeholder="Vertel ons wat je vond..."></textarea>
+    <button class="review-submit" id="review-submit" onclick="submitReview()">Review versturen</button>
+    <div class="review-thanks" id="review-thanks" style="display:none">Bedankt voor je feedback!</div>
   </div>
-  <textarea class="review-input" id="review-input" placeholder="Vertel ons wat je vond..."></textarea>
-  <button class="review-submit" id="review-submit" onclick="submitReview()">Review versturen</button>
-  <div class="review-thanks" id="review-thanks" style="display:none">Bedankt voor je feedback!</div>
-</div>
 
 </div>
 
@@ -191,99 +186,24 @@ textarea::placeholder { color: var(--faint); }
   </div>
 </div>
 
+<!-- Upgrade modal — created dynamically, see showUpgradeModal() -->
+
 <script>
 const FREE_LIMIT = 3;
-const PAYMENT_LINK = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/dfcb053f-66f7-4458-8cd4-d7d5e129f649';
+const PLUS_LIMIT = 10;
+const PRO_LIMIT = 100;
+const PAYMENT_LINK_PLUS = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/a6f5fe91-e8c0-4dc5-8157-9d816da2591d';
+const PAYMENT_LINK_PRO  = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/dfcb053f-66f7-4458-8cd4-d7d5e129f649';
 const SESSION_KEY = 'stripe_session_id';
 
-// Voorbeeldteksten NL + EN
 const EXAMPLES = {
   nl: {
-    cv: `Lisa de Vries
-Marketing Manager | linkedin.com/in/lisadevries | lisa@email.nl
-
-WERKERVARING
-Marketing Manager — TechStartup BV (2021–heden)
-• Verhoogde organisch websiteverkeer met 140% via SEO en contentmarketing
-• Beheerde €200.000 jaarlijks advertentiebudget (Google Ads, Meta)
-• Leidde team van 4 marketeers en werkte nauw samen met sales
-
-Junior Marketeer — Retailbedrijf NV (2019–2021)
-• Verantwoordelijk voor social media (Instagram, LinkedIn) — +8.000 volgers in 1 jaar
-• Organiseerde 12 events met gemiddeld 200 bezoekers
-
-OPLEIDING
-Bachelor Marketing — Hogeschool Utrecht (2019)
-
-VAARDIGHEDEN
-Google Analytics, SEO, Google Ads, Meta Ads, HubSpot, Figma, Copywriting, A/B-testing`,
-
-    job: `Vacature: Senior Digital Marketeer — ScaleUp BV (Amsterdam)
-
-Over ons:
-ScaleUp BV is een snelgroeiend SaaS-bedrijf met 80 medewerkers. We zoeken een ervaren marketeer die onze groei verder versnelt.
-
-Functieomschrijving:
-Je bent verantwoordelijk voor onze digitale marketingstrategie. Je werkt samen met sales en product en rapporteert aan de CMO.
-
-Taken:
-• Ontwikkelen en uitvoeren van SEO/SEA strategie
-• Beheren van advertentiebudget (Google Ads, LinkedIn Ads)
-• Opzetten van marketing automation (HubSpot)
-• Analyseren van campagneresultaten en bijsturen op basis van data
-
-Vereisten:
-• Minimaal 3 jaar ervaring in digitale marketing
-• Aantoonbare ervaring met Google Ads en SEO
-• Ervaring met HubSpot of vergelijkbaar CRM
-• Analytisch sterk, resultaatgericht
-• HBO/WO werk- en denkniveau
-
-Wij bieden: €45.000–€55.000 | 25 vakantiedagen | Hybride werken | Laptop`
+    cv: `Lisa de Vries\nMarketing Manager | lisa@email.nl\n\nWERKERVARING\nMarketing Manager — TechStartup BV (2021–heden)\n• Verhoogde organisch websiteverkeer met 140% via SEO en contentmarketing\n• Beheerde €200.000 jaarlijks advertentiebudget (Google Ads, Meta)\n• Leidde team van 4 marketeers\n\nJunior Marketeer — Retailbedrijf NV (2019–2021)\n• Verantwoordelijk voor social media — +8.000 volgers in 1 jaar\n• Organiseerde 12 events met gemiddeld 200 bezoekers\n\nOPLEIDING\nBachelor Marketing — Hogeschool Utrecht (2019)\n\nVAARDIGHEDEN\nGoogle Analytics, SEO, Google Ads, Meta Ads, HubSpot, Figma, Copywriting`,
+    job: `Vacature: Senior Digital Marketeer — ScaleUp BV\n\nTaken:\n• Ontwikkelen en uitvoeren van SEO/SEA strategie\n• Beheren van advertentiebudget (Google Ads, LinkedIn Ads)\n• Opzetten van marketing automation (HubSpot)\n• Analyseren van campagneresultaten\n\nVereisten:\n• Minimaal 3 jaar ervaring in digitale marketing\n• Aantoonbare ervaring met Google Ads en SEO\n• Ervaring met HubSpot of vergelijkbaar CRM\n• HBO/WO werk- en denkniveau\n\nSalaris: €45.000–€55.000 | Hybride werken`
   },
   en: {
-    cv: `James Carter
-Software Engineer | github.com/jamescarter | james@email.com
-
-WORK EXPERIENCE
-Senior Software Engineer — FinTech Ltd (2021–present)
-• Built microservices architecture handling 2M+ daily transactions
-• Reduced API response time by 60% through caching and query optimization
-• Led migration from monolith to microservices (Node.js, PostgreSQL, Redis)
-• Mentored 3 junior developers
-
-Software Engineer — WebAgency (2019–2021)
-• Developed React frontends for 15+ client projects
-• Implemented CI/CD pipelines using GitHub Actions
-
-EDUCATION
-BSc Computer Science — University of Amsterdam (2019)
-
-SKILLS
-JavaScript, TypeScript, Node.js, React, PostgreSQL, Redis, Docker, AWS, Git, REST APIs`,
-
-    job: `Job: Full Stack Engineer — GrowthApp (Amsterdam)
-
-About us:
-GrowthApp is a fast-growing B2B SaaS startup with 50 employees. We're looking for a skilled engineer to help scale our platform.
-
-Role:
-You'll work across the full stack, building new features and improving performance. You'll collaborate closely with design and product.
-
-Responsibilities:
-• Build and maintain React frontend and Node.js backend
-• Design and optimize PostgreSQL database schemas
-• Deploy and monitor services on AWS
-• Participate in code reviews and architecture decisions
-
-Requirements:
-• 3+ years experience in full stack development
-• Strong proficiency in React and Node.js
-• Experience with PostgreSQL and Redis
-• Familiarity with Docker and AWS
-• Strong problem-solving skills
-
-We offer: €55.000–€70.000 | 25 days PTO | Remote-friendly | MacBook Pro`
+    cv: `James Carter\nSoftware Engineer | james@email.com\n\nWORK EXPERIENCE\nSenior Software Engineer — FinTech Ltd (2021–present)\n• Built microservices handling 2M+ daily transactions\n• Reduced API response time by 60% through optimization\n• Led migration from monolith to microservices (Node.js, PostgreSQL)\n\nSoftware Engineer — WebAgency (2019–2021)\n• Developed React frontends for 15+ client projects\n• Implemented CI/CD pipelines using GitHub Actions\n\nEDUCATION\nBSc Computer Science — University of Amsterdam (2019)\n\nSKILLS\nJavaScript, TypeScript, Node.js, React, PostgreSQL, Redis, Docker, AWS`,
+    job: `Job: Full Stack Engineer — GrowthApp\n\nResponsibilities:\n• Build and maintain React frontend and Node.js backend\n• Design and optimize PostgreSQL database schemas\n• Deploy and monitor services on AWS\n• Participate in code reviews\n\nRequirements:\n• 3+ years experience in full stack development\n• Strong proficiency in React and Node.js\n• Experience with PostgreSQL and Redis\n• Familiarity with Docker and AWS\n\nSalary: €55.000–€70.000 | Remote-friendly`
   }
 };
 
@@ -292,79 +212,73 @@ const T = {
     title: 'Sollicitatie Coach',
     hero: 'Zie in 30 seconden of jij de beste kandidaat bent voor de baan.',
     exampleBtn: '✨ Probeer met voorbeeldtekst',
-    labelCv: 'Jouw CV',
-    labelJob: 'Vacaturetekst',
+    labelCv: 'Jouw CV', labelJob: 'Vacaturetekst',
     cvPlaceholder: 'Plak hier de tekst van je CV...',
     jobPlaceholder: 'Plak hier de volledige vacaturetekst...',
     analyseBtn: 'Analyseer mijn sollicitatie',
-    upgradeBtn: 'Pro — €9,99/mnd',
+    upgradeBtn: 'Upgrade →',
     usageLeft: (n, t) => `${n} van ${t} gratis analyses over`,
-    usageNone: 'Geen analyses meer — upgrade naar Pro',
-    usagePro: 'Pro abonnement actief',
+    usageNone: 'Geen gratis analyses meer',
+    usagePaid: (n) => `${n} analyses/mnd`,
     loading: 'AI analyseert jouw match... even geduld',
     errCv: 'Plak je CV in het linkerveld.',
     errJob: 'Plak de vacaturetekst in het rechterveld.',
-    errLimit: 'Je hebt je 3 gratis analyses gebruikt.',
-    upgradeNow: 'Upgrade naar Pro',
+    errLimit: 'Je hebt je analyses gebruikt voor deze maand.',
+    upgradeNow: 'Upgrade',
     scoreLabel: 'Match score',
-    keywords: 'Keywords',
-    present: 'Aanwezig in je CV',
-    missing: 'Ontbreekt nog',
+    keywords: 'Keywords', present: 'Aanwezig in je CV', missing: 'Ontbreekt nog',
     strengths: 'Sterke punten & verbeterpunten',
     motiv: 'Motivatiebrief op maat',
-    motivOnly: 'Motivatiebrief alleen voor Pro',
-    motivSub: 'Upgrade voor ongelimiteerde analyses + PDF download',
+    motivOnly: 'Motivatiebrief alleen voor Plus of Pro',
+    motivSub: 'Upgrade voor toegang tot de motivatiebrief',
     cvTips: 'CV verbeterpunten',
-    copy: 'Kopieer',
-    copied: 'Gekopieerd!',
-    pdf: '↓ PDF',
-    noKeywords: 'Geen gevonden',
-    noMissing: 'Geen',
+    copy: 'Kopieer', copied: 'Gekopieerd!', pdf: '↓ PDF',
+    noKeywords: 'Geen gevonden', noMissing: 'Geen',
     modalTitle: 'Jouw analyse is klaar!',
     modalSub: 'Laat je e-mailadres achter voor tips over solliciteren. Geen spam.',
-    modalBtn: 'Stuur me tips →',
-    modalSkip: 'Overslaan',
-    free: 'GRATIS',
-    pro: 'PRO',
+    modalBtn: 'Stuur me tips →', modalSkip: 'Overslaan',
+    free: 'GRATIS', plus: 'PLUS', pro: 'PRO',
+    btnPlus: 'Plus — €2,99/mnd (10 analyses)',
+    btnPro: 'Pro — €9,99/mnd (100 analyses)',
+    planTitle: 'Kies een plan',
+    planSub: 'Geen risico — opzeggen wanneer je wilt.',
+    planClose: 'Sluiten',
   },
   en: {
     title: 'Application Coach',
     hero: "Find out in 30 seconds if you're the best candidate for the job.",
     exampleBtn: '✨ Try with example text',
-    labelCv: 'Your CV',
-    labelJob: 'Job posting',
+    labelCv: 'Your CV', labelJob: 'Job posting',
     cvPlaceholder: 'Paste your CV text here...',
     jobPlaceholder: 'Paste the full job posting here...',
     analyseBtn: 'Analyse my application',
-    upgradeBtn: 'Pro — €9.99/mo',
-    usageLeft: (n, t) => `${n} of ${t} free analyses left`,
-    usageNone: 'No analyses left — upgrade to Pro',
-    usagePro: 'Pro subscription active',
+    upgradeBtn: 'Upgrade →',
+    usageLeft: (n, total) => `${n} of ${total} free analyses left`,
+    usageNone: 'No free analyses left',
+    usagePaid: (n) => `${n} analyses/mo`,
     loading: 'AI is analysing your match... please wait',
     errCv: 'Please paste your CV in the left field.',
     errJob: 'Please paste the job posting in the right field.',
-    errLimit: 'You have used your 3 free analyses.',
-    upgradeNow: 'Upgrade to Pro',
+    errLimit: 'You have used all your analyses this month.',
+    upgradeNow: 'Upgrade',
     scoreLabel: 'Match score',
-    keywords: 'Keywords',
-    present: 'Present in your CV',
-    missing: 'Missing',
+    keywords: 'Keywords', present: 'Present in your CV', missing: 'Missing',
     strengths: 'Strengths & improvements',
     motiv: 'Tailored cover letter',
-    motivOnly: 'Cover letter for Pro only',
-    motivSub: 'Upgrade for unlimited analyses + PDF download',
+    motivOnly: 'Cover letter for Plus or Pro only',
+    motivSub: 'Upgrade to access the cover letter',
     cvTips: 'CV improvement tips',
-    copy: 'Copy',
-    copied: 'Copied!',
-    pdf: '↓ PDF',
-    noKeywords: 'None found',
-    noMissing: 'None',
+    copy: 'Copy', copied: 'Copied!', pdf: '↓ PDF',
+    noKeywords: 'None found', noMissing: 'None',
     modalTitle: 'Your analysis is ready!',
     modalSub: 'Leave your email for job application tips. No spam.',
-    modalBtn: 'Send me tips →',
-    modalSkip: 'Skip',
-    free: 'FREE',
-    pro: 'PRO',
+    modalBtn: 'Send me tips →', modalSkip: 'Skip',
+    free: 'FREE', plus: 'PLUS', pro: 'PRO',
+    btnPlus: 'Plus — €2.99/mo (10 analyses)',
+    btnPro: 'Pro — €9.99/mo (100 analyses)',
+    planTitle: 'Choose a plan',
+    planSub: 'No risk — cancel anytime.',
+    planClose: 'Close',
   }
 };
 
@@ -375,6 +289,21 @@ function t(key, ...args) {
   const val = T[lang][key];
   return typeof val === 'function' ? val(...args) : val;
 }
+
+function getTier() {
+  if (!localStorage.getItem(SESSION_KEY)) return 'free';
+  return localStorage.getItem('sol_tier') || 'plus';
+}
+function getLimit() {
+  const tier = getTier();
+  if (tier === 'pro') return PRO_LIMIT;
+  if (tier === 'plus') return PLUS_LIMIT;
+  return FREE_LIMIT;
+}
+function getUses()     { return parseInt(localStorage.getItem('sol_uses') || '0'); }
+function getSession()  { return localStorage.getItem(SESSION_KEY) || null; }
+function usesLeft()    { return Math.max(0, getLimit() - getUses()); }
+function hasGivenEmail() { return !!localStorage.getItem('sol_email'); }
 
 function setLang(l) {
   lang = l;
@@ -387,71 +316,95 @@ function setLang(l) {
 }
 
 function applyLang() {
-  document.getElementById('hero-sub').textContent = t('hero');
-  document.getElementById('example-btn').textContent = t('exampleBtn');
-  document.getElementById('label-cv').textContent = t('labelCv');
-  document.getElementById('label-job').textContent = t('labelJob');
-  document.getElementById('cv-input').placeholder = t('cvPlaceholder');
-  document.getElementById('job-input').placeholder = t('jobPlaceholder');
-  document.getElementById('analyse-btn').textContent = t('analyseBtn');
-  document.getElementById('upgrade-btn').textContent = t('upgradeBtn');
-  document.getElementById('app-title').innerHTML = t('title') + ' <span class="badge" id="tier-badge">' + t(getSession() ? 'pro' : 'free') + '</span>';
-  document.getElementById('modal-title').textContent = t('modalTitle');
-  document.getElementById('modal-sub').textContent = t('modalSub');
-  document.getElementById('modal-btn').textContent = t('modalBtn');
-  document.getElementById('modal-skip').textContent = t('modalSkip');
-  renderUsageBar(!!getSession());
+  document.getElementById('hero-sub').textContent       = t('hero');
+  document.getElementById('example-btn').textContent   = t('exampleBtn');
+  document.getElementById('label-cv').textContent      = t('labelCv');
+  document.getElementById('label-job').textContent     = t('labelJob');
+  document.getElementById('cv-input').placeholder      = t('cvPlaceholder');
+  document.getElementById('job-input').placeholder     = t('jobPlaceholder');
+  document.getElementById('analyse-btn').textContent   = t('analyseBtn');
+  document.getElementById('upgrade-btn').textContent   = t('upgradeBtn');
+  document.getElementById('modal-title').textContent   = t('modalTitle');
+  document.getElementById('modal-sub').textContent     = t('modalSub');
+  document.getElementById('modal-btn').textContent     = t('modalBtn');
+  document.getElementById('modal-skip').textContent    = t('modalSkip');
+  const tier = getTier();
+  const tierLabel = tier === 'pro' ? t('pro') : tier === 'plus' ? t('plus') : t('free');
+  const tierClass = tier === 'pro' ? ' pro' : tier === 'plus' ? ' plus' : '';
+  document.getElementById('app-title').innerHTML =
+    t('title') + ' <span class="badge' + tierClass + '" id="tier-badge">' + tierLabel + '</span>';
+  renderUsageBar();
 }
 
-// Vul voorbeeldtekst in
 function fillExample() {
   const ex = EXAMPLES[lang] || EXAMPLES.nl;
-  document.getElementById('cv-input').value = ex.cv;
+  document.getElementById('cv-input').value  = ex.cv;
   document.getElementById('job-input').value = ex.job;
-  document.getElementById('cv-input').style.borderColor = 'var(--green)';
+  document.getElementById('cv-input').style.borderColor  = 'var(--green)';
   document.getElementById('job-input').style.borderColor = 'var(--green)';
   setTimeout(() => {
-    document.getElementById('cv-input').style.borderColor = '';
+    document.getElementById('cv-input').style.borderColor  = '';
     document.getElementById('job-input').style.borderColor = '';
   }, 1000);
-  // Scroll naar de knop
   document.getElementById('analyse-btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-function getUses() { return parseInt(localStorage.getItem('sol_uses') || '0'); }
-function getSession() { return localStorage.getItem(SESSION_KEY) || null; }
-function usesLeft() { return Math.max(0, FREE_LIMIT - getUses()); }
-function hasGivenEmail() { return !!localStorage.getItem('sol_email'); }
-
-function renderUsageBar(pro) {
-  const used = getUses();
-  const left = usesLeft();
-  const badge = document.getElementById('tier-badge');
-  if (badge) { badge.textContent = pro ? t('pro') : t('free'); badge.className = 'badge' + (pro ? ' pro' : ''); }
+function renderUsageBar() {
+  const tier  = getTier();
+  const used  = getUses();
+  const limit = getLimit();
+  const left  = usesLeft();
   const dotsEl = document.getElementById('dots');
-  if (pro) {
-    dotsEl.innerHTML = `<span style="font-size:12px;color:var(--green);font-weight:700">${t('usagePro')}</span>`;
-    document.getElementById('usage-text').textContent = '';
+  if (tier !== 'free') {
+    dotsEl.innerHTML = '<span style="font-size:12px;color:var(--green);font-weight:700">' + t('usagePaid', limit) + '</span>';
+    document.getElementById('usage-text').textContent = left + (lang === 'nl' ? ' over' : ' left');
   } else {
     dotsEl.innerHTML = Array.from({length: FREE_LIMIT}, (_, i) =>
-      `<div class="dot ${i < used ? 'used' : 'avail'}"></div>`
+      '<div class="dot ' + (i < used ? 'used' : 'avail') + '"></div>'
     ).join('');
     document.getElementById('usage-text').textContent =
       left > 0 ? t('usageLeft', left, FREE_LIMIT) : t('usageNone');
   }
 }
 
+// Handle session redirect from payment
 const params = new URLSearchParams(window.location.search);
 const sessionFromUrl = params.get('session_id');
 if (sessionFromUrl) {
   localStorage.setItem(SESSION_KEY, sessionFromUrl);
+  localStorage.setItem('sol_tier', params.get('tier') || 'plus');
   window.history.replaceState({}, '', window.location.pathname);
 }
 
 setLang(lang);
 
-function goUpgrade() { window.location.href = PAYMENT_LINK; }
+// ── Upgrade modal ────────────────────────────────────────────────────────────
+function goUpgrade() {
+  const existing = document.getElementById('upgrade-modal');
+  if (existing) { existing.classList.remove('hidden'); return; }
+  const div = document.createElement('div');
+  div.id = 'upgrade-modal';
+  div.className = 'modal-overlay';
+  // Build innerHTML using template literals — no nested quote issues
+  div.innerHTML = `
+    <div class="modal">
+      <h3 style="margin-bottom:8px">${t('planTitle')}</h3>
+      <p style="margin-bottom:20px;font-size:13px;color:var(--muted)">${t('planSub')}</p>
+      <button onclick="window.location.href=PAYMENT_LINK_PLUS" style="width:100%;padding:12px;background:var(--text);color:var(--bg);border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px">
+        ${t('btnPlus')}
+      </button>
+      <button onclick="window.location.href=PAYMENT_LINK_PRO" style="width:100%;padding:11px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--muted);margin-bottom:16px">
+        ${t('btnPro')}
+      </button>
+      <button onclick="document.getElementById('upgrade-modal').classList.add('hidden')" style="font-size:12px;color:var(--faint);cursor:pointer;background:none;border:none;font-family:inherit">
+        ${t('planClose')}
+      </button>
+    </div>`;
+  div.addEventListener('click', function(e) { if (e.target === this) this.classList.add('hidden'); });
+  document.body.appendChild(div);
+}
 
+// ── Email modal ──────────────────────────────────────────────────────────────
 function showEmailModal() {
   if (hasGivenEmail()) return;
   document.getElementById('email-modal').classList.remove('hidden');
@@ -474,46 +427,45 @@ document.getElementById('email-modal').addEventListener('click', function(e) {
   if (e.target === this) closeEmailModal();
 });
 
+// ── Main analysis ────────────────────────────────────────────────────────────
 async function runAnalysis() {
   const session = getSession();
-  if (!session && usesLeft() <= 0) { goUpgrade(); return; }
+  if (usesLeft() <= 0) { goUpgrade(); return; }
 
-  const cv = document.getElementById('cv-input').value.trim();
+  const cv  = document.getElementById('cv-input').value.trim();
   const job = document.getElementById('job-input').value.trim();
-  if (cv.length < 30) { alert(t('errCv')); return; }
+  if (cv.length  < 30) { alert(t('errCv'));  return; }
   if (job.length < 30) { alert(t('errJob')); return; }
 
   document.getElementById('analyse-btn').disabled = true;
-  document.getElementById('results').innerHTML = `
-    <div class="loading"><div class="spinner"></div><p>${t('loading')}</p></div>`;
+  document.getElementById('results').innerHTML =
+    '<div class="loading"><div class="spinner"></div><p>' + t('loading') + '</p></div>';
 
   try {
     const headers = { 'Content-Type': 'application/json' };
     if (session) headers['x-stripe-session'] = session;
 
     const resp = await fetch('/api/analyse', {
-      method: 'POST',
-      headers,
+      method: 'POST', headers,
       body: JSON.stringify({ cv, job })
     });
 
     const contentType = resp.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) throw new Error(`Serverfout (${resp.status})`);
+    if (!contentType.includes('application/json')) throw new Error('Serverfout (' + resp.status + ')');
     const data = await resp.json();
 
     if (resp.status === 429) {
-      document.getElementById('results').innerHTML = `
-        <div class="error-box">${t('errLimit')}<br><br>
-        <button onclick="goUpgrade()" style="background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${t('upgradeNow')}</button>
-        </div>`;
+      document.getElementById('results').innerHTML =
+        '<div class="error-box">' + t('errLimit') + '<br><br>' +
+        '<button onclick="goUpgrade()" style="background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">' +
+        t('upgradeNow') + '</button></div>';
       return;
     }
-
-    if (!resp.ok) throw new Error(data.error || `Fout (${resp.status})`);
+    if (!resp.ok) throw new Error(data.error || 'Fout (' + resp.status + ')');
 
     const confirmedPro = !!data.isPro;
     if (!confirmedPro) localStorage.setItem('sol_uses', getUses() + 1);
-    renderUsageBar(confirmedPro);
+    renderUsageBar();
     lastResult = data;
     renderResults(data);
     setTimeout(showReviewForm, 2000);
@@ -521,12 +473,13 @@ async function runAnalysis() {
 
   } catch (e) {
     document.getElementById('results').innerHTML =
-      `<div class="error-box">${escHtml(e.message)}</div>`;
+      '<div class="error-box">' + escHtml(e.message) + '</div>';
   } finally {
     document.getElementById('analyse-btn').disabled = false;
   }
 }
 
+// ── Render results ───────────────────────────────────────────────────────────
 function scoreColor(s) {
   if (s >= 75) return 'var(--green)';
   if (s >= 50) return 'var(--amber)';
@@ -548,106 +501,94 @@ function downloadPDF(text) {
 }
 
 function renderResults(r) {
-  const color = scoreColor(r.score);
-  const circ = 2 * Math.PI * 32;
+  const color  = scoreColor(r.score);
+  const circ   = 2 * Math.PI * 32;
   const offset = circ * (1 - r.score / 100);
-  const showMotiv = r.isPro === true;
+  const tier   = getTier();
 
-  document.getElementById('results').innerHTML = `
-  <div class="results">
-    <div class="score-card">
-      <div class="score-ring">
-        <svg width="80" height="80" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" stroke-width="5"/>
-          <circle cx="40" cy="40" r="32" fill="none" stroke="${color}" stroke-width="5"
-            stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" stroke-linecap="round"/>
-        </svg>
-        <div class="score-number" style="color:${color}">${r.score}</div>
-      </div>
-      <div class="score-info">
-        <h3>${t('scoreLabel')}: ${r.score}/100</h3>
-        <p>${escHtml(r.score_uitleg)}</p>
-      </div>
-    </div>
+  // FIX 1: gratis users zien motivatiebrief bij alle 3 gratis analyses
+  // isPro === true  → betaalde Plus/Pro user (server bevestigd)
+  // tier !== 'free' → lokaal opgeslagen tier na betaling
+  // getUses() <= FREE_LIMIT → gratis user die nog analyses heeft
+  const showMotiv = r.isPro === true || tier !== 'free' || getUses() <= FREE_LIMIT;
 
-    <div class="section">
-      <div class="section-header" onclick="toggleSection(this)">
-        <h3>${t('keywords')}</h3><span class="chevron up">&#9660;</span>
-      </div>
-      <div class="section-body">
-        <div class="tag-group-label">${t('present')}</div>
-        <div class="tag-row">${(r.match_keywords||[]).map(k=>`<span class="tag match">${escHtml(k)}</span>`).join('') || `<span style="color:var(--faint);font-size:13px">${t('noKeywords')}</span>`}</div>
-        <div class="tag-group-label" style="margin-top:14px">${t('missing')}</div>
-        <div class="tag-row">${(r.mis_keywords||[]).map(k=>`<span class="tag miss">${escHtml(k)}</span>`).join('') || `<span style="color:var(--faint);font-size:13px">${t('noMissing')}</span>`}</div>
-      </div>
-    </div>
+  const keywordsHtml =
+    '<div class="section">' +
+    '<div class="section-header" onclick="toggleSection(this)"><h3>' + t('keywords') + '</h3><span class="chevron up">&#9660;</span></div>' +
+    '<div class="section-body">' +
+    '<div class="tag-group-label">' + t('present') + '</div>' +
+    '<div class="tag-row">' + ((r.match_keywords||[]).map(k => '<span class="tag match">' + escHtml(k) + '</span>').join('') || '<span style="color:var(--faint);font-size:13px">' + t('noKeywords') + '</span>') + '</div>' +
+    '<div class="tag-group-label" style="margin-top:14px">' + t('missing') + '</div>' +
+    '<div class="tag-row">' + ((r.mis_keywords||[]).map(k => '<span class="tag miss">' + escHtml(k) + '</span>').join('') || '<span style="color:var(--faint);font-size:13px">' + t('noMissing') + '</span>') + '</div>' +
+    '</div></div>';
 
-    <div class="section">
-      <div class="section-header" onclick="toggleSection(this)">
-        <h3>${t('strengths')}</h3><span class="chevron up">&#9660;</span>
-      </div>
-      <div class="section-body">
-        <ul class="bullet-list">
-          ${(r.sterke_punten||[]).map(p=>`<li class="good">${escHtml(p)}</li>`).join('')}
-          ${(r.verbeterpunten||[]).map(p=>`<li class="bad">${escHtml(p)}</li>`).join('')}
-        </ul>
-      </div>
-    </div>
+  const strengthsHtml =
+    '<div class="section">' +
+    '<div class="section-header" onclick="toggleSection(this)"><h3>' + t('strengths') + '</h3><span class="chevron up">&#9660;</span></div>' +
+    '<div class="section-body"><ul class="bullet-list">' +
+    (r.sterke_punten||[]).map(p => '<li class="good">' + escHtml(p) + '</li>').join('') +
+    (r.verbeterpunten||[]).map(p => '<li class="bad">'  + escHtml(p) + '</li>').join('') +
+    '</ul></div></div>';
 
-    <div class="section">
-      <div class="section-header" onclick="toggleSection(this)">
-        <h3>${t('motiv')}</h3>
-        <div class="btn-row">
-          ${showMotiv ? `
-            <button class="copy-btn" onclick="event.stopPropagation();copyText('motiv-text')">${t('copy')}</button>
-            <button class="pdf-btn" onclick="event.stopPropagation();downloadPDF(${JSON.stringify(r.motivatiebrief)})">${t('pdf')}</button>
-          ` : ''}
-          <span class="chevron up">&#9660;</span>
-        </div>
-      </div>
-      <div class="section-body">
-        ${showMotiv
-          ? `<p class="motiv-text" id="motiv-text">${escHtml(r.motivatiebrief)}</p>`
-          : `<div class="paywall-wrap">
-               <div class="paywall-blur motiv-text">${escHtml(r.motivatiebrief)}</div>
-               <div class="paywall-overlay">
-                 <div class="paywall-box">
-                   <p>${t('motivOnly')}</p>
-                   <small>${t('motivSub')}</small>
-                   <button class="cta" onclick="goUpgrade()">${t('upgradeBtn')}</button>
-                 </div>
-               </div>
-             </div>`
-        }
-      </div>
-    </div>
+  // Motivatiebrief section — copy button always, pdf only for pro/plus
+  const canPdf    = r.isPro === true || tier !== 'free';
+  const motivBody = showMotiv
+    ? '<p class="motiv-text" id="motiv-text">' + escHtml(r.motivatiebrief) + '</p>'
+    : '<div class="paywall-wrap">' +
+      '<div class="paywall-blur motiv-text">' + escHtml(r.motivatiebrief) + '</div>' +
+      '<div class="paywall-overlay"><div class="paywall-box">' +
+      '<p>' + t('motivOnly') + '</p><small>' + t('motivSub') + '</small>' +
+      '<div class="upgrade-options">' +
+      '<button class="btn-plus" onclick="window.location.href=PAYMENT_LINK_PLUS">' + t('btnPlus') + '</button>' +
+      '<button class="btn-pro"  onclick="window.location.href=PAYMENT_LINK_PRO">'  + t('btnPro')  + '</button>' +
+      '</div></div></div></div>';
 
-    <div class="section">
-      <div class="section-header" onclick="toggleSection(this)">
-        <h3>${t('cvTips')}</h3><span class="chevron up">&#9660;</span>
-      </div>
-      <div class="section-body"><p>${escHtml(r.cv_tips)}</p></div>
-    </div>
-  </div>`;
+  const copyPdfBtns = showMotiv
+    ? '<button class="copy-btn" onclick="event.stopPropagation();copyMotiv()">' + t('copy') + '</button>' +
+      (canPdf ? '<button class="pdf-btn" onclick="event.stopPropagation();downloadPDF(' + JSON.stringify(r.motivatiebrief) + ')">' + t('pdf') + '</button>' : '')
+    : '';
+
+  const motivHtml =
+    '<div class="section">' +
+    '<div class="section-header" onclick="toggleSection(this)"><h3>' + t('motiv') + '</h3>' +
+    '<div class="btn-row">' + copyPdfBtns + '<span class="chevron up">&#9660;</span></div></div>' +
+    '<div class="section-body">' + motivBody + '</div></div>';
+
+  const cvTipsHtml =
+    '<div class="section">' +
+    '<div class="section-header" onclick="toggleSection(this)"><h3>' + t('cvTips') + '</h3><span class="chevron up">&#9660;</span></div>' +
+    '<div class="section-body"><p>' + escHtml(r.cv_tips) + '</p></div></div>';
+
+  document.getElementById('results').innerHTML =
+    '<div class="results">' +
+    '<div class="score-card">' +
+    '<div class="score-ring"><svg width="80" height="80" viewBox="0 0 80 80">' +
+    '<circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" stroke-width="5"/>' +
+    '<circle cx="40" cy="40" r="32" fill="none" stroke="' + color + '" stroke-width="5" stroke-dasharray="' + circ.toFixed(1) + '" stroke-dashoffset="' + offset.toFixed(1) + '" stroke-linecap="round"/>' +
+    '</svg><div class="score-number" style="color:' + color + '">' + r.score + '</div></div>' +
+    '<div class="score-info"><h3>' + t('scoreLabel') + ': ' + r.score + '/100</h3><p>' + escHtml(r.score_uitleg) + '</p></div></div>' +
+    keywordsHtml + strengthsHtml + motivHtml + cvTipsHtml +
+    '</div>';
 }
 
 function toggleSection(header) {
-  const body = header.nextElementSibling;
+  const body    = header.nextElementSibling;
   const chevron = header.querySelector('.chevron');
-  const isOpen = !body.classList.contains('hidden');
+  const isOpen  = !body.classList.contains('hidden');
   body.classList.toggle('hidden', isOpen);
   chevron.classList.toggle('up', !isOpen);
 }
 
-function copyText(id) {
-  const el = document.getElementById(id);
+function copyMotiv() {
+  const el = document.getElementById('motiv-text');
   if (!el) return;
   navigator.clipboard.writeText(el.innerText).then(() => {
-    const btn = document.querySelector(`button[onclick*="${id}"]`);
+    const btn = document.querySelector('.copy-btn');
     if (btn) { btn.textContent = t('copied'); setTimeout(() => btn.textContent = t('copy'), 2000); }
   });
 }
 
+// ── Review form ──────────────────────────────────────────────────────────────
 let reviewRating = 0;
 
 function setStar(val) {
@@ -659,10 +600,14 @@ function setStar(val) {
 
 function showReviewForm() {
   if (localStorage.getItem('sol_reviewed')) return;
-  document.getElementById('review-form').style.display = 'block';
-  document.getElementById('review-title').textContent = lang === 'nl' ? 'Wat vond je ervan?' : 'How was your experience?';
-  document.getElementById('review-input').placeholder = lang === 'nl' ? 'Vertel ons wat je vond...' : 'Tell us what you think...';
-  document.getElementById('review-submit').textContent = lang === 'nl' ? 'Review versturen' : 'Submit review';
+  const form = document.getElementById('review-form');
+  form.style.display = 'block';
+  document.getElementById('review-title').textContent =
+    lang === 'nl' ? 'Wat vond je ervan?' : 'How was your experience?';
+  document.getElementById('review-input').placeholder =
+    lang === 'nl' ? 'Vertel ons wat je vond...' : 'Tell us what you think...';
+  document.getElementById('review-submit').textContent =
+    lang === 'nl' ? 'Review versturen' : 'Submit review';
 }
 
 async function submitReview() {
@@ -677,20 +622,14 @@ async function submitReview() {
     setTimeout(() => document.getElementById('review-input').style.borderColor = '', 1500);
     return;
   }
-
   const btn = document.getElementById('review-submit');
   btn.disabled = true;
   btn.textContent = lang === 'nl' ? 'Versturen...' : 'Sending...';
-
   try {
-    const stars = '★'.repeat(reviewRating) + '☆'.repeat(5 - reviewRating);
-    const resp = await fetch('https://formspree.io/f/xnjozwbr', {
+    const resp = await fetch('/api/review', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        rating: stars + ' (' + reviewRating + '/5)',
-        message: message
-      })
+      body: JSON.stringify({ rating: reviewRating, message })
     });
     if (!resp.ok) throw new Error('Failed');
     localStorage.setItem('sol_reviewed', '1');
@@ -699,9 +638,10 @@ async function submitReview() {
   } catch (e) {
     btn.disabled = false;
     btn.textContent = lang === 'nl' ? 'Review versturen' : 'Submit review';
-    document.getElementById('review-thanks').textContent = lang === 'nl' ? 'Er ging iets mis. Probeer opnieuw.' : 'Something went wrong. Please try again.';
-    document.getElementById('review-thanks').style.display = 'block';
-    document.getElementById('review-thanks').style.color = 'var(--red)';
+    const thanks = document.getElementById('review-thanks');
+    thanks.textContent = lang === 'nl' ? 'Er ging iets mis. Probeer opnieuw.' : 'Something went wrong. Try again.';
+    thanks.style.color = 'var(--red)';
+    thanks.style.display = 'block';
   }
 }
 
