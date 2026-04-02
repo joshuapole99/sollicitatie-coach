@@ -567,6 +567,9 @@ function scoreColor(s) {
 }
 
 function renderResults(r) {
+  currentTier = r.tier || currentTier;
+  currentCanPdf = r.canPdf === true;
+  currentMotivText = r.motivatiebrief || currentMotivText;
   const color = scoreColor(r.score);
   const circ = 2 * Math.PI * 32;
   const offset = circ * (1 - r.score / 100);
