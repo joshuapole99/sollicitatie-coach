@@ -1,136 +1,100 @@
-// api/session/verify.js
-// Single source of truth for tier verification
-// Called by frontend immediately after payment redirect and on page load
+// /api/session/verify.js
+// Source of truth voor tier detectie
+// Gebruikt zelfde logica als analyse.js
 
-import { createHash } from 'crypto';
+const PLUS_VARIANT_IDS = ['1478006'];
+const PRO_VARIANT_IDS  = ['1468118'];
 
-const LEMON_SQUEEZY_VARIANTS = {
-  1478006: 'plus',
-  1468118: 'pro',
-};
+async function getTierFromLemonSqueezy(sessionId, apiKey) {
+  if (!sessionId) return { tier: 'free', reason: 'no_session' };
+  if (!apiKey)    return { tier: 'free', reason: 'no_api_key' };
 
-async function lookupTier(sessionId) {
-  if (!sessionId || typeof sessionId !== 'string') return { tier: 'free', reason: 'no_session' };
-
-  const raw = sessionId.trim();
-
-  // Guard: reject unresolved placeholders from LS redirect template
-  if (raw.includes('{') || raw.includes('}')) {
-    console.warn('[verify] Unresolved placeholder in sessionId:', raw);
-    return { tier: 'free', reason: 'placeholder_not_replaced' };
+  // sessionId = ls_{internalOrderId}_{emailHash}
+  // Extract interne order ID (het getal na ls_)
+  let orderId = null;
+  if (sessionId.startsWith('ls_')) {
+    const parts = sessionId.split('_');
+    // ls_ = parts[0]+parts[1] leeg, parts[1] = orderId, rest = hash
+    // Format: ls_7960402_abc12345
+    if (parts.length >= 3) orderId = parts[1];
   }
 
-  const apiKey = process.env.LEMONSQUEEZY_API_KEY;
-  if (!apiKey) {
-    console.error('[verify] LEMONSQUEEZY_API_KEY not set');
-    return { tier: 'free', reason: 'no_api_key' };
+  if (!orderId || isNaN(orderId)) {
+    return { tier: 'free', reason: 'invalid_session_format', sessionId };
   }
 
-  const headers = {
-    Authorization: `Bearer ${apiKey}`,
-    Accept: 'application/vnd.api+json',
-  };
-
-  console.log('[verify] Looking up sessionId:', raw.slice(0, 12) + '...');
-
-  // ── Strategy 1: raw is a numeric order ID ──────────────────
-  if (/^\d+$/.test(raw)) {
-    console.log('[verify] Strategy 1: numeric order ID');
-    try {
-      const r = await fetch(`https://api.lemonsqueezy.com/v1/orders/${raw}`, { headers });
-      if (r.ok) {
-        const d = await r.json();
-        const variantId = d?.data?.attributes?.first_order_item?.variant_id;
-        const status = d?.data?.attributes?.status;
-        console.log('[verify] Order status:', status, 'variantId:', variantId);
-        if (status === 'paid' && LEMON_SQUEEZY_VARIANTS[variantId]) {
-          return { tier: LEMON_SQUEEZY_VARIANTS[variantId], reason: 'order_direct', orderId: raw };
-        }
-      }
-    } catch (e) { console.error('[verify] Strategy 1 error:', e.message); }
-  }
-
-  // ── Strategy 2: extract numeric ID from compound token ─────
-  // Handles formats like: ls_123456_abc, 123456_abc, etc.
-  const numericMatch = raw.match(/^(?:ls_)?(\d+)/);
-  if (numericMatch && numericMatch[1] !== raw) {
-    const orderId = numericMatch[1];
-    console.log('[verify] Strategy 2: extracted orderId', orderId);
-    try {
-      const r = await fetch(`https://api.lemonsqueezy.com/v1/orders/${orderId}`, { headers });
-      if (r.ok) {
-        const d = await r.json();
-        const variantId = d?.data?.attributes?.first_order_item?.variant_id;
-        const status = d?.data?.attributes?.status;
-        console.log('[verify] Order status:', status, 'variantId:', variantId);
-        if (status === 'paid' && LEMON_SQUEEZY_VARIANTS[variantId]) {
-          return { tier: LEMON_SQUEEZY_VARIANTS[variantId], reason: 'order_extracted', orderId };
-        }
-      }
-    } catch (e) { console.error('[verify] Strategy 2 error:', e.message); }
-  }
-
-  // ── Strategy 3: order identifier filter (UUID-style) ───────
-  console.log('[verify] Strategy 3: order identifier filter');
   try {
-    const r = await fetch(
-      `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${encodeURIComponent(raw)}`,
-      { headers }
+    // Check subscription voor dit order
+    const subsResp = await fetch(
+      `https://api.lemonsqueezy.com/v1/subscriptions?filter[order_id]=${orderId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Accept': 'application/vnd.api+json',
+        },
+      }
     );
-    if (r.ok) {
-      const d = await r.json();
-      const order = d?.data?.[0];
-      if (order) {
-        const variantId = order.attributes?.first_order_item?.variant_id;
-        const status = order.attributes?.status;
-        console.log('[verify] Order filter status:', status, 'variantId:', variantId);
-        if (status === 'paid' && LEMON_SQUEEZY_VARIANTS[variantId]) {
-          return { tier: LEMON_SQUEEZY_VARIANTS[variantId], reason: 'order_filter' };
-        }
-      }
-    }
-  } catch (e) { console.error('[verify] Strategy 3 error:', e.message); }
 
-  // ── Strategy 4: subscription direct lookup ─────────────────
-  console.log('[verify] Strategy 4: subscription direct');
-  try {
-    const r = await fetch(`https://api.lemonsqueezy.com/v1/subscriptions/${raw}`, { headers });
-    if (r.ok) {
-      const d = await r.json();
-      const sub = d?.data;
-      const variantId = sub?.attributes?.variant_id;
-      const status = sub?.attributes?.status;
-      console.log('[verify] Sub status:', status, 'variantId:', variantId);
-      if (['active', 'trialing'].includes(status) && LEMON_SQUEEZY_VARIANTS[variantId]) {
-        return { tier: LEMON_SQUEEZY_VARIANTS[variantId], reason: 'subscription_direct' };
-      }
+    if (!subsResp.ok) {
+      const errText = await subsResp.text();
+      console.error(`[verify] LS subscriptions API fout ${subsResp.status}:`, errText.slice(0, 200));
+      return { tier: 'free', reason: `ls_api_error_${subsResp.status}` };
     }
-  } catch (e) { console.error('[verify] Strategy 4 error:', e.message); }
 
-  // ── Strategy 5: subscription filter by order_id ────────────
-  if (/^\d+$/.test(raw) || numericMatch) {
-    const orderId = numericMatch ? numericMatch[1] : raw;
-    console.log('[verify] Strategy 5: subscription filter by order_id', orderId);
-    try {
-      const r = await fetch(
-        `https://api.lemonsqueezy.com/v1/subscriptions?filter[order_id]=${orderId}`,
-        { headers }
-      );
-      if (r.ok) {
-        const d = await r.json();
-        const sub = d?.data?.[0];
-        const variantId = sub?.attributes?.variant_id;
-        const status = sub?.attributes?.status;
-        console.log('[verify] Sub filter status:', status, 'variantId:', variantId);
-        if (['active', 'trialing'].includes(status) && LEMON_SQUEEZY_VARIANTS[variantId]) {
-          return { tier: LEMON_SQUEEZY_VARIANTS[variantId], reason: 'subscription_filter' };
-        }
+    const subsData = await subsResp.json();
+    console.log(`[verify] orderId=${orderId} subscriptions count=${subsData.data?.length}`);
+
+    if (subsData.data?.length > 0) {
+      const sub = subsData.data[0];
+      const subStatus = sub.attributes?.status;
+      const variantId = String(sub.attributes?.variant_id);
+
+      console.log(`[verify] sub status=${subStatus} variantId=${variantId}`);
+
+      if (!['active', 'trialing', 'past_due'].includes(subStatus)) {
+        return { tier: 'free', reason: `subscription_inactive_${subStatus}` };
       }
-    } catch (e) { console.error('[verify] Strategy 5 error:', e.message); }
+
+      if (PRO_VARIANT_IDS.includes(variantId))  return { tier: 'pro',  reason: 'subscription_pro' };
+      if (PLUS_VARIANT_IDS.includes(variantId)) return { tier: 'plus', reason: 'subscription_plus' };
+
+      return { tier: 'plus', reason: 'subscription_unknown_variant' };
+    }
+
+    // Geen subscription gevonden — check order zelf (eenmalige betaling)
+    const orderResp = await fetch(
+      `https://api.lemonsqueezy.com/v1/orders/${orderId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Accept': 'application/vnd.api+json',
+        },
+      }
+    );
+
+    if (!orderResp.ok) {
+      return { tier: 'free', reason: `order_not_found_${orderResp.status}` };
+    }
+
+    const orderData = await orderResp.json();
+    const orderStatus = orderData.data?.attributes?.status;
+    const variantId = String(orderData.data?.attributes?.first_order_item?.variant_id);
+
+    console.log(`[verify] order status=${orderStatus} variantId=${variantId}`);
+
+    if (orderStatus !== 'paid') {
+      return { tier: 'free', reason: `order_not_paid_${orderStatus}` };
+    }
+
+    if (PRO_VARIANT_IDS.includes(variantId))  return { tier: 'pro',  reason: 'order_pro' };
+    if (PLUS_VARIANT_IDS.includes(variantId)) return { tier: 'plus', reason: 'order_plus' };
+
+    return { tier: 'plus', reason: 'order_paid_unknown_variant' };
+
+  } catch (e) {
+    console.error('[verify] Exception:', e.message);
+    return { tier: 'free', reason: `exception_${e.message}` };
   }
-
-  console.warn('[verify] All strategies exhausted — returning free for sessionId:', raw.slice(0, 12));
-  return { tier: 'free', reason: 'not_found' };
 }
 
 export default async function handler(req, res) {
@@ -142,12 +106,18 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { sessionId } = req.body || {};
-  const { tier, reason, orderId } = await lookupTier(sessionId);
+  const apiKey = process.env.LEMONSQUEEZY_API_KEY;
+
+  console.log(`[verify] sessionId=${sessionId ? sessionId.slice(0,20) + '...' : 'none'} apiKey=${!!apiKey}`);
+
+  const { tier, reason } = await getTierFromLemonSqueezy(sessionId, apiKey);
+
+  console.log(`[verify] result tier=${tier} reason=${reason}`);
 
   return res.status(200).json({
-    tier,
+    tier,    // "free" | "plus" | "pro"
     canPdf: tier === 'pro',
-    reason, // helpful for debugging, safe to expose
-    ...(orderId ? { orderId } : {}),
+    // reason alleen in development — verwijder in productie als gewenst
+    _reason: process.env.NODE_ENV !== 'production' ? reason : undefined,
   });
 }
