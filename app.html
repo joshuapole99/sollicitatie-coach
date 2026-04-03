@@ -380,6 +380,11 @@ if (sessionFromUrl) {
   window.history.replaceState({}, '', window.location.pathname);
 }
 
+const savedTier = localStorage.getItem('ls_tier');
+if (savedTier) {
+  currentTier = savedTier;
+}
+
 setLang(lang);
 renderUsageBar();
 
@@ -470,6 +475,11 @@ async function runAnalysis() {
     currentCanPdf = data.canPdf === true;
     currentMotivText = data.motivatiebrief || '';
 
+    localStorage.setItem('ls_tier', currentTier);
+    if (data.sessionId) {
+      localStorage.setItem('ls_session_id', data.sessionId);
+    }
+
     if (currentTier === 'free') localStorage.setItem('sol_uses', usedLocally + 1);
 
     renderUsageBar();
@@ -507,7 +517,10 @@ function scoreColor(s) {
 }
 
 function renderResults(r) {
-  currentTier = r.tier || currentTier;
+  if (r.tier) {
+  currentTier = r.tier;
+  localStorage.setItem('ls_tier', currentTier);
+  }
   currentCanPdf = r.canPdf === true;
   currentMotivText = r.motivatiebrief || currentMotivText;
   const color = scoreColor(r.score);
