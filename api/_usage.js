@@ -1,46 +1,62 @@
 // api/_usage.js — Server-side usage tracking
-// Uses Vercel KV when available, falls back to in-memory (resets on cold start)
-//
-// TO ENABLE PERSISTENT TRACKING:
-//   vercel kv create usage-store
-//   (auto-sets KV_REST_API_URL and KV_REST_API_TOKEN)
+// Uses Upstash/Vercel KV REST API with ATOMIC INCR (no race conditions)
+// Falls back to in-memory only when KV is not configured (dev mode)
 
-// ─── In-memory fallback ───────────────────────────────────────
+// ─── In-memory fallback (dev only — resets on cold start) ─────
 const memStore = new Map();
 
-// ─── KV helpers ───────────────────────────────────────────────
-async function kvGet(key) {
-  const url   = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return null;
+// ─── KV REST helpers ──────────────────────────────────────────
+function kvHeaders() {
+  return { Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}` };
+}
+function kvUrl() { return process.env.KV_REST_API_URL; }
+function hasKv()  { return !!(kvUrl() && process.env.KV_REST_API_TOKEN); }
+
+// Atomic increment — returns new integer value
+async function kvIncr(key) {
+  if (!hasKv()) {
+    const cur = (memStore.get(key) || 0);
+    memStore.set(key, cur + 1);
+    return cur + 1;
+  }
   try {
-    const r = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const r = await fetch(`${kvUrl()}/incr/${encodeURIComponent(key)}`, {
+      method: 'POST',
+      headers: kvHeaders(),
+    });
+    if (!r.ok) throw new Error(`INCR ${r.status}`);
+    const d = await r.json();
+    return d.result;
+  } catch (e) {
+    console.error('[usage] kvIncr failed:', e.message);
+    throw e;
+  }
+}
+
+// Set TTL in seconds on an existing key
+async function kvExpire(key, seconds) {
+  if (!hasKv()) return;
+  try {
+    await fetch(`${kvUrl()}/expire/${encodeURIComponent(key)}/${seconds}`, {
+      method: 'POST',
+      headers: kvHeaders(),
+    });
+  } catch (e) {
+    console.error('[usage] kvExpire failed:', e.message);
+  }
+}
+
+// Plain GET — returns raw string or null
+async function kvGet(key) {
+  if (!hasKv()) return memStore.has(key) ? String(memStore.get(key)) : null;
+  try {
+    const r = await fetch(`${kvUrl()}/get/${encodeURIComponent(key)}`, {
+      headers: kvHeaders(),
     });
     if (!r.ok) return null;
     const d = await r.json();
-    return d.result ? JSON.parse(d.result) : null;
+    return d.result ?? null;
   } catch { return null; }
-}
-
-async function kvSet(key, value, exSeconds) {
-  const url   = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return false;
-  try {
-    // FIX: Vercel KV REST API uses POST with JSON body, not GET with URL encoding
-    const body = { value: JSON.stringify(value) };
-    if (exSeconds) body.ex = exSeconds;
-    const r = await fetch(`${url}/set/${encodeURIComponent(key)}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-    return r.ok;
-  } catch { return false; }
 }
 
 // ─── Month key ────────────────────────────────────────────────
@@ -49,48 +65,30 @@ function monthKey() {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
-// ─── Build store key ──────────────────────────────────────────
+// ─── Build KV usage key ───────────────────────────────────────
+// FREE  → usage:lifetime:{sessionId}          (never expires)
+// PLUS/PRO → usage:monthly:{sessionId}:YYYY-MM (expires after 35d)
 function buildKey(sessionId, windowType) {
   return windowType === 'monthly'
-    ? `usage:${sessionId}:${monthKey()}`
-    : `usage:${sessionId}:lifetime`;
+    ? `usage:monthly:${sessionId}:${monthKey()}`
+    : `usage:lifetime:${sessionId}`;
 }
 
-// ─── Get usage record ─────────────────────────────────────────
-async function getUsage(sessionId, windowType) {
+// ─── Get current count (read-only) ───────────────────────────
+async function getCount(sessionId, windowType) {
   const key = buildKey(sessionId, windowType);
-  const kvData = await kvGet(key);
-  if (kvData !== null) return kvData;
-  return memStore.get(key) || { count: 0, firstUse: null };
-}
-
-// ─── Increment usage ──────────────────────────────────────────
-async function incrementUsage(sessionId, windowType) {
-  const key     = buildKey(sessionId, windowType);
-  const current = await getUsage(sessionId, windowType);
-  const updated = {
-    count:    (current.count || 0) + 1,
-    firstUse: current.firstUse || new Date().toISOString(),
-    lastUse:  new Date().toISOString(),
-  };
-
-  // Monthly: expire after 35 days (covers full month + buffer)
-  const ex = windowType === 'monthly' ? 35 * 24 * 60 * 60 : null;
-  await kvSet(key, updated, ex);
-
-  // Always update memory (faster for same-request reads)
-  memStore.set(key, updated);
-  return updated;
+  const val = await kvGet(key);
+  return val !== null ? parseInt(val, 10) : 0;
 }
 
 // ─── Check and enforce limit ──────────────────────────────────
 // Returns { allowed, used, remaining, limit }
+// Does NOT increment — call recordUsage() after successful AI response
 export async function checkAndEnforce(sessionId, tier, tierConfig) {
   const { maxAnalyses, windowType } = tierConfig;
-  const usage = await getUsage(sessionId, windowType);
-  const used  = usage.count || 0;
+  const used = await getCount(sessionId, windowType);
 
-  console.log(`[usage] key=${sessionId.slice(0,8)}... tier=${tier} window=${windowType} used=${used}/${maxAnalyses}`);
+  console.log(`[usage] check: ${sessionId.slice(0,8)}... tier=${tier} window=${windowType} used=${used}/${maxAnalyses}`);
 
   if (used >= maxAnalyses) {
     return { allowed: false, used, remaining: 0, limit: maxAnalyses };
@@ -99,9 +97,20 @@ export async function checkAndEnforce(sessionId, tier, tierConfig) {
   return { allowed: true, used, remaining: maxAnalyses - used - 1, limit: maxAnalyses };
 }
 
-// ─── Record a used analysis ───────────────────────────────────
+// ─── Record a used analysis (ATOMIC) ─────────────────────────
+// Called AFTER successful AI response — never before
 export async function recordUsage(sessionId, tierConfig) {
-  const updated = await incrementUsage(sessionId, tierConfig.windowType);
-  console.log(`[usage] Recorded. New count: ${updated.count}`);
-  return updated;
+  const { windowType } = tierConfig;
+  const key = buildKey(sessionId, windowType);
+
+  const newCount = await kvIncr(key);
+
+  // Set expiry on monthly keys (35 days = full month + buffer)
+  // Re-set on every increment — idempotent and safe
+  if (windowType === 'monthly') {
+    await kvExpire(key, 35 * 24 * 60 * 60);
+  }
+
+  console.log(`[usage] recorded: key=${key.slice(0,30)}... newCount=${newCount}`);
+  return newCount;
 }
