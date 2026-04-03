@@ -61,6 +61,7 @@ function checkRateLimit(fingerprint, tier) {
 // Supports both order IDs (one-time) and subscription IDs
 async function getTier(req) {
   const sessionId = req.headers['x-ls-session'];
+  const rawOrderId = sessionId?.startsWith('ls_') ? sessionId.split('_')[1] : sessionId;
   if (!sessionId) return 'free';
   if (!process.env.LEMONSQUEEZY_API_KEY) return 'free';
 
