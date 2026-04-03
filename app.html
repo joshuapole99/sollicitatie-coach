@@ -134,7 +134,6 @@ textarea::placeholder{color:var(--faint)}
     <div class="dots" id="dots"></div>
     <span id="usage-text"></span>
     <button class="upgrade-btn" onclick="goUpgrade()">Pro &mdash; &euro;9,99/mnd</button>
-    <a href="/activate.html" class="activate-link" id="activate-link">Al betaald? Activeer &rarr;</a>
   </div>
 
   <div class="inputs">
@@ -284,7 +283,6 @@ function applyLang() {
   document.getElementById('cv-input').placeholder = t('cvPh');
   document.getElementById('job-input').placeholder = t('jobPh');
   document.getElementById('analyse-btn').textContent = t('analyseBtn');
-  document.getElementById('activate-link').textContent = t('activateLink');
   renderUsageBar();
 }
 
