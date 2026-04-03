@@ -25,19 +25,21 @@ export default async function handler(req, res) {
 
   // Usage: always check against sessionId (stable, paid users always have one)
   // For sessions without KV tier record (free users), still check usage by sid
+  // Always check usage from KV — never return hardcoded defaults.
+  // boot() always creates a UUID so sid should always be present,
+  // but we handle the null case defensively.
   let usageData = { used: 0, remaining: config.maxAnalyses, limit: config.maxAnalyses, windowType: config.windowType };
   let blocked = false;
 
-  if (sid) {
-    const result = await checkAndEnforce(sid, tier, config);
-    usageData = {
-      used:       result.used,
-      remaining:  result.remaining,
-      limit:      result.limit,
-      windowType: config.windowType,
-    };
-    blocked = !result.allowed;
-  }
+  const usageKey = sid || 'anonymous';
+  const result = await checkAndEnforce(usageKey, tier, config);
+  usageData = {
+    used:       result.used,
+    remaining:  result.remaining,
+    limit:      result.limit,
+    windowType: config.windowType,
+  };
+  blocked = !result.allowed;
 
   console.log(`[verify] tier=${tier} source=${source} used=${usageData.used}/${usageData.limit} blocked=${blocked}`);
 
