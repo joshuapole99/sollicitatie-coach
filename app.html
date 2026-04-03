@@ -487,37 +487,39 @@ async function runAnalysis() {
     return;
   }
 
-  if (!resp.ok) throw new Error(data.error || `Fout (${resp.status})`);
-
-  currentTier = data.tier || 'free';
-  currentCanPdf = data.canPdf === true;
-  currentMotivText = data.motivatiebrief || '';
-
-  localStorage.setItem('ls_tier', currentTier);
-
-  if (data.sessionId) {
-    localStorage.setItem('ls_session_id', data.sessionId);
-  }
-
-} catch (err) {
-  console.error(err);
-}
-    if (currentTier === 'free') localStorage.setItem('sol_uses', usedLocally + 1);
-
-    renderUsageBar();
-    lastResult = data;
-    renderResults(data);
-    setTimeout(showReviewForm, 2000);
-    setTimeout(showEmailModal, 1500);
-
-  } catch (e) {
-    document.getElementById('results').innerHTML =
-      <div class="error-box">${escHtml(e.message)}</div>;
-  } finally {
-    document.getElementById('analyse-btn').disabled = false;
-  }
+  if (!resp.ok) {
+  throw new Error(data.error || `Fout (${resp.status})`);
 }
 
+currentTier = data.tier || 'free';
+currentCanPdf = data.canPdf === true;
+currentMotivText = data.motivatiebrief || '';
+
+localStorage.setItem('ls_tier', currentTier);
+
+if (data.sessionId) {
+  localStorage.setItem('ls_session_id', data.sessionId);
+}
+
+if (currentTier === 'free') {
+  localStorage.setItem('sol_uses', usedLocally + 1);
+}
+
+renderUsageBar();
+lastResult = data;
+renderResults(data);
+
+setTimeout(showReviewForm, 2000);
+setTimeout(showEmailModal, 1500);
+
+} catch (e) {
+  document.getElementById('results').innerHTML = `
+    <div class="error-box">${escHtml(e.message)}</div>
+  `;
+} finally {
+  document.getElementById('analyse-btn').disabled = false;
+}
+  
 function downloadPDF() {
   if (!currentCanPdf || !currentMotivText) return;
   const { jsPDF } = window.jspdf;
