@@ -60,9 +60,9 @@ function checkRateLimit(fingerprint, tier) {
 // ─── Lemon Squeezy tier detection ────────────────────────────
 // Supports both order IDs (one-time) and subscription IDs
 async function getTier(req) {
-  const sessionId = req.headers['x-ls-session'];
-  const rawOrderId = sessionId?.startsWith('ls_') ? sessionId.split('_')[1] : sessionId;
-  if (!sessionId) return 'free';
+  const rawOrderId = req.headers['x-ls-session'];
+  const rawOrderId = rawOrderId?.startsWith('ls_') ? rawOrderId.split('_')[1] : rawOrderId;
+  if (!rawOrderId) return 'free';
   if (!process.env.LEMONSQUEEZY_API_KEY) return 'free';
 
   const headers = {
@@ -73,9 +73,9 @@ async function getTier(req) {
   try {
     // Strategy 1: try as order ID directly (numeric)
     // Lemon Squeezy order IDs are numeric strings
-    if (/^\d+$/.test(sessionId)) {
+    if (/^\d+$/.test(rawOrderId)) {
       const resp = await fetch(
-        `https://api.lemonsqueezy.com/v1/orders/${sessionId}`,
+        `https://api.lemonsqueezy.com/v1/orders/${rawOrderId}`,
         { headers }
       );
       if (resp.ok) {
@@ -90,7 +90,7 @@ async function getTier(req) {
     // The {order_id} template in LS redirect gives the numeric order ID
     // But some setups pass the order identifier instead — try filter
     const resp2 = await fetch(
-      `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${encodeURIComponent(sessionId)}`,
+      `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${encodeURIComponent(rawOrderId)}`,
       { headers }
     );
     if (resp2.ok) {
@@ -105,7 +105,7 @@ async function getTier(req) {
 
     // Strategy 3: try as subscription ID
     const resp3 = await fetch(
-      `https://api.lemonsqueezy.com/v1/subscriptions/${sessionId}`,
+      `https://api.lemonsqueezy.com/v1/subscriptions/${rawOrderId}`,
       { headers }
     );
     if (resp3.ok) {
@@ -120,7 +120,7 @@ async function getTier(req) {
 
     // Strategy 4: search subscriptions by order_id
     const resp4 = await fetch(
-      `https://api.lemonsqueezy.com/v1/subscriptions?filter[order_id]=${encodeURIComponent(sessionId)}`,
+      `https://api.lemonsqueezy.com/v1/subscriptions?filter[order_id]=${encodeURIComponent(rawOrderId)}`,
       { headers }
     );
     if (resp4.ok) {
@@ -133,7 +133,7 @@ async function getTier(req) {
       }
     }
 
-    console.warn('LS: geen tier gevonden voor sessionId:', sessionId.slice(0, 8) + '...');
+    console.warn('LS: geen tier gevonden voor rawOrderId:', rawOrderId.slice(0, 8) + '...');
     return 'free';
 
   } catch (err) {
