@@ -51,6 +51,20 @@ export default async function handler(req, res) {
       debug_originalOrder: order
     });
 
+    if (!foundOrder) {
+  // Extra: probeer orders lijst ophalen om te zien wat er is
+  const listResp = await fetch(
+    `https://api.lemonsqueezy.com/v1/orders?page[size]=5`,
+    { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
+  );
+  const listData = listResp.ok ? await listResp.json() : { error: 'list failed' };
+  return res.status(404).json({ 
+    error: 'Order not found',
+    debug_orderNum: orderNum,
+    debug_listSample: listData?.data?.map(o => ({ id: o.id, number: o.attributes?.order_number, email: o.attributes?.user_email }))
+  });
+}
+
     // Stap 2: Valideer email
     const orderEmail = foundOrder.attributes?.user_email?.toLowerCase();
     if (orderEmail !== email.toLowerCase()) {
