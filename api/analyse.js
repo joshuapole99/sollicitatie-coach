@@ -59,7 +59,7 @@ BELANGRIJK: Alleen dit JSON object. Niets anders.`;
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-ls-session');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-session-id');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -72,36 +72,39 @@ export default async function handler(req, res) {
     if (!job || typeof job !== 'string' || job.trim().length < 30)
       return res.status(400).json({ error: 'Vacature te kort of ontbreekt' });
 
-    // ── 1. Resolve tier ────────────────────────────────────────
-    const sessionId = (req.headers['x-ls-session'] || '').trim() || null;
+    // ── 1. Get sessionId — header only, body fallback ─────────
+    // Header: x-session-id (preferred, set by frontend)
+    // Body: sessionId (fallback)
+    const sessionId = (
+      (req.headers['x-session-id'] || req.headers['x-ls-session'] || '').trim() ||
+      (typeof req.body?.sessionId === 'string' ? req.body.sessionId.trim() : '')
+    ) || null;
+
+    // ── 2. Resolve tier from KV (single deterministic read) ───
     const { tier, config, source } = await resolveTier(sessionId);
 
-    console.log(`[analyse] sessionId=${sessionId?.slice(0,10) || 'NONE'} tier=${tier} source=${source}`);
+    console.log(`[analyse] sid=${sessionId?.slice(0,10)||'NONE'} tier=${tier} source=${source}`);
 
-    // ── 2. Determine usage key ─────────────────────────────────
-    // FIX: Free users without session → use fingerprint (IP+UA hash) not raw IP
-    // This prevents trivial VPN bypass AND keeps free limit meaningful
-    // Paid users always use sessionId as key (stable across IPs)
+    // ── 3. Usage key: always sessionId for paid, or a stable
+    //    IP+UA fingerprint for anonymous free users.
+    //    Free users without a session get a best-effort key.
+    //    Paid users always have a sessionId.
     let usageKey;
-    if (sessionId && tier !== 'free') {
-      // Paid: stable key tied to their payment
+    if (sessionId) {
       usageKey = sessionId;
     } else {
-      // Free: best-effort fingerprint (IP + User-Agent)
-      // Note: without KV this resets on cold start — acceptable for free tier
-      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+      // Anonymous free — best-effort IP fingerprint
+      const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
               || req.headers['x-real-ip']
               || 'unknown';
-      const ua = req.headers['user-agent'] || 'unknown';
-      // Simple hash: first 16 chars of base64(ip:ua)
-      usageKey = `fp:${Buffer.from(`${ip}:${ua}`).toString('base64').slice(0, 16)}`;
+      usageKey = `anon:${Buffer.from(ip).toString('base64').slice(0, 20)}`;
     }
 
-    // ── 3. Enforce usage limit — AI NEVER runs if blocked ─────
+    // ── 4. Enforce usage limit (server-side, always) ──────────
     const { allowed, used, remaining, limit } = await checkAndEnforce(usageKey, tier, config);
 
     if (!allowed) {
-      console.log(`[analyse] BLOCKED: tier=${tier} used=${used}/${limit} key=${usageKey.slice(0,10)}`);
+      console.log(`[analyse] BLOCKED: tier=${tier} used=${used}/${limit}`);
       return res.status(429).json({
         error: 'Limiet bereikt',
         message: tier === 'free'
@@ -116,11 +119,11 @@ export default async function handler(req, res) {
     if (!process.env.ANTHROPIC_API_KEY)
       return res.status(500).json({ error: 'Serverconfiguratie fout.' });
 
-    // ── 4. Feature gating — server decides ────────────────────
+    // ── 5. Feature gating — server decides ───────────────────
     const includeCoverLetter = config.coverLetter;
     console.log(`[analyse] allowed: used=${used}/${limit} coverLetter=${includeCoverLetter} pdf=${config.pdf}`);
 
-    // ── 5. AI call ────────────────────────────────────────────
+    // ── 6. AI call ────────────────────────────────────────────
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 25000);
 
@@ -155,7 +158,7 @@ export default async function handler(req, res) {
     const rawText = aiData.content?.[0]?.text;
     if (!rawText) return res.status(502).json({ error: 'Lege AI response. Probeer opnieuw.' });
 
-    // ── 6. Parse AI response ──────────────────────────────────
+    // ── 7. Parse AI response ──────────────────────────────────
     let result;
     try { result = extractJSON(rawText); }
     catch (_) {
@@ -163,7 +166,7 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'AI response onverwacht formaat. Probeer opnieuw.' });
     }
 
-    // ── 7. Validate required fields ───────────────────────────
+    // ── 8. Validate required fields ───────────────────────────
     for (const f of ['score', 'score_uitleg', 'sterke_punten', 'verbeterpunten',
                       'match_keywords', 'mis_keywords', 'motivatiebrief', 'cv_tips']) {
       if (result[f] === undefined || result[f] === null)
@@ -174,21 +177,21 @@ export default async function handler(req, res) {
     for (const f of ['sterke_punten', 'verbeterpunten', 'match_keywords', 'mis_keywords'])
       if (!Array.isArray(result[f])) result[f] = [];
 
-    // ── 8. Server strips cover letter for free users ──────────
+    // ── 9. Server strips cover letter for free/plus users ─────
     if (!includeCoverLetter) result.motivatiebrief = '';
 
-    // ── 9. Record usage AFTER successful AI response ──────────
-    await recordUsage(usageKey, config);
-    console.log(`[analyse] Recorded usage. used=${used + 1}/${limit}`);
+    // ── 10. Record usage AFTER successful AI response (atomic) ─
+    const newCount = await recordUsage(usageKey, config);
+    console.log(`[analyse] usage recorded: ${newCount}/${limit}`);
 
-    res.setHeader('X-RateLimit-Remaining', remaining);
+    res.setHeader('X-RateLimit-Remaining', String(Math.max(0, limit - newCount)));
 
     return res.status(200).json({
       ...result,
       tier,
       canPdf:      config.pdf,
       coverLetter: config.coverLetter,
-      usage: { used: used + 1, remaining, limit },
+      usage: { used: newCount, remaining: Math.max(0, limit - newCount), limit },
     });
 
   } catch (e) {
