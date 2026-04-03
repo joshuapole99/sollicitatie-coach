@@ -1,158 +1,179 @@
-/**
- * /api/analyse.js
- *
- * Enforces tier limits BEFORE running analysis.
- * Uses shared resolveTier() — identical logic to verify.js.
- *
- * ✅ Server enforces limits
- * ✅ Increments usage only on success
- * ❌ NO client-side limit checks allowed
- * ❌ NO free tier reset ever
- */
+// api/analyse.js
+// All tier enforcement happens here server-side.
+// Frontend sends sessionId via header — server decides everything.
 
-const { resolveTier, incrementUsage } = require("./lib/tierResolver");
+import { resolveTier } from './_tier.js';
+import { checkAndEnforce, recordUsage } from './_usage.js';
 
-module.exports = async function handler(req, res) {
-  // ── CORS ──────────────────────────────────────────────────────────────────
-  res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN ?? "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  res.setHeader("Cache-Control", "no-store");
-
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  // ── Parse body ────────────────────────────────────────────────────────────
-  const { sessionId, vacatureText, cvText } = req.body ?? {};
-
-  if (!sessionId || typeof sessionId !== "string") {
-    return res.status(400).json({ error: "sessionId required" });
-  }
-  if (!vacatureText || !cvText) {
-    return res.status(400).json({ error: "vacatureText and cvText required" });
-  }
-
-  console.log(`[analyse] Request for sessionId=${sessionId.slice(0, 8)}…`);
-
-  // ── Resolve tier + check limits ───────────────────────────────────────────
-  let resolution;
-  try {
-    resolution = await resolveTier(sessionId);
-  } catch (err) {
-    console.error("[analyse] resolveTier failed:", err.message);
-    return res.status(500).json({ error: "Tier resolution failed" });
-  }
-
-  const { tier, limits, usage } = resolution;
-
-  // ── ENFORCE LIMIT (server-side, always) ───────────────────────────────────
-  if (usage.exceeded) {
-    console.log(`[analyse] BLOCKED — tier=${tier} limit=${limits.maxAnalyses} used=${usage.current}`);
-    return res.status(403).json({
-      error: "limit_exceeded",
-      tier,
-      message: buildLimitMessage(tier, limits),
-      usage,
-      limits,
-    });
-  }
-
-  // ── Run analysis via OpenAI ───────────────────────────────────────────────
-  let analysisResult;
-  try {
-    analysisResult = await runAnalysis({ vacatureText, cvText, tier });
-  } catch (err) {
-    console.error("[analyse] OpenAI call failed:", err.message);
-    return res.status(500).json({ error: "Analysis failed. Try again later." });
-  }
-
-  // ── Increment usage ONLY after successful analysis ────────────────────────
-  try {
-    const newCount = await incrementUsage(sessionId, limits.windowType);
-    console.log(`[analyse] Usage incremented → ${newCount}/${limits.maxAnalyses} (${tier})`);
-  } catch (err) {
-    console.error("[analyse] incrementUsage failed:", err.message);
-    // Still return the result — don't punish the user for a tracking glitch
-    // But log it for investigation
-  }
-
-  return res.status(200).json({
-    success: true,
-    tier,
-    analysis: analysisResult,
-    usage: {
-      current: usage.current + 1,
-      remaining: Math.max(0, limits.maxAnalyses - (usage.current + 1)),
-      max: limits.maxAnalyses,
-      windowType: limits.windowType,
-    },
-  });
-};
-
-// ─── LIMIT MESSAGE BUILDER ────────────────────────────────────────────────────
-
-function buildLimitMessage(tier, limits) {
-  if (tier === "free") {
-    return `Je hebt je ${limits.maxAnalyses} gratis analyses gebruikt. Upgrade naar PLUS of PRO voor meer.`;
-  }
-  if (tier === "plus") {
-    return `Je hebt je ${limits.maxAnalyses} maandelijkse analyses bereikt. Upgrade naar PRO voor 100/maand.`;
-  }
-  if (tier === "pro") {
-    return `Je hebt je ${limits.maxAnalyses} maandelijkse analyses bereikt. Je limiet reset volgende maand.`;
-  }
-  return "Analyse limiet bereikt.";
+// ─── JSON extractor ───────────────────────────────────────────
+function extractJSON(text) {
+  let s = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+  const a = s.indexOf('{'), b = s.lastIndexOf('}');
+  if (a === -1 || b === -1) throw new Error('No JSON found');
+  s = s.slice(a, b + 1);
+  try { return JSON.parse(s); } catch (_) {}
+  s = s
+    .replace(/,\s*}/g, '}').replace(/,\s*]/g, ']')
+    .replace(/([{,]\s*)(\w+):/g, '$1"$2":')
+    .replace(/:\s*'([^']*)'/g, ': "$1"')
+    .replace(/\n/g, ' ').replace(/\r/g, '');
+  return JSON.parse(s);
 }
 
-// ─── ANALYSIS FUNCTION ────────────────────────────────────────────────────────
+// ─── Prompt builder ───────────────────────────────────────────
+const SYSTEM_PROMPT = `Je bent een Nederlandse sollicitatiecoach AI.
+KRITIEKE REGELS:
+1. Geef ALLEEN een JSON object terug. Geen tekst ervoor of erna.
+2. Geen markdown, geen code blocks, geen backticks.
+3. Begin met { en eindig met }
+4. Alle strings in dubbele aanhalingstekens.
+5. Geen trailing commas.`;
 
-async function runAnalysis({ vacatureText, cvText, tier }) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("Missing OPENAI_API_KEY");
+function buildPrompt(cv, job, includeCoverLetter) {
+  return `Analyseer deze CV en vacature.
 
-  const systemPrompt = `Je bent een professionele sollicitatie coach. Analyseer de match tussen de vacature en het CV.
-Geef altijd terug:
-1. Match score (0-100) met uitleg
-2. Keyword analyse (aanwezig / ontbrekend)
-3. Sterke punten van het CV voor deze vacature
-4. Zwakke punten / verbeterpunten
-5. Concrete CV-verbeter tips
+CV:
+${cv}
 
-Formatteer als JSON met keys: matchScore, matchExplanation, keywords, strengths, weaknesses, cvTips.`;
+VACATURE:
+${job}
 
-  const userPrompt = `VACATURE:\n${vacatureText}\n\nCV:\n${cvText}`;
+Geef EXACT dit JSON terug:
+{
+  "score": 72,
+  "score_uitleg": "Twee zinnen uitleg.",
+  "sterke_punten": ["punt 1", "punt 2", "punt 3"],
+  "verbeterpunten": ["punt 1", "punt 2", "punt 3"],
+  "match_keywords": ["keyword1", "keyword2", "keyword3"],
+  "mis_keywords": ["ontbrekend1", "ontbrekend2", "ontbrekend3"],
+  "motivatiebrief": ${includeCoverLetter
+    ? '"Volledige motivatiebrief in drie alineas. Professionele toon."'
+    : '""'},
+  "cv_tips": "Twee of drie concrete verbeterpunten als lopende tekst."
+}
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.3,
-      max_tokens: 2000,
-    }),
-  });
+BELANGRIJK: Alleen dit JSON object. Niets anders.`;
+}
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`OpenAI error ${response.status}: ${err}`);
-  }
+// ─── Handler ──────────────────────────────────────────────────
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-ls-session');
 
-  const data = await response.json();
-  const raw = data.choices?.[0]?.message?.content;
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    return JSON.parse(raw);
-  } catch {
-    throw new Error("Failed to parse OpenAI JSON response");
+    const { cv, job } = req.body || {};
+
+    if (!cv || typeof cv !== 'string' || cv.trim().length < 30)
+      return res.status(400).json({ error: 'CV te kort of ontbreekt' });
+    if (!job || typeof job !== 'string' || job.trim().length < 30)
+      return res.status(400).json({ error: 'Vacature te kort of ontbreekt' });
+
+    // ── 1. Resolve tier from LemonSqueezy ──────────────────────
+    const sessionId = req.headers['x-ls-session'] || null;
+    const { tier, config, source } = await resolveTier(sessionId);
+
+    console.log(`[analyse] sessionId=${sessionId?.slice(0,8) || 'NONE'} tier=${tier} source=${source}`);
+
+    // ── 2. Enforce usage limit (server-side, persistent) ───────
+    const usageKey = sessionId || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'anonymous';
+    const { allowed, used, remaining, limit } = await checkAndEnforce(usageKey, tier, config);
+
+    if (!allowed) {
+      console.log(`[analyse] BLOCKED: ${tier} tier, used=${used}/${limit}`);
+      return res.status(429).json({
+        error: 'Limiet bereikt',
+        message: tier === 'free'
+          ? 'Je hebt je 3 gratis analyses gebruikt. Upgrade voor meer analyses.'
+          : `Je maandlimiet van ${limit} analyses is bereikt.`,
+        tier,
+        usage: { used, remaining: 0, limit },
+        upgrade: tier === 'free',
+      });
+    }
+
+    if (!process.env.ANTHROPIC_API_KEY)
+      return res.status(500).json({ error: 'Serverconfiguratie fout.' });
+
+    // ── 3. Feature gating — server decides ────────────────────
+    const includeCoverLetter = config.coverLetter;
+
+    // ── 4. AI call ────────────────────────────────────────────
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 25000);
+
+    let apiResp;
+    try {
+      apiResp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1500,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: buildPrompt(cv.trim(), job.trim(), includeCoverLetter) }],
+        }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    if (!apiResp.ok) {
+      const err = await apiResp.json().catch(() => ({}));
+      console.error('[analyse] Anthropic error:', err.error?.message);
+      return res.status(502).json({ error: 'AI service niet beschikbaar. Probeer opnieuw.' });
+    }
+
+    const aiData = await apiResp.json();
+    const rawText = aiData.content?.[0]?.text;
+    if (!rawText) return res.status(502).json({ error: 'Lege AI response. Probeer opnieuw.' });
+
+    // ── 5. Parse AI response ──────────────────────────────────
+    let result;
+    try { result = extractJSON(rawText); }
+    catch (_) {
+      console.error('[analyse] JSON parse error:', rawText.slice(0, 300));
+      return res.status(502).json({ error: 'AI response onverwacht formaat. Probeer opnieuw.' });
+    }
+
+    // ── 6. Validate required fields ───────────────────────────
+    for (const f of ['score', 'score_uitleg', 'sterke_punten', 'verbeterpunten',
+                      'match_keywords', 'mis_keywords', 'motivatiebrief', 'cv_tips']) {
+      if (result[f] === undefined || result[f] === null)
+        return res.status(502).json({ error: `Analyse onvolledig (${f}). Probeer opnieuw.` });
+    }
+
+    result.score = Math.min(100, Math.max(0, parseInt(result.score) || 0));
+    for (const f of ['sterke_punten', 'verbeterpunten', 'match_keywords', 'mis_keywords'])
+      if (!Array.isArray(result[f])) result[f] = [];
+
+    // ── 7. Server strips cover letter for free users ──────────
+    if (!includeCoverLetter) result.motivatiebrief = '';
+
+    // ── 8. Record successful use AFTER AI completes ───────────
+    await recordUsage(usageKey, config);
+
+    res.setHeader('X-RateLimit-Remaining', remaining);
+
+    return res.status(200).json({
+      ...result,
+      tier,
+      canPdf: config.pdf,
+      coverLetter: config.coverLetter,
+      usage: { used: used + 1, remaining, limit },
+    });
+
+  } catch (e) {
+    if (e.name === 'AbortError') return res.status(504).json({ error: 'Analyse duurde te lang.' });
+    console.error('[analyse] Unexpected error:', e.message, e.stack?.split('\n')[1]);
+    return res.status(500).json({ error: 'Onverwachte fout. Probeer opnieuw.' });
   }
 }
