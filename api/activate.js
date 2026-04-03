@@ -18,37 +18,48 @@ export default async function handler(req, res) {
   try {
     let foundOrder = null;
 
-    // ✅ FIX: direct filter op identifier (correcte manier)
+    // ✅ FIX: haal orders op en zoek zelf op identifier
     const r1 = await fetch(
-      `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${encodeURIComponent(order)}`,
-      { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
+      `https://api.lemonsqueezy.com/v1/orders?page[size]=100&sort=-created_at`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Accept': 'application/vnd.api+json'
+        }
+      }
     );
     const d1 = await r1.json();
 
     if (r1.ok && d1.data?.length > 0) {
-      foundOrder = d1.data[0];
+      foundOrder = d1.data.find(o =>
+        String(o.attributes?.identifier) === String(order)
+      );
     }
 
     // DEBUG — laat je zitten zoals gevraagd
     if (!foundOrder) {
       return res.status(404).json({
         error: 'Order not found',
-        debug_filterIdentifierStatus: r1.status,
-        debug_filterIdentifierCount: d1.data?.length ?? 0,
-        debug_filterIdentifierErrors: d1.errors,
+        debug_fetchStatus: r1.status,
+        debug_ordersReturned: d1.data?.length ?? 0,
+        debug_errors: d1.errors,
         debug_orderInput: order,
       });
     }
 
-    // Poging 2: (blijft bestaan, maar eigenlijk niet meer nodig)
+    // Poging 2: (blijft bestaan, maar praktisch niet meer nodig)
     if (!foundOrder) {
       const r2 = await fetch(
-        `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${encodeURIComponent(order)}`,
+        `https://api.lemonsqueezy.com/v1/orders?page[size]=100&sort=-created_at`,
         { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
       );
       if (r2.ok) {
         const d2 = await r2.json();
-        if (d2.data?.length > 0) foundOrder = d2.data[0];
+        if (d2.data?.length > 0) {
+          foundOrder = d2.data.find(o =>
+            String(o.attributes?.identifier) === String(order)
+          );
+        }
       }
     }
 
