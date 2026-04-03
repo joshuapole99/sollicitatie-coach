@@ -167,25 +167,15 @@ textarea::placeholder{color:var(--faint)}
 <script>
 'use strict';
 
-// ─── Constants ────────────────────────────────────────────────
 const FREE_LIMIT = 3;
-const PAYMENT_LINK_PRO  = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/dfcb053f-66f7-4458-8cd4-d7d5e129f649';
-const PAYMENT_LINK_PLUS = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/a6f5fe91-e8c0-4dc5-8157-9d816da2591d';
+const PAYMENT_LINK_PRO  = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/7719f367-3c74-4f30-bd9e-323f3f66a382';
+const PAYMENT_LINK_PLUS = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/18245f15-0847-400a-8688-cdf664bf9771';
 const SESSION_KEY = 'ls_session_id';
 
-// ─── SECURITY NOTE ────────────────────────────────────────────
-// currentTier and currentCanPdf are ONLY set from server response.
-// They are never read from localStorage.
-// localStorage is used ONLY for cosmetic UI (usage counter display).
-// Manipulating localStorage grants zero extra access.
 let currentTier = 'free';
 let currentCanPdf = false;
-
-// PDF text stored in memory variable — NOT in HTML attributes
-// This prevents JSON injection via onclick and works with any special chars
 let currentMotivText = '';
 
-// ─── Example data ─────────────────────────────────────────────
 const EXAMPLES = {
   nl: {
     cv: `Lisa de Vries
@@ -242,7 +232,6 @@ We offer: €55.000–€70.000 | 25 days PTO | Remote-friendly | MacBook Pro`
   }
 };
 
-// ─── Translations ─────────────────────────────────────────────
 const T = {
   nl: {
     title: 'Sollicitatie Coach',
@@ -352,7 +341,6 @@ function applyLang() {
   renderUsageBar();
 }
 
-// ─── Usage bar — cosmetic only, no security role ──────────────
 function getUses() { return parseInt(localStorage.getItem('sol_uses') || '0'); }
 function getSession() { return localStorage.getItem(SESSION_KEY) || null; }
 function hasGivenEmail() { return !!localStorage.getItem('sol_email'); }
@@ -361,24 +349,13 @@ function renderUsageBar() {
   const used = getUses();
   const left = Math.max(0, FREE_LIMIT - used);
   const badge = document.getElementById('tier-badge');
-
-  // Badge reflects last known server tier
   if (currentTier === 'pro') {
-    badge.textContent = t('tierPro');
-    badge.className = 'badge pro';
+    badge.textContent = t('tierPro'); badge.className = 'badge pro';
   } else if (currentTier === 'plus') {
-    badge.textContent = t('tierPlus');
-    badge.className = 'badge plus';
+    badge.textContent = t('tierPlus'); badge.className = 'badge plus';
   } else {
-    badge.textContent = t('tierFree');
-    badge.className = 'badge';
+    badge.textContent = t('tierFree'); badge.className = 'badge';
   }
-
-  document.getElementById('app-title').innerHTML =
-    t('title') + ' ' + badge.outerHTML.replace('id="tier-badge"', '');
-  // Re-grab after innerHTML update
-  document.querySelector('.badge')?.setAttribute('id','tier-badge');
-
   const dotsEl = document.getElementById('dots');
   if (currentTier === 'pro') {
     dotsEl.innerHTML = `<span style="font-size:12px;color:var(--green);font-weight:700">${t('usagePro')}</span>`;
@@ -395,7 +372,6 @@ function renderUsageBar() {
   }
 }
 
-// ─── Session from URL (after LemonSqueezy redirect) ───────────
 const params = new URLSearchParams(window.location.search);
 const sessionFromUrl = params.get('order') || params.get('session_id');
 if (sessionFromUrl) {
@@ -409,7 +385,6 @@ renderUsageBar();
 function goUpgrade() { window.location.href = PAYMENT_LINK_PRO; }
 function goPlus() { window.location.href = PAYMENT_LINK_PLUS; }
 
-// ─── Example fill ─────────────────────────────────────────────
 function fillExample() {
   const ex = EXAMPLES[lang] || EXAMPLES.nl;
   document.getElementById('cv-input').value = ex.cv;
@@ -422,7 +397,6 @@ function fillExample() {
   document.getElementById('analyse-btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ─── Email modal ──────────────────────────────────────────────
 function showEmailModal() {
   if (hasGivenEmail()) return;
   document.getElementById('email-modal').classList.remove('hidden');
@@ -445,12 +419,10 @@ document.getElementById('email-modal').addEventListener('click', function(e) {
   if (e.target === this) closeEmailModal();
 });
 
-// ─── Safe fetch ───────────────────────────────────────────────
 async function safeFetch(url, options) {
   const resp = await fetch(url, options);
   const ct = resp.headers.get('content-type') || '';
   if (!ct.includes('application/json')) {
-    const text = await resp.text().catch(() => '');
     throw new Error(
       resp.status === 500 ? 'Serverfout (500).' :
       resp.status === 404 ? 'API niet gevonden (404).' :
@@ -460,10 +432,7 @@ async function safeFetch(url, options) {
   return { resp, data: await resp.json() };
 }
 
-// ─── Main analysis ────────────────────────────────────────────
 async function runAnalysis() {
-  // Client-side guard — cosmetic only
-  // Real limit enforced server-side
   const session = getSession();
   const usedLocally = getUses();
   if (!session && usedLocally >= FREE_LIMIT) { goUpgrade(); return; }
@@ -479,7 +448,6 @@ async function runAnalysis() {
 
   try {
     const headers = { 'Content-Type': 'application/json' };
-    // Pass session to server — server validates it, client cannot fake tier
     if (session) headers['x-ls-session'] = session;
 
     const { resp, data } = await safeFetch('/api/analyse', {
@@ -495,24 +463,16 @@ async function runAnalysis() {
         </div>`;
       return;
     }
-
     if (!resp.ok) throw new Error(data.error || `Fout (${resp.status})`);
 
-    // ── ONLY trust server response for tier and permissions ──
-    currentTier = data.tier || 'free';          // server decides
-    currentCanPdf = data.canPdf === true;        // server decides
+    currentTier = data.tier || 'free';
+    currentCanPdf = data.canPdf === true;
+    currentMotivText = data.motivatiebrief || '';
 
-    // Increment local counter only for free users (cosmetic)
-    if (currentTier === 'free') {
-      localStorage.setItem('sol_uses', usedLocally + 1);
-    }
+    if (currentTier === 'free') localStorage.setItem('sol_uses', usedLocally + 1);
 
     renderUsageBar();
     lastResult = data;
-
-    // Store motivatiebrief in memory variable — safe for any content
-    currentMotivText = data.motivatiebrief || '';
-
     renderResults(data);
     setTimeout(showReviewForm, 2000);
     setTimeout(showEmailModal, 1500);
@@ -525,43 +485,22 @@ async function runAnalysis() {
   }
 }
 
-// ─── PDF download — reads from memory variable, NOT from HTML ─
 function downloadPDF() {
-  // Security: only allowed if server confirmed pro
-  if (!currentCanPdf) return;
-  if (!currentMotivText) return;
-
+  if (!currentCanPdf || !currentMotivText) return;
   const { jsPDF } = window.jspdf;
   if (!jsPDF) { alert('PDF library not loaded. Please refresh.'); return; }
-
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const margin = 20;
-  const maxWidth = 210 - margin * 2;
-
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20); doc.setFont('helvetica', 'bold');
   doc.text(lang === 'nl' ? 'Motivatiebrief' : 'Cover Letter', margin, 30);
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(120, 120, 120);
+  doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(120,120,120);
   doc.text('Sollicitatie Coach — sollicitatie-coach.vercel.app', margin, 38);
-
-  doc.setDrawColor(220, 220, 220);
-  doc.line(margin, 42, 210 - margin, 42);
-
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(30, 30, 30);
-
-  // splitTextToSize handles long text and special chars safely
-  const lines = doc.splitTextToSize(currentMotivText, maxWidth);
-  doc.text(lines, margin, 52);
-
+  doc.setDrawColor(220,220,220); doc.line(margin, 42, 190, 42);
+  doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(30,30,30);
+  doc.text(doc.splitTextToSize(currentMotivText, 170), margin, 52);
   doc.save(lang === 'nl' ? 'motivatiebrief.pdf' : 'cover-letter.pdf');
 }
 
-// ─── Render results ───────────────────────────────────────────
 function scoreColor(s) {
   return s >= 75 ? 'var(--green)' : s >= 50 ? 'var(--amber)' : 'var(--red)';
 }
@@ -573,10 +512,8 @@ function renderResults(r) {
   const color = scoreColor(r.score);
   const circ = 2 * Math.PI * 32;
   const offset = circ * (1 - r.score / 100);
-
-  // Feature gates — ALL from server response, zero client trust
   const hasCoverLetter = (r.tier === 'plus' || r.tier === 'pro') && r.motivatiebrief;
-  const hasPdf = r.canPdf === true; // server must explicitly set this
+  const hasPdf = r.canPdf === true;
 
   document.getElementById('results').innerHTML = `
   <div class="results">
@@ -633,25 +570,21 @@ function renderResults(r) {
           ? `<p class="motiv-text" id="motiv-text">${escHtml(r.motivatiebrief)}</p>`
           : r.tier === 'plus'
             ? `<div class="paywall-wrap">
-                 <div class="paywall-blur motiv-text">${escHtml(r.motivatiebrief || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.')}</div>
-                 <div class="paywall-overlay">
-                   <div class="paywall-box">
-                     <p>${t('motivPdfLocked')}</p>
-                     <small>${t('motivPdfLockedSub')}</small>
-                     <button class="cta" onclick="goUpgrade()">${t('paywallPro')}</button>
-                   </div>
-                 </div>
+                 <div class="paywall-blur motiv-text">${escHtml(r.motivatiebrief || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.')}</div>
+                 <div class="paywall-overlay"><div class="paywall-box">
+                   <p>${t('motivPdfLocked')}</p>
+                   <small>${t('motivPdfLockedSub')}</small>
+                   <button class="cta" onclick="goUpgrade()">${t('paywallPro')}</button>
+                 </div></div>
                </div>`
             : `<div class="paywall-wrap">
                  <div class="paywall-blur motiv-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
-                 <div class="paywall-overlay">
-                   <div class="paywall-box">
-                     <p>${t('motivLocked')}</p>
-                     <small>${t('motivLockedSub')}</small>
-                     <button class="cta" onclick="goUpgrade()">${t('paywallPro')}</button>
-                     <button class="cta-plus" onclick="goPlus()">${t('paywallPlus')}</button>
-                   </div>
-                 </div>
+                 <div class="paywall-overlay"><div class="paywall-box">
+                   <p>${t('motivLocked')}</p>
+                   <small>${t('motivLockedSub')}</small>
+                   <button class="cta" onclick="goUpgrade()">${t('paywallPro')}</button>
+                   <button class="cta-plus" onclick="goPlus()">${t('paywallPlus')}</button>
+                 </div></div>
                </div>`
         }
       </div>
@@ -674,7 +607,6 @@ function toggleSection(header) {
   chevron.classList.toggle('up', !isOpen);
 }
 
-// Copy from memory variable — not from DOM (safer)
 function copyMotiv() {
   if (!currentMotivText) return;
   navigator.clipboard.writeText(currentMotivText).then(() => {
@@ -683,9 +615,7 @@ function copyMotiv() {
   });
 }
 
-// ─── Reviews ──────────────────────────────────────────────────
 let reviewRating = 0;
-
 function setStar(val) {
   reviewRating = val;
   document.querySelectorAll('.star').forEach(s => {
@@ -735,14 +665,9 @@ async function submitReview() {
   }
 }
 
-// ─── Utils ────────────────────────────────────────────────────
 function escHtml(str) {
   if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 </body>
