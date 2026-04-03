@@ -453,36 +453,55 @@ async function runAnalysis() {
 
   document.getElementById('analyse-btn').disabled = true;
   document.getElementById('results').innerHTML =
-    `<div class="loading"><div class="spinner"></div><p>${t('loading')}</p></div>`;
+  `<div class="loading">
+     <div class="spinner"></div>
+     <p>${t('loading')}</p>
+   </div>`;
 
   try {
     const headers = { 'Content-Type': 'application/json' };
-    if (session) headers['x-ls-session'] = session;
+  if (session) headers['x-ls-session'] = session;
 
-    const { resp, data } = await safeFetch('/api/analyse', {
-      method: 'POST', headers,
-      body: JSON.stringify({ cv, job })
-    });
+  const { resp, data } = await safeFetch('/api/analyse', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ cv, job })
+   });
 
-    if (resp.status === 429) {
-      document.getElementById('results').innerHTML = 
-        <div class="error-box">${t('errLimit')}<br><br>
-        <button onclick="goUpgrade()" style="background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-right:8px">${t('paywallPro')}</button>
-        <button onclick="goPlus()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${t('paywallPlus')}</button>
-        </div>;
-      return;
-    }
-    if (!resp.ok) throw new Error(data.error || Fout (${resp.status}));
+  if (resp.status === 429) {
+    document.getElementById('results').innerHTML = `
+      <div class="error-box">
+        ${t('errLimit')}<br><br>
 
-    currentTier = data.tier || 'free';
-    currentCanPdf = data.canPdf === true;
-    currentMotivText = data.motivatiebrief || '';
+        <button onclick="goUpgrade()"
+          style="background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-right:8px">
+          ${t('paywallPro')}
+        </button>
 
-    localStorage.setItem('ls_tier', currentTier);
-    if (data.sessionId) {
-      localStorage.setItem('ls_session_id', data.sessionId);
-    }
+        <button onclick="goPlus()"
+          style="background:none;border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">
+          ${t('paywallPlus')}
+        </button>
+      </div>
+    `;
+    return;
+  }
 
+  if (!resp.ok) throw new Error(data.error || `Fout (${resp.status})`);
+
+  currentTier = data.tier || 'free';
+  currentCanPdf = data.canPdf === true;
+  currentMotivText = data.motivatiebrief || '';
+
+  localStorage.setItem('ls_tier', currentTier);
+
+  if (data.sessionId) {
+    localStorage.setItem('ls_session_id', data.sessionId);
+  }
+
+} catch (err) {
+  console.error(err);
+}
     if (currentTier === 'free') localStorage.setItem('sol_uses', usedLocally + 1);
 
     renderUsageBar();
