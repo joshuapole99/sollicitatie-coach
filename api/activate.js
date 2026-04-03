@@ -18,10 +18,9 @@ export default async function handler(req, res) {
   try {
     let foundOrder = null;
 
-    // 🔧 helper voor robuuste vergelijking
-    const normalize = (val) => String(val || '').replace('#', '').trim();
+    const normalize = (val) =>
+      String(val || '').replace('#', '').replace(/\s/g, '').trim();
 
-    // ✅ FIX: haal orders op en zoek robuust op identifier
     const r1 = await fetch(
       `https://api.lemonsqueezy.com/v1/orders?page[size]=100`,
       {
@@ -34,12 +33,21 @@ export default async function handler(req, res) {
     const d1 = await r1.json();
 
     if (r1.ok && d1.data?.length > 0) {
-      foundOrder = d1.data.find(o =>
-        normalize(o.attributes?.identifier) === normalize(order)
-      );
+      // 🔥 FIX: robuuste matching over meerdere mogelijke velden
+      foundOrder = d1.data.find(o => {
+        const input = normalize(order);
+
+        const candidates = [
+          o.id,
+          o.attributes?.identifier,
+          o.attributes?.order_number,
+          o.attributes?.name
+        ].map(v => normalize(v));
+
+        return candidates.includes(input);
+      });
     }
 
-    // DEBUG — laat je zitten zoals gevraagd
     if (!foundOrder) {
       return res.status(404).json({
         error: 'Order not found',
@@ -50,7 +58,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Poging 2 (blijft intact, maar nu ook gefixt)
     if (!foundOrder) {
       const r2 = await fetch(
         `https://api.lemonsqueezy.com/v1/orders?page[size]=100`,
@@ -59,9 +66,18 @@ export default async function handler(req, res) {
       if (r2.ok) {
         const d2 = await r2.json();
         if (d2.data?.length > 0) {
-          foundOrder = d2.data.find(o =>
-            normalize(o.attributes?.identifier) === normalize(order)
-          );
+          foundOrder = d2.data.find(o => {
+            const input = normalize(order);
+
+            const candidates = [
+              o.id,
+              o.attributes?.identifier,
+              o.attributes?.order_number,
+              o.attributes?.name
+            ].map(v => normalize(v));
+
+            return candidates.includes(input);
+          });
         }
       }
     }
@@ -72,7 +88,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Valideer email
     const orderEmail = foundOrder.attributes?.user_email?.toLowerCase();
     if (orderEmail !== email.toLowerCase()) {
       return res.status(404).json({
@@ -80,7 +95,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Check order status
     const orderStatus = foundOrder.attributes?.status;
     if (!['paid', 'refunded'].includes(orderStatus)) {
       return res.status(404).json({
@@ -88,7 +102,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Bepaal tier via subscription variant
     const orderId = foundOrder.id;
     const subsResp = await fetch(
       `https://api.lemonsqueezy.com/v1/subscriptions?filter[order_id]=${orderId}`,
@@ -106,6 +119,7 @@ export default async function handler(req, res) {
             error: 'Subscription is not active. Please contact support.'
           });
         }
+
         const variantId = String(sub.attributes?.variant_id);
         if (PRO_VARIANT_IDS.includes(variantId)) tier = 'pro';
         else if (PLUS_VARIANT_IDS.includes(variantId)) tier = 'plus';
