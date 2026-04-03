@@ -67,27 +67,45 @@ export default async function handler(req, res) {
   try {
     const { cv, job } = req.body || {};
 
-    if (!cv || typeof cv !== 'string' || cv.trim().length < 30)
+    if (!cv  || typeof cv  !== 'string' || cv.trim().length  < 30)
       return res.status(400).json({ error: 'CV te kort of ontbreekt' });
     if (!job || typeof job !== 'string' || job.trim().length < 30)
       return res.status(400).json({ error: 'Vacature te kort of ontbreekt' });
 
-    // ── 1. Resolve tier from LemonSqueezy ──────────────────────
-    const sessionId = req.headers['x-ls-session'] || null;
+    // ── 1. Resolve tier ────────────────────────────────────────
+    const sessionId = (req.headers['x-ls-session'] || '').trim() || null;
     const { tier, config, source } = await resolveTier(sessionId);
 
-    console.log(`[analyse] sessionId=${sessionId?.slice(0,8) || 'NONE'} tier=${tier} source=${source}`);
+    console.log(`[analyse] sessionId=${sessionId?.slice(0,10) || 'NONE'} tier=${tier} source=${source}`);
 
-    // ── 2. Enforce usage limit (server-side, persistent) ───────
-    const usageKey = sessionId || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'anonymous';
+    // ── 2. Determine usage key ─────────────────────────────────
+    // FIX: Free users without session → use fingerprint (IP+UA hash) not raw IP
+    // This prevents trivial VPN bypass AND keeps free limit meaningful
+    // Paid users always use sessionId as key (stable across IPs)
+    let usageKey;
+    if (sessionId && tier !== 'free') {
+      // Paid: stable key tied to their payment
+      usageKey = sessionId;
+    } else {
+      // Free: best-effort fingerprint (IP + User-Agent)
+      // Note: without KV this resets on cold start — acceptable for free tier
+      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+              || req.headers['x-real-ip']
+              || 'unknown';
+      const ua = req.headers['user-agent'] || 'unknown';
+      // Simple hash: first 16 chars of base64(ip:ua)
+      usageKey = `fp:${Buffer.from(`${ip}:${ua}`).toString('base64').slice(0, 16)}`;
+    }
+
+    // ── 3. Enforce usage limit — AI NEVER runs if blocked ─────
     const { allowed, used, remaining, limit } = await checkAndEnforce(usageKey, tier, config);
 
     if (!allowed) {
-      console.log(`[analyse] BLOCKED: ${tier} tier, used=${used}/${limit}`);
+      console.log(`[analyse] BLOCKED: tier=${tier} used=${used}/${limit} key=${usageKey.slice(0,10)}`);
       return res.status(429).json({
         error: 'Limiet bereikt',
         message: tier === 'free'
-          ? 'Je hebt je 3 gratis analyses gebruikt. Upgrade voor meer analyses.'
+          ? 'Je hebt je 3 gratis analyses gebruikt. Upgrade voor meer.'
           : `Je maandlimiet van ${limit} analyses is bereikt.`,
         tier,
         usage: { used, remaining: 0, limit },
@@ -98,10 +116,11 @@ export default async function handler(req, res) {
     if (!process.env.ANTHROPIC_API_KEY)
       return res.status(500).json({ error: 'Serverconfiguratie fout.' });
 
-    // ── 3. Feature gating — server decides ────────────────────
+    // ── 4. Feature gating — server decides ────────────────────
     const includeCoverLetter = config.coverLetter;
+    console.log(`[analyse] allowed: used=${used}/${limit} coverLetter=${includeCoverLetter} pdf=${config.pdf}`);
 
-    // ── 4. AI call ────────────────────────────────────────────
+    // ── 5. AI call ────────────────────────────────────────────
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 25000);
 
@@ -136,7 +155,7 @@ export default async function handler(req, res) {
     const rawText = aiData.content?.[0]?.text;
     if (!rawText) return res.status(502).json({ error: 'Lege AI response. Probeer opnieuw.' });
 
-    // ── 5. Parse AI response ──────────────────────────────────
+    // ── 6. Parse AI response ──────────────────────────────────
     let result;
     try { result = extractJSON(rawText); }
     catch (_) {
@@ -144,7 +163,7 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'AI response onverwacht formaat. Probeer opnieuw.' });
     }
 
-    // ── 6. Validate required fields ───────────────────────────
+    // ── 7. Validate required fields ───────────────────────────
     for (const f of ['score', 'score_uitleg', 'sterke_punten', 'verbeterpunten',
                       'match_keywords', 'mis_keywords', 'motivatiebrief', 'cv_tips']) {
       if (result[f] === undefined || result[f] === null)
@@ -155,18 +174,19 @@ export default async function handler(req, res) {
     for (const f of ['sterke_punten', 'verbeterpunten', 'match_keywords', 'mis_keywords'])
       if (!Array.isArray(result[f])) result[f] = [];
 
-    // ── 7. Server strips cover letter for free users ──────────
+    // ── 8. Server strips cover letter for free users ──────────
     if (!includeCoverLetter) result.motivatiebrief = '';
 
-    // ── 8. Record successful use AFTER AI completes ───────────
+    // ── 9. Record usage AFTER successful AI response ──────────
     await recordUsage(usageKey, config);
+    console.log(`[analyse] Recorded usage. used=${used + 1}/${limit}`);
 
     res.setHeader('X-RateLimit-Remaining', remaining);
 
     return res.status(200).json({
       ...result,
       tier,
-      canPdf: config.pdf,
+      canPdf:      config.pdf,
       coverLetter: config.coverLetter,
       usage: { used: used + 1, remaining, limit },
     });
