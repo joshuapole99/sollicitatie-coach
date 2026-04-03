@@ -243,7 +243,7 @@ const T = {
     jobPlaceholder: 'Plak hier de volledige vacaturetekst...',
     analyseBtn: 'Analyseer mijn sollicitatie',
     upgradeBtn: 'Pro — €9,99/mnd',
-    usageLeft: (n) => ${n} van ${FREE_LIMIT} gratis analyses over,
+    usageLeft: (n) => `${n} van ${FREE_LIMIT} gratis analyses over`,
     usageNone: 'Geen analyses meer — upgrade naar Pro',
     usagePro: 'Pro abonnement actief',
     usagePlus: 'Plus abonnement actief',
@@ -279,7 +279,7 @@ const T = {
     jobPlaceholder: 'Paste the full job posting here...',
     analyseBtn: 'Analyse my application',
     upgradeBtn: 'Pro — €9.99/mo',
-    usageLeft: (n) => ${n} of ${FREE_LIMIT} free analyses left,
+    usageLeft: (n) => `${n} of ${FREE_LIMIT} free analyses left`,
     usageNone: 'No analyses left — upgrade to Pro',
     usagePro: 'Pro subscription active',
     usagePlus: 'Plus subscription active',
@@ -518,8 +518,8 @@ function scoreColor(s) {
 
 function renderResults(r) {
   if (r.tier) {
-  currentTier = r.tier;
-  localStorage.setItem('ls_tier', currentTier);
+    currentTier = r.tier;
+    localStorage.setItem('ls_tier', r.tier);
   }
   currentCanPdf = r.canPdf === true;
   currentMotivText = r.motivatiebrief || currentMotivText;
