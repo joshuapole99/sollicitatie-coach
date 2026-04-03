@@ -19,27 +19,36 @@ export default async function handler(req, res) {
     const orderNum = order.replace(/\D/g, '');
     let foundOrder = null;
 
-    // Zoek via order_number filter (niet via interne ID)
+    // Poging 1: filter op order number
     if (orderNum) {
-      const orderResp = await fetch(
+      const r1 = await fetch(
         `https://api.lemonsqueezy.com/v1/orders?filter[number]=${orderNum}`,
         { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
       );
-      if (orderResp.ok) {
-        const orderData = await orderResp.json();
-        if (orderData.data?.length > 0) foundOrder = orderData.data[0];
+      const d1 = await r1.json();
+      if (r1.ok && d1.data?.length > 0) foundOrder = d1.data[0];
+
+      // DEBUG — verwijder na fix
+      if (!foundOrder) {
+        return res.status(404).json({
+          error: 'Order not found',
+          debug_filterNumberStatus: r1.status,
+          debug_filterNumberCount: d1.data?.length ?? 0,
+          debug_filterNumberErrors: d1.errors,
+          debug_orderNum: orderNum,
+        });
       }
     }
 
-    // Fallback: zoek via identifier
+    // Poging 2: filter op identifier
     if (!foundOrder) {
-      const searchResp = await fetch(
+      const r2 = await fetch(
         `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${encodeURIComponent(order)}`,
         { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
       );
-      if (searchResp.ok) {
-        const searchData = await searchResp.json();
-        if (searchData.data?.length > 0) foundOrder = searchData.data[0];
+      if (r2.ok) {
+        const d2 = await r2.json();
+        if (d2.data?.length > 0) foundOrder = d2.data[0];
       }
     }
 
