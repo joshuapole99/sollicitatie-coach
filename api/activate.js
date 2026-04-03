@@ -45,7 +45,11 @@ export default async function handler(req, res) {
       }
     }
 
-    if (!foundOrder) return res.status(404).json({ error: 'Order not found' });
+    if (!foundOrder) return res.status(404).json({ 
+      error: 'Order not found',
+      debug_orderNum: orderNum,
+      debug_originalOrder: order
+    });
 
     // Stap 2: Valideer email
     const orderEmail = foundOrder.attributes?.user_email?.toLowerCase();
