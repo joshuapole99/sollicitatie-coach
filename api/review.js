@@ -1,6 +1,4 @@
-// api/review.js — Uses same tier resolver, consistent with analyse.js
-
-import { resolveTier } from './_tier.js';
+// api/review.js — Feedback form proxy to Formspree
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
