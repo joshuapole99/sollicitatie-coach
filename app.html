@@ -186,8 +186,7 @@ const SESSION_KEY = 'sol_session_id';  // localStorage key for sessionId (UUID o
 
 // Base checkout URLs — sessionId is appended as custom data at runtime
 // so the webhook can link the payment back to this browser session.
-const CHECKOUT_BASE_PRO  = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/7719f367-3c74-4f30-bd9e-323f3f66a382';
-const CHECKOUT_BASE_PLUS = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/18245f15-0847-400a-8688-cdf664bf9771';
+// Checkout handled by /api/checkout (injects sessionId, handles test/live mode)
 
 // Build checkout URL with sessionId attached as LemonSqueezy custom_data
 // The webhook reads this and writes tier:{sessionId} to KV
@@ -437,8 +436,14 @@ function applyLang() {
 })();
 
 // ── Navigation ────────────────────────────────────────────────
-function goUpgrade() { window.location.href = checkoutUrl(CHECKOUT_BASE_PRO); }
-function goPlus()    { window.location.href = checkoutUrl(CHECKOUT_BASE_PLUS); }
+function goUpgrade() { goCheckout('pro'); }
+function goPlus()    { goCheckout('plus'); }
+
+// Route through /api/checkout — injects sessionId and handles test/live mode switching
+function goCheckout(plan) {
+  const sid = getOrCreateSession();
+  window.location.href = '/api/checkout?plan=' + plan + '&sessionId=' + encodeURIComponent(sid);
+}
 
 function fillExample() {
   const ex = EXAMPLES[lang] || EXAMPLES.nl;
