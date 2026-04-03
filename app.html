@@ -359,15 +359,15 @@ function renderUsageBar() {
   }
   const dotsEl = document.getElementById('dots');
   if (currentTier === 'pro') {
-    dotsEl.innerHTML = <span style="font-size:12px;color:var(--green);font-weight:700">${t('usagePro')}</span>;
+    dotsEl.innerHTML = `<span style="font-size:12px;color:var(--green);font-weight:700">${t('usagePro')}</span>`;
     document.getElementById('usage-text').textContent = '';
   } else if (currentTier === 'plus') {
-    dotsEl.innerHTML = <span style="font-size:12px;color:#1d4ed8;font-weight:700">${t('usagePlus')}</span>;
+    dotsEl.innerHTML = `<span style="font-size:12px;color:#1d4ed8;font-weight:700">${t('usagePlus')}</span>`;
     document.getElementById('usage-text').textContent = '';
   } else {
     dotsEl.innerHTML = Array.from({length: FREE_LIMIT}, (_, i) =>
-      <div class="dot ${i < used ? 'used' : 'avail'}"></div>
-    ).join('');
+    `<div class="dot ${i < used ? 'used' : 'avail'}"></div>`
+  ).join('');
     document.getElementById('usage-text').textContent =
       left > 0 ? t('usageLeft', left) : t('usageNone');
   }
@@ -432,7 +432,7 @@ async function safeFetch(url, options) {
     throw new Error(
       resp.status === 500 ? 'Serverfout (500).' :
       resp.status === 404 ? 'API niet gevonden (404).' :
-      Serverfout (${resp.status}).
+      `Serverfout (${resp.status}).`
     );
   }
   return { resp, data: await resp.json() };
@@ -450,7 +450,7 @@ async function runAnalysis() {
 
   document.getElementById('analyse-btn').disabled = true;
   document.getElementById('results').innerHTML =
-    <div class="loading"><div class="spinner"></div><p>${t('loading')}</p></div>;
+    `<div class="loading"><div class="spinner"></div><p>${t('loading')}</p></div>`;
 
   try {
     const headers = { 'Content-Type': 'application/json' };
@@ -529,7 +529,7 @@ function renderResults(r) {
   const hasCoverLetter = (r.tier === 'plus' || r.tier === 'pro') && r.motivatiebrief;
   const hasPdf = r.canPdf === true;
 
-  document.getElementById('results').innerHTML = 
+  document.getElementById('results').innerHTML = `
   <div class="results">
     <div class="score-card">
       <div class="score-ring">
@@ -540,11 +540,13 @@ function renderResults(r) {
         </svg>
         <div class="score-number" style="color:${color}">${r.score}</div>
       </div>
+
       <div class="score-info">
         <h3>${t('scoreLabel')}: ${r.score}/100</h3>
         <p>${escHtml(r.score_uitleg)}</p>
       </div>
     </div>
+    `;
 
     <div class="section">
       <div class="section-header" onclick="toggleSection(this)">
@@ -552,7 +554,7 @@ function renderResults(r) {
       </div>
       <div class="section-body">
         <div class="tag-group-label">${t('present')}</div>
-        <div class="tag-row">${(r.match_keywords||[]).map(k=><span class="tag match">${escHtml(k)}</span>).join('')||<span style="color:var(--faint);font-size:13px">${t('noKeywords')}</span>}</div>
+        <div class="tag-row">${(r.match_keywords||[]).map(k => `<span class="tag match">${escHtml(k)}</span>`).join('')||<span style="color:var(--faint);font-size:13px">${t('noKeywords')}</span>}</div>
         <div class="tag-group-label" style="margin-top:14px">${t('missing')}</div>
         <div class="tag-row">${(r.mis_keywords||[]).map(k=><span class="tag miss">${escHtml(k)}</span>).join('')||<span style="color:var(--faint);font-size:13px">${t('noMissing')}</span>}</div>
       </div>
