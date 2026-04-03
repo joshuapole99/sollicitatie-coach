@@ -11,15 +11,11 @@ const LEMON_SQUEEZY_VARIANT = {
 };
 
 const TIER_LIMITS = {
-  free: { total: 3, window: null },
-  plus: { total: 10, window: 30 * 24 * 60 * 60 * 1000 }, // 30 days
+  free: { total: 3,   window: null },
+  plus: { total: 10,  window: 30 * 24 * 60 * 60 * 1000 },
   pro:  { total: 100, window: 30 * 24 * 60 * 60 * 1000 },
 };
 
-// In-memory fallback (resets on Vercel cold start — see note below)
-// TODO: Replace rateLimitMap with Vercel KV for persistence:
-//   import { kv } from '@vercel/kv';
-//   await kv.incr(key); await kv.expire(key, 2592000);
 const rateLimitMap = new Map();
 
 // ─── Fingerprinting ──────────────────────────────────────────
@@ -30,7 +26,6 @@ function getFingerprint(req) {
     req.socket?.remoteAddress ||
     'unknown';
   const ua = req.headers['user-agent'] || 'unknown';
-  // Hash IP + UA together — harder to bypass than IP alone
   return createHash('sha256').update(`${ip}:${ua}`).digest('hex').slice(0, 16);
 }
 
@@ -46,14 +41,12 @@ function checkRateLimit(fingerprint, tier) {
     return { allowed: true, remaining: total - 1 };
   }
 
-  // Free tier: lifetime limit (no window reset)
   if (tier === 'free') {
     if (entry.count >= total) return { allowed: false, remaining: 0 };
     entry.count++;
     return { allowed: true, remaining: total - entry.count };
   }
 
-  // Paid tiers: monthly window
   if (now - entry.windowStart > windowMs) {
     rateLimitMap.set(key, { count: 1, windowStart: now });
     return { allowed: true, remaining: total - 1 };
@@ -65,30 +58,83 @@ function checkRateLimit(fingerprint, tier) {
 }
 
 // ─── Lemon Squeezy tier detection ────────────────────────────
+// Supports both order IDs (one-time) and subscription IDs
 async function getTier(req) {
   const sessionId = req.headers['x-ls-session'];
   if (!sessionId) return 'free';
   if (!process.env.LEMONSQUEEZY_API_KEY) return 'free';
 
-  try {
-    // Fetch order/subscription from Lemon Squeezy API
-    const resp = await fetch(
-      `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${sessionId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
-          Accept: 'application/vnd.api+json',
-        },
-      }
-    );
-    if (!resp.ok) return 'free';
-    const data = await resp.json();
-    const order = data?.data?.[0];
-    if (!order) return 'free';
+  const headers = {
+    Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
+    Accept: 'application/vnd.api+json',
+  };
 
-    // Check first order item variant_id
-    const variantId = order.attributes?.first_order_item?.variant_id;
-    return LEMON_SQUEEZY_VARIANT[variantId] || 'free';
+  try {
+    // Strategy 1: try as order ID directly (numeric)
+    // Lemon Squeezy order IDs are numeric strings
+    if (/^\d+$/.test(sessionId)) {
+      const resp = await fetch(
+        `https://api.lemonsqueezy.com/v1/orders/${sessionId}`,
+        { headers }
+      );
+      if (resp.ok) {
+        const data = await resp.json();
+        const variantId = data?.data?.attributes?.first_order_item?.variant_id;
+        const tier = LEMON_SQUEEZY_VARIANT[variantId];
+        if (tier) return tier;
+      }
+    }
+
+    // Strategy 2: try as order identifier (UUID/hash from checkout redirect)
+    // The {order_id} template in LS redirect gives the numeric order ID
+    // But some setups pass the order identifier instead — try filter
+    const resp2 = await fetch(
+      `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${encodeURIComponent(sessionId)}`,
+      { headers }
+    );
+    if (resp2.ok) {
+      const data2 = await resp2.json();
+      const order = data2?.data?.[0];
+      if (order) {
+        const variantId = order.attributes?.first_order_item?.variant_id;
+        const tier = LEMON_SQUEEZY_VARIANT[variantId];
+        if (tier) return tier;
+      }
+    }
+
+    // Strategy 3: try as subscription ID
+    const resp3 = await fetch(
+      `https://api.lemonsqueezy.com/v1/subscriptions/${sessionId}`,
+      { headers }
+    );
+    if (resp3.ok) {
+      const data3 = await resp3.json();
+      const sub = data3?.data;
+      if (sub && sub.attributes?.status === 'active') {
+        const variantId = sub.attributes?.variant_id;
+        const tier = LEMON_SQUEEZY_VARIANT[variantId];
+        if (tier) return tier;
+      }
+    }
+
+    // Strategy 4: search subscriptions by order_id
+    const resp4 = await fetch(
+      `https://api.lemonsqueezy.com/v1/subscriptions?filter[order_id]=${encodeURIComponent(sessionId)}`,
+      { headers }
+    );
+    if (resp4.ok) {
+      const data4 = await resp4.json();
+      const sub = data4?.data?.[0];
+      if (sub && sub.attributes?.status === 'active') {
+        const variantId = sub.attributes?.variant_id;
+        const tier = LEMON_SQUEEZY_VARIANT[variantId];
+        if (tier) return tier;
+      }
+    }
+
+    console.warn('LS: geen tier gevonden voor sessionId:', sessionId.slice(0, 8) + '...');
+    return 'free';
+
   } catch (err) {
     console.error('LemonSqueezy check fout:', err.message);
     return 'free';
@@ -165,13 +211,13 @@ export default async function handler(req, res) {
     if (!job || typeof job !== 'string' || job.trim().length < 30)
       return res.status(400).json({ error: 'Vacature te kort of ontbreekt' });
 
-    // 1. Determine tier — server decides, client cannot override
+    // 1. Server determines tier — client cannot override
     const tier = await getTier(req);
 
-    // 2. Fingerprint
+    // 2. Fingerprint for rate limiting
     const fingerprint = getFingerprint(req);
 
-    // 3. Rate limit check — AI NEVER runs if limit exceeded
+    // 3. Rate limit — AI never runs if exceeded
     const { allowed, remaining } = checkRateLimit(fingerprint, tier);
     if (!allowed) {
       return res.status(429).json({
@@ -185,11 +231,10 @@ export default async function handler(req, res) {
       });
     }
 
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!process.env.ANTHROPIC_API_KEY)
       return res.status(500).json({ error: 'Serverconfiguratie fout.' });
-    }
 
-    // 4. Feature gating — server decides what to include
+    // 4. Feature gating — server decides
     const includeCoverLetter = tier === 'plus' || tier === 'pro';
 
     // 5. AI call
@@ -223,8 +268,8 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'AI service niet beschikbaar. Probeer opnieuw.' });
     }
 
-    const data = await apiResponse.json();
-    const rawText = data.content?.[0]?.text;
+    const aiData = await apiResponse.json();
+    const rawText = aiData.content?.[0]?.text;
     if (!rawText) return res.status(502).json({ error: 'Lege AI response. Probeer opnieuw.' });
 
     let result;
@@ -235,13 +280,12 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'AI response kon niet worden verwerkt. Probeer opnieuw.' });
     }
 
-    // 6. Validate fields
+    // 6. Validate
     const required = ['score', 'score_uitleg', 'sterke_punten', 'verbeterpunten',
                       'match_keywords', 'mis_keywords', 'motivatiebrief', 'cv_tips'];
     for (const field of required) {
-      if (result[field] === undefined || result[field] === null) {
+      if (result[field] === undefined || result[field] === null)
         return res.status(502).json({ error: `Analyse onvolledig (${field}). Probeer opnieuw.` });
-      }
     }
 
     result.score = Math.min(100, Math.max(0, parseInt(result.score) || 0));
@@ -249,19 +293,16 @@ export default async function handler(req, res) {
       if (!Array.isArray(result[f])) result[f] = [];
     }
 
-    // 7. Server enforces cover letter visibility
+    // 7. Server enforces feature visibility
     if (!includeCoverLetter) result.motivatiebrief = '';
-
-    // 8. Server enforces PDF access
     const canPdf = tier === 'pro';
 
     res.setHeader('X-RateLimit-Remaining', remaining);
 
-    // tier is the ONLY source of truth — client must not override this
     return res.status(200).json({
       ...result,
-      tier,        // "free" | "plus" | "pro"
-      canPdf,      // true only for pro, decided server-side
+      tier,
+      canPdf,
       remaining,
     });
 
