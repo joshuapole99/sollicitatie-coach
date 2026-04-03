@@ -19,19 +19,19 @@ export default async function handler(req, res) {
     const orderNum = order.replace(/\D/g, '');
     let foundOrder = null;
 
-    // Probeer directe order lookup via ID
+    // Zoek via order_number filter (niet via interne ID)
     if (orderNum) {
       const orderResp = await fetch(
-        `https://api.lemonsqueezy.com/v1/orders/${orderNum}`,
+        `https://api.lemonsqueezy.com/v1/orders?filter[number]=${orderNum}`,
         { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
       );
       if (orderResp.ok) {
         const orderData = await orderResp.json();
-        foundOrder = orderData.data;
+        if (orderData.data?.length > 0) foundOrder = orderData.data[0];
       }
     }
 
-    // Als directe lookup faalt, zoek via identifier filter
+    // Fallback: zoek via identifier
     if (!foundOrder) {
       const searchResp = await fetch(
         `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${encodeURIComponent(order)}`,
@@ -43,42 +43,26 @@ export default async function handler(req, res) {
       }
     }
 
-    // Als nog steeds niet gevonden — debug: haal orders lijst op
     if (!foundOrder) {
-      const listResp = await fetch(
-        'https://api.lemonsqueezy.com/v1/orders?page[size]=5',
-        { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
-      );
-      const listText = await listResp.text();
-      let listData;
-      try { listData = JSON.parse(listText); } catch(_) { listData = { raw: listText.slice(0, 300) }; }
-
       return res.status(404).json({
-        error: 'Order not found',
-        debug_orderNum: orderNum,
-        debug_apiStatus: listResp.status,
-        debug_listCount: listData?.data?.length ?? 0,
-        debug_listSample: listData?.data?.slice(0, 3)?.map(o => ({
-          id: o.id,
-          number: o.attributes?.order_number,
-          email: o.attributes?.user_email,
-          status: o.attributes?.status
-        })),
-        debug_errors: listData?.errors,
-        debug_raw: listData?.raw
+        error: 'Order number not found or email does not match. Check your confirmation email.'
       });
     }
 
     // Valideer email
     const orderEmail = foundOrder.attributes?.user_email?.toLowerCase();
     if (orderEmail !== email.toLowerCase()) {
-      return res.status(404).json({ error: 'Email does not match order' });
+      return res.status(404).json({
+        error: 'Order number not found or email does not match. Check your confirmation email.'
+      });
     }
 
     // Check order status
     const orderStatus = foundOrder.attributes?.status;
     if (!['paid', 'refunded'].includes(orderStatus)) {
-      return res.status(404).json({ error: 'Order not paid', status: orderStatus });
+      return res.status(404).json({
+        error: 'Order not paid yet. Please wait a moment and try again.'
+      });
     }
 
     // Bepaal tier via subscription variant
@@ -95,7 +79,9 @@ export default async function handler(req, res) {
         const sub = subsData.data[0];
         const subStatus = sub.attributes?.status;
         if (!['active', 'trialing', 'past_due'].includes(subStatus)) {
-          return res.status(404).json({ error: 'Subscription is not active', subStatus });
+          return res.status(404).json({
+            error: 'Subscription is not active. Please contact support.'
+          });
         }
         const variantId = String(sub.attributes?.variant_id);
         if (PRO_VARIANT_IDS.includes(variantId)) tier = 'pro';
