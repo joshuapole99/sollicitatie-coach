@@ -39,12 +39,21 @@ export default function handler(req, res) {
   if (!plan || !['plus', 'pro'].includes(plan)) {
     return res.status(400).json({ error: 'plan must be "plus" or "pro"' });
   }
-  if (!sessionId || String(sessionId).trim().length < 10) {
-    return res.status(400).json({ error: 'sessionId required (UUID)' });
+  // Validate sessionId is a proper UUID v4 (36 chars, correct format)
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!sessionId || !UUID_RE.test(String(sessionId).trim())) {
+    return res.status(400).json({ error: 'sessionId must be a valid UUID v4' });
   }
 
   const sid  = String(sessionId).trim();
-  const mode = String(process.env.APP_MODE || 'live').toLowerCase() === 'test' ? 'test' : 'live';
+  const rawMode = String(process.env.APP_MODE || 'live').toLowerCase();
+  const mode = rawMode === 'test' ? 'test' : 'live';
+  if (!process.env.APP_MODE) {
+    console.warn('[checkout] APP_MODE not set — defaulting to live mode');
+  }
+  if (mode === 'live') {
+    console.log('[checkout] Running in LIVE mode — real payments will be charged');
+  }
 
   // Resolve checkout base URL from env vars with hardcoded fallbacks
   let base;
