@@ -182,9 +182,19 @@ textarea::placeholder{color:var(--faint)}
 'use strict';
 
 // ── Constants ─────────────────────────────────────────────────
-const SESSION_KEY       = 'ls_session_id';
-const PAYMENT_LINK_PRO  = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/7719f367-3c74-4f30-bd9e-323f3f66a382';
-const PAYMENT_LINK_PLUS = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/18245f15-0847-400a-8688-cdf664bf9771';
+const SESSION_KEY = 'sol_session_id';  // localStorage key for sessionId (UUID only)
+
+// Base checkout URLs — sessionId is appended as custom data at runtime
+// so the webhook can link the payment back to this browser session.
+const CHECKOUT_BASE_PRO  = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/7719f367-3c74-4f30-bd9e-323f3f66a382';
+const CHECKOUT_BASE_PLUS = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/18245f15-0847-400a-8688-cdf664bf9771';
+
+// Build checkout URL with sessionId attached as LemonSqueezy custom_data
+// The webhook reads this and writes tier:{sessionId} to KV
+function checkoutUrl(base) {
+  const sid = getOrCreateSession();
+  return `${base}?checkout[custom][sessionId]=${encodeURIComponent(sid)}`;
+}
 
 // ── UI state — populated ONLY by server responses ─────────────
 // Frontend has ZERO business logic. It renders what the server says.
@@ -290,8 +300,16 @@ function t(key, ...args) {
 }
 
 // ── Session storage — ONLY sessionId, never tier ──────────────
-function getSession()    { return localStorage.getItem(SESSION_KEY) || null; }
-function saveSession(id) { localStorage.setItem(SESSION_KEY, id); }
+function getOrCreateSession() {
+  let sid = localStorage.getItem(SESSION_KEY);
+  if (!sid || sid.includes('{') || sid.includes('}')) {
+    sid = crypto.randomUUID();
+    localStorage.setItem(SESSION_KEY, sid);
+    console.log('[session] New sessionId:', sid.slice(0,8) + '...');
+  }
+  return sid;
+}
+function getSession() { return getOrCreateSession(); }
 function hasGivenEmail() { return !!localStorage.getItem('sol_email'); }
 
 // ── Render UI from uiState ────────────────────────────────────
@@ -403,28 +421,24 @@ function applyLang() {
   const params = new URLSearchParams(window.location.search);
   const orderParam = params.get('order') || params.get('session_id');
 
-  if (orderParam) {
-    // Reject unresolved LS template placeholders
-    if (orderParam.includes('{') || orderParam.includes('}')) {
-      console.error('[app] Unresolved LS placeholder in redirect URL — check Button link config');
-    } else {
-      saveSession(orderParam);
-    }
-    // Always clean URL
+  // After payment, LS redirects back here. We DON'T store the order param —
+  // the sessionId UUID was passed at checkout and the webhook has already
+  // written tier:{sessionId} to KV. Just clean the URL and re-verify.
+  if (window.location.search) {
     window.history.replaceState({}, '', window.location.pathname);
   }
 
   applyLang();
   renderUI();
 
-  // Verify on every page load if session exists
-  const sid = getSession();
-  if (sid) verifySession(sid);
+  // Always verify on page load — creates session UUID if none exists yet
+  const sid = getOrCreateSession();
+  verifySession(sid);
 })();
 
 // ── Navigation ────────────────────────────────────────────────
-function goUpgrade() { window.location.href = PAYMENT_LINK_PRO; }
-function goPlus()    { window.location.href = PAYMENT_LINK_PLUS; }
+function goUpgrade() { window.location.href = checkoutUrl(CHECKOUT_BASE_PRO); }
+function goPlus()    { window.location.href = checkoutUrl(CHECKOUT_BASE_PLUS); }
 
 function fillExample() {
   const ex = EXAMPLES[lang] || EXAMPLES.nl;
@@ -478,7 +492,7 @@ async function runAnalysis() {
   try {
     const sid = getSession();
     const headers = { 'Content-Type': 'application/json' };
-    if (sid) headers['x-ls-session'] = sid;
+    if (sid) headers['x-session-id'] = sid;
 
     const resp = await fetch('/api/analyse', {
       method: 'POST', headers,
