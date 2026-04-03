@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sollicitatie Coach — AI CV & Motivatiebrief Analyse</title>
+<title>Sollicitatie Coach — AI CV &amp; Motivatiebrief Analyse</title>
 <meta name="description" content="Analyseer je CV op een vacature met AI. Krijg een match score, verbeterpunten en een motivatiebrief op maat. Gratis proberen.">
 <script defer src="/_vercel/insights/script.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -27,13 +27,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .example-bar{text-align:center;margin-bottom:16px}
 .example-btn{background:none;border:1px dashed var(--border-hover);border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s}
 .example-btn:hover{border-color:var(--text);color:var(--text);background:var(--card)}
-.usage-bar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.usage-bar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .dots{display:flex;gap:5px}
 .dot{width:10px;height:10px;border-radius:50%;transition:background .2s}
 .dot.used{background:var(--text);opacity:.35}
 .dot.avail{background:var(--border);border:1px solid var(--border-hover)}
 #usage-text{font-size:13px;color:var(--muted)}
 .upgrade-btn{margin-left:auto;background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:opacity .15s}
+.upgrade-btn:hover{opacity:.8}
+.activate-link{font-size:11px;color:var(--faint);text-decoration:none;width:100%;text-align:right}
+.activate-link:hover{color:var(--muted)}
 .inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 @media(max-width:560px){.inputs{grid-template-columns:1fr}}
 .input-block label{display:block;font-size:11px;font-weight:700;color:var(--faint);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase}
@@ -85,8 +88,9 @@ textarea::placeholder{color:var(--faint)}
 .paywall-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 28px;text-align:center}
 .paywall-box p{font-size:14px;font-weight:700;margin-bottom:4px}
 .paywall-box small{font-size:12px;color:var(--muted);display:block;margin-bottom:14px}
-.paywall-box .cta{background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;width:100%;display:block;margin-bottom:8px}
-.paywall-box .cta-plus{background:none;border:1px solid var(--border);border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text);width:100%;display:block}
+.paywall-cta{background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;display:block;margin-bottom:8px;text-align:center;text-decoration:none}
+.paywall-cta-sec{background:none;border:1px solid var(--border);border-radius:8px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text);width:100%;display:block;text-align:center;text-decoration:none;margin-bottom:8px}
+.paywall-activate{font-size:11px;color:var(--faint);display:block;text-align:center;text-decoration:none;margin-top:4px}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
 .modal-overlay.hidden{display:none}
 .modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:400px;width:100%;text-align:center}
@@ -115,19 +119,23 @@ textarea::placeholder{color:var(--faint)}
       <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
     </div>
   </div>
+
   <div class="header">
     <h1 id="app-title">Sollicitatie Coach <span class="badge" id="tier-badge">GRATIS</span></h1>
     <p id="hero-sub">Zie in 30 seconden of jij de beste kandidaat bent voor de baan.</p>
   </div>
+
   <div class="example-bar">
     <button class="example-btn" id="example-btn" onclick="fillExample()">&#10024; Probeer met voorbeeldtekst</button>
   </div>
+
   <div class="usage-bar">
     <div class="dots" id="dots"></div>
     <span id="usage-text"></span>
-    <button class="upgrade-btn" id="upgrade-btn" onclick="goUpgrade()">Pro &mdash; &euro;9,99/mnd</button>
-    <a href="/activate.html" style="font-size:11px;color:var(--faint);display:block;margin-top:4px;text-decoration:none;text-align:right" id="activate-link">Al betaald? Activeer →</a>
+    <button class="upgrade-btn" id="upgrade-btn" onclick="goUpgrade()">Upgrade &rarr;</button>
+    <a href="/activate.html" class="activate-link" id="activate-link">Al betaald? Activeer hier &rarr;</a>
   </div>
+
   <div class="inputs">
     <div class="input-block">
       <label id="label-cv">Jouw CV</label>
@@ -138,8 +146,10 @@ textarea::placeholder{color:var(--faint)}
       <textarea id="job-input" placeholder="Plak hier de volledige vacaturetekst..."></textarea>
     </div>
   </div>
+
   <button class="analyse-btn" id="analyse-btn" onclick="runAnalysis()">Analyseer mijn sollicitatie</button>
   <div id="results"></div>
+
   <div class="review-form" id="review-form" style="display:none">
     <h3 id="review-title">Wat vond je ervan?</h3>
     <div class="stars-row" id="stars-row">
@@ -158,8 +168,8 @@ textarea::placeholder{color:var(--faint)}
 <div class="modal-overlay hidden" id="email-modal">
   <div class="modal">
     <h3 id="modal-title">Jouw analyse is klaar!</h3>
-    <p id="modal-sub">Laat je e-mailadres achter voor tips over solliciteren. Geen spam.</p>
-    <input type="email" id="email-input" placeholder="jouw@email.nl"/>
+    <p id="modal-sub">Laat je e-mailadres achter voor tips. Geen spam.</p>
+    <input type="email" id="email-input" placeholder="jouw@email.nl" />
     <button class="modal-btn" onclick="submitEmail()" id="modal-btn">Stuur me tips &rarr;</button>
     <button class="modal-skip" onclick="closeEmailModal()" id="modal-skip">Overslaan</button>
   </div>
@@ -168,86 +178,42 @@ textarea::placeholder{color:var(--faint)}
 <script>
 'use strict';
 
-const FREE_LIMIT = 3;
-const PAYMENT_LINK_PRO  = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/7719f367-3c74-4f30-bd9e-323f3f66a382';
-const PAYMENT_LINK_PLUS = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/18245f15-0847-400a-8688-cdf664bf9771';
-const SESSION_KEY = 'ls_session_id';
+var FREE_LIMIT = 3;
+var PAYMENT_LINK_PRO  = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/dfcb053f-66f7-4458-8cd4-d7d5e129f649';
+var PAYMENT_LINK_PLUS = 'https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/a6f5fe91-e8c0-4dc5-8157-9d816da2591d';
+var SESSION_KEY = 'ls_session_id';
 
-let currentTier = 'free';
-let currentCanPdf = false;
-let currentMotivText = '';
+// Server is ONLY source of truth for tier
+var currentTier = 'free';
+var currentCanPdf = false;
+var currentMotivText = '';
+var lastResult = null;
 
-const EXAMPLES = {
+var EXAMPLES = {
   nl: {
-    cv: `Lisa de Vries
-Marketing Manager | linkedin.com/in/lisadevries | lisa@email.nl
-
-WERKERVARING
-Marketing Manager — TechStartup BV (2021–heden)
-• Verhoogde organisch websiteverkeer met 140% via SEO en contentmarketing
-• Beheerde €200.000 jaarlijks advertentiebudget (Google Ads, Meta)
-• Leidde team van 4 marketeers
-
-Junior Marketeer — Retailbedrijf NV (2019–2021)
-• Social media (Instagram, LinkedIn) — +8.000 volgers in 1 jaar
-
-OPLEIDING
-Bachelor Marketing — Hogeschool Utrecht (2019)
-
-VAARDIGHEDEN
-Google Analytics, SEO, Google Ads, Meta Ads, HubSpot, Figma, Copywriting, A/B-testing`,
-
-    job: `Vacature: Senior Digital Marketeer — ScaleUp BV (Amsterdam)
-
-Vereisten:
-• Minimaal 3 jaar ervaring in digitale marketing
-• Aantoonbare ervaring met Google Ads en SEO
-• Ervaring met HubSpot of vergelijkbaar CRM
-• Analytisch sterk, resultaatgericht
-
-Wij bieden: €45.000–€55.000 | 25 vakantiedagen | Hybride werken`
+    cv: 'Lisa de Vries\nMarketing Manager | lisa@email.nl\n\nWERKERVARING\nMarketing Manager — TechStartup BV (2021-heden)\n• Verhoogde organisch websiteverkeer met 140% via SEO\n• Beheerde 200.000 EUR jaarlijks advertentiebudget\n\nOPLEIDING\nBachelor Marketing — Hogeschool Utrecht (2019)\n\nVAARDIGHEDEN\nGoogle Analytics, SEO, Google Ads, HubSpot, Copywriting',
+    job: 'Vacature: Senior Digital Marketeer — ScaleUp BV\n\nVereisten:\n• Minimaal 3 jaar ervaring in digitale marketing\n• Aantoonbare ervaring met Google Ads en SEO\n• Ervaring met HubSpot\n• Analytisch sterk\n\nSalaris: 45.000-55.000 EUR | Hybride werken'
   },
-
   en: {
-    cv: `James Carter
-Software Engineer | github.com/jamescarter | james@email.com
-
-WORK EXPERIENCE
-Senior Software Engineer — FinTech Ltd (2021–present)
-• Built microservices handling 2M+ daily transactions
-• Reduced API response time by 60%
-• Led migration to microservices (Node.js, PostgreSQL, Redis)
-
-EDUCATION
-BSc Computer Science — University of Amsterdam (2019)
-
-SKILLS
-JavaScript, TypeScript, Node.js, React, PostgreSQL, Redis, Docker, AWS`,
-
-    job: `Job: Full Stack Engineer — GrowthApp (Amsterdam)
-
-Requirements:
-• 3+ years full stack development
-• Strong proficiency in React and Node.js
-• Experience with PostgreSQL and Redis
-• Familiarity with Docker and AWS
-
-We offer: €55.000–€70.000 | 25 days PTO | Remote-friendly | MacBook Pro`
+    cv: 'James Carter\nSoftware Engineer | james@email.com\n\nWORK EXPERIENCE\nSenior Software Engineer — FinTech Ltd (2021-present)\n• Built microservices handling 2M+ daily transactions\n• Reduced API response time by 60%\n\nEDUCATION\nBSc Computer Science — University of Amsterdam (2019)\n\nSKILLS\nJavaScript, TypeScript, Node.js, React, PostgreSQL, Docker, AWS',
+    job: 'Job: Full Stack Engineer — GrowthApp\n\nRequirements:\n• 3+ years full stack development\n• Strong proficiency in React and Node.js\n• Experience with PostgreSQL and Docker\n• Familiarity with AWS\n\nSalary: 55.000-70.000 EUR | Remote-friendly'
   }
 };
 
-const T = {
+var T = {
   nl: {
     title: 'Sollicitatie Coach',
     hero: 'Zie in 30 seconden of jij de beste kandidaat bent voor de baan.',
-    exampleBtn: '✨ Probeer met voorbeeldtekst',
-    labelCv: 'Jouw CV', labelJob: 'Vacaturetekst',
+    exampleBtn: 'Probeer met voorbeeldtekst',
+    labelCv: 'Jouw CV',
+    labelJob: 'Vacaturetekst',
     cvPlaceholder: 'Plak hier de tekst van je CV...',
     jobPlaceholder: 'Plak hier de volledige vacaturetekst...',
     analyseBtn: 'Analyseer mijn sollicitatie',
-    upgradeBtn: 'Pro — €9,99/mnd',
-    usageLeft: (n) => `${n} van ${FREE_LIMIT} gratis analyses over`,
-    usageNone: 'Geen analyses meer — upgrade naar Pro',
+    upgradeBtn: 'Upgrade naar Pro',
+    activateLink: 'Al betaald? Activeer hier \u2192',
+    usageLeft: function(n) { return n + ' van ' + FREE_LIMIT + ' gratis analyses over'; },
+    usageNone: 'Geen analyses meer \u2014 upgrade naar Pro',
     usagePro: 'Pro abonnement actief',
     usagePlus: 'Plus abonnement actief',
     loading: 'AI analyseert jouw match... even geduld',
@@ -257,33 +223,44 @@ const T = {
     upgradeNow: 'Upgrade nu',
     scoreLabel: 'Match score',
     keywords: 'Keywords',
-    present: 'Aanwezig in je CV', missing: 'Ontbreekt nog',
+    present: 'Aanwezig in je CV',
+    missing: 'Ontbreekt nog',
     strengths: 'Sterke punten & verbeterpunten',
     motiv: 'Motivatiebrief op maat',
-    motivLocked: 'Motivatiebrief — upgrade naar Plus of Pro',
+    motivLocked: 'Motivatiebrief \u2014 upgrade naar Plus of Pro',
     motivLockedSub: 'Gratis analyses bevatten geen motivatiebrief.',
     motivPdfLocked: 'PDF export alleen voor Pro',
     motivPdfLockedSub: 'Upgrade naar Pro voor PDF download.',
     cvTips: 'CV verbeterpunten',
-    copy: 'Kopieer', copied: 'Gekopieerd!', pdf: '↓ PDF',
-    noKeywords: 'Geen gevonden', noMissing: 'Geen',
+    copy: 'Kopieer',
+    copied: 'Gekopieerd!',
+    pdf: '\u2193 PDF',
+    noKeywords: 'Geen gevonden',
+    noMissing: 'Geen',
     modalTitle: 'Jouw analyse is klaar!',
-    modalSub: 'Laat je e-mailadres achter voor tips over solliciteren. Geen spam.',
-    modalBtn: 'Stuur me tips →', modalSkip: 'Overslaan',
-    tierFree: 'GRATIS', tierPlus: 'PLUS', tierPro: 'PRO',
-    paywallPro: 'Pro — €9,99/mnd (100x)', paywallPlus: 'Plus — €2,99/mnd (10x)',
+    modalSub: 'Laat je e-mailadres achter voor tips. Geen spam.',
+    modalBtn: 'Stuur me tips \u2192',
+    modalSkip: 'Overslaan',
+    tierFree: 'GRATIS',
+    tierPlus: 'PLUS',
+    tierPro: 'PRO',
+    paywallPro: 'Pro \u2014 \u20ac9,99/mnd (100x)',
+    paywallPlus: 'Plus \u2014 \u20ac2,99/mnd (10x)',
+    alreadyPaid: 'Al betaald? Activeer hier \u2192'
   },
   en: {
     title: 'Application Coach',
     hero: "Find out in 30 seconds if you're the best candidate for the job.",
-    exampleBtn: '✨ Try with example text',
-    labelCv: 'Your CV', labelJob: 'Job posting',
+    exampleBtn: 'Try with example text',
+    labelCv: 'Your CV',
+    labelJob: 'Job posting',
     cvPlaceholder: 'Paste your CV text here...',
     jobPlaceholder: 'Paste the full job posting here...',
     analyseBtn: 'Analyse my application',
-    upgradeBtn: 'Pro — €9.99/mo',
-    usageLeft: (n) => `${n} of ${FREE_LIMIT} free analyses left`,
-    usageNone: 'No analyses left — upgrade to Pro',
+    upgradeBtn: 'Upgrade to Pro',
+    activateLink: 'Already paid? Activate here \u2192',
+    usageLeft: function(n) { return n + ' of ' + FREE_LIMIT + ' free analyses left'; },
+    usageNone: 'No analyses left \u2014 upgrade to Pro',
     usagePro: 'Pro subscription active',
     usagePlus: 'Plus subscription active',
     loading: 'AI is analysing your match... please wait',
@@ -293,30 +270,38 @@ const T = {
     upgradeNow: 'Upgrade now',
     scoreLabel: 'Match score',
     keywords: 'Keywords',
-    present: 'Present in your CV', missing: 'Missing',
+    present: 'Present in your CV',
+    missing: 'Missing',
     strengths: 'Strengths & improvements',
     motiv: 'Tailored cover letter',
-    motivLocked: 'Cover letter — upgrade to Plus or Pro',
+    motivLocked: 'Cover letter \u2014 upgrade to Plus or Pro',
     motivLockedSub: 'Free analyses do not include a cover letter.',
     motivPdfLocked: 'PDF export for Pro only',
     motivPdfLockedSub: 'Upgrade to Pro for PDF download.',
     cvTips: 'CV improvement tips',
-    copy: 'Copy', copied: 'Copied!', pdf: '↓ PDF',
-    noKeywords: 'None found', noMissing: 'None',
+    copy: 'Copy',
+    copied: 'Copied!',
+    pdf: '\u2193 PDF',
+    noKeywords: 'None found',
+    noMissing: 'None',
     modalTitle: 'Your analysis is ready!',
-    modalSub: 'Leave your email for job application tips. No spam.',
-    modalBtn: 'Send me tips →', modalSkip: 'Skip',
-    tierFree: 'FREE', tierPlus: 'PLUS', tierPro: 'PRO',
-    paywallPro: 'Pro — €9.99/mo (100x)', paywallPlus: 'Plus — €2.99/mo (10x)',
+    modalSub: 'Leave your email for tips. No spam.',
+    modalBtn: 'Send me tips \u2192',
+    modalSkip: 'Skip',
+    tierFree: 'FREE',
+    tierPlus: 'PLUS',
+    tierPro: 'PRO',
+    paywallPro: 'Pro \u2014 \u20ac9.99/mo (100x)',
+    paywallPlus: 'Plus \u2014 \u20ac2.99/mo (10x)',
+    alreadyPaid: 'Already paid? Activate here \u2192'
   }
 };
 
-let lang = localStorage.getItem('sol_lang') || 'nl';
-let lastResult = null;
+var lang = localStorage.getItem('sol_lang') || 'nl';
 
-function t(key, ...args) {
-  const val = T[lang][key];
-  return typeof val === 'function' ? val(...args) : val;
+function t(key) {
+  var val = T[lang][key];
+  return val !== undefined ? val : key;
 }
 
 function setLang(l) {
@@ -326,7 +311,7 @@ function setLang(l) {
   document.getElementById('btn-en').classList.toggle('active', l === 'en');
   document.documentElement.lang = l;
   applyLang();
-  if (lastResult) renderResults(lastResult);
+  if (lastResult) { renderResults(lastResult); }
 }
 
 function applyLang() {
@@ -338,6 +323,7 @@ function applyLang() {
   document.getElementById('job-input').placeholder = t('jobPlaceholder');
   document.getElementById('analyse-btn').textContent = t('analyseBtn');
   document.getElementById('upgrade-btn').textContent = t('upgradeBtn');
+  document.getElementById('activate-link').textContent = t('activateLink');
   document.getElementById('modal-title').textContent = t('modalTitle');
   document.getElementById('modal-sub').textContent = t('modalSub');
   document.getElementById('modal-btn').textContent = t('modalBtn');
@@ -345,369 +331,430 @@ function applyLang() {
   renderUsageBar();
 }
 
-function getUses() { return parseInt(localStorage.getItem('sol_uses') || '0'); }
-function getSession() { return localStorage.getItem(SESSION_KEY) || null; }
-function hasGivenEmail() { return !!localStorage.getItem('sol_email'); }
+function getUses() {
+  return parseInt(localStorage.getItem('sol_uses') || '0');
+}
+
+function getSession() {
+  return localStorage.getItem(SESSION_KEY) || null;
+}
+
+function hasGivenEmail() {
+  return !!localStorage.getItem('sol_email');
+}
 
 function renderUsageBar() {
-  const used = getUses();
-  const left = Math.max(0, FREE_LIMIT - used);
-  const badge = document.getElementById('tier-badge');
+  var badge = document.getElementById('tier-badge');
+  var dotsEl = document.getElementById('dots');
+  var usageText = document.getElementById('usage-text');
+
   if (currentTier === 'pro') {
-    badge.textContent = t('tierPro'); badge.className = 'badge pro';
+    badge.textContent = t('tierPro');
+    badge.className = 'badge pro';
+    dotsEl.innerHTML = '<span style="font-size:12px;color:var(--green);font-weight:700">' + t('usagePro') + '</span>';
+    usageText.textContent = '';
   } else if (currentTier === 'plus') {
-    badge.textContent = t('tierPlus'); badge.className = 'badge plus';
+    badge.textContent = t('tierPlus');
+    badge.className = 'badge plus';
+    dotsEl.innerHTML = '<span style="font-size:12px;color:#1d4ed8;font-weight:700">' + t('usagePlus') + '</span>';
+    usageText.textContent = '';
   } else {
-    badge.textContent = t('tierFree'); badge.className = 'badge';
+    badge.textContent = t('tierFree');
+    badge.className = 'badge';
+    var used = getUses();
+    var left = Math.max(0, FREE_LIMIT - used);
+    var dots = '';
+    for (var i = 0; i < FREE_LIMIT; i++) {
+      dots += '<div class="dot ' + (i < used ? 'used' : 'avail') + '"></div>';
+    }
+    dotsEl.innerHTML = dots;
+    usageText.textContent = left > 0 ? t('usageLeft')(left) : t('usageNone');
   }
-  const dotsEl = document.getElementById('dots');
-  if (currentTier === 'pro') {
-    dotsEl.innerHTML = `<span style="font-size:12px;color:var(--green);font-weight:700">${t('usagePro')}</span>`;
-    document.getElementById('usage-text').textContent = '';
-  } else if (currentTier === 'plus') {
-    dotsEl.innerHTML = `<span style="font-size:12px;color:#1d4ed8;font-weight:700">${t('usagePlus')}</span>`;
-    document.getElementById('usage-text').textContent = '';
-  } else {
-    dotsEl.innerHTML = Array.from({length: FREE_LIMIT}, (_, i) =>
-    `<div class="dot ${i < used ? 'used' : 'avail'}"></div>`
-  ).join('');
-    document.getElementById('usage-text').textContent =
-      left > 0 ? t('usageLeft', left) : t('usageNone');
-  }
+
+  var titleEl = document.getElementById('app-title');
+  titleEl.textContent = t('title') + ' ';
+  titleEl.appendChild(badge);
 }
 
-const params = new URLSearchParams(window.location.search);
-const sessionFromUrl = params.get('order') || params.get('session_id');
+// Verify session with server on load
+function verifySession() {
+  var session = getSession();
+  if (!session) return;
+  fetch('/api/session/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionId: session })
+  }).then(function(r) {
+    return r.json();
+  }).then(function(data) {
+    if (data.tier && data.tier !== 'free') {
+      currentTier = data.tier;
+      currentCanPdf = data.canPdf === true;
+      renderUsageBar();
+    }
+  }).catch(function() {
+    // silently fail — stay free
+  });
+}
+
+// Handle redirect from activation page
+var params = new URLSearchParams(window.location.search);
+var sessionFromUrl = params.get('activated');
 if (sessionFromUrl) {
-  localStorage.setItem(SESSION_KEY, sessionFromUrl);
+  var tierFromUrl = params.get('tier') || 'plus';
+  currentTier = tierFromUrl;
+  currentCanPdf = tierFromUrl === 'pro';
   window.history.replaceState({}, '', window.location.pathname);
+  renderUsageBar();
 }
 
-const savedTier = localStorage.getItem('ls_tier');
-if (savedTier) {
-  currentTier = savedTier;
-}
-
+// Init
 setLang(lang);
-renderUsageBar();
+verifySession();
 
-function goUpgrade() { window.location.href = PAYMENT_LINK_PRO; }
-function goPlus() { window.location.href = PAYMENT_LINK_PLUS; }
+function goUpgrade() {
+  window.location.href = PAYMENT_LINK_PRO;
+}
+
+function goPlus() {
+  window.location.href = PAYMENT_LINK_PLUS;
+}
 
 function fillExample() {
-  const ex = EXAMPLES[lang] || EXAMPLES.nl;
+  var ex = EXAMPLES[lang] || EXAMPLES.nl;
   document.getElementById('cv-input').value = ex.cv;
   document.getElementById('job-input').value = ex.job;
-  ['cv-input', 'job-input'].forEach(id => {
-    const el = document.getElementById(id);
-    el.style.borderColor = 'var(--green)';
-    setTimeout(() => { el.style.borderColor = ''; }, 1000);
-  });
+  var cvEl = document.getElementById('cv-input');
+  var jobEl = document.getElementById('job-input');
+  cvEl.style.borderColor = 'var(--green)';
+  jobEl.style.borderColor = 'var(--green)';
+  setTimeout(function() {
+    cvEl.style.borderColor = '';
+    jobEl.style.borderColor = '';
+  }, 1000);
   document.getElementById('analyse-btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function showEmailModal() {
-  if (hasGivenEmail()) return;
+  if (hasGivenEmail()) { return; }
   document.getElementById('email-modal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('email-input').focus(), 100);
+  setTimeout(function() {
+    var el = document.getElementById('email-input');
+    if (el) { el.focus(); }
+  }, 100);
 }
+
 function closeEmailModal() {
   document.getElementById('email-modal').classList.add('hidden');
   localStorage.setItem('sol_email', 'skipped');
 }
+
 function submitEmail() {
-  const email = document.getElementById('email-input').value.trim();
-  if (!email || !email.includes('@')) {
+  var email = document.getElementById('email-input').value.trim();
+  if (!email || email.indexOf('@') === -1) {
     document.getElementById('email-input').style.borderColor = 'var(--red)';
     return;
   }
   localStorage.setItem('sol_email', email);
   closeEmailModal();
 }
+
 document.getElementById('email-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeEmailModal();
+  if (e.target === this) { closeEmailModal(); }
 });
 
-async function safeFetch(url, options) {
-  const resp = await fetch(url, options);
-  const ct = resp.headers.get('content-type') || '';
-  if (!ct.includes('application/json')) {
-    throw new Error(
-      resp.status === 500 ? 'Serverfout (500).' :
-      resp.status === 404 ? 'API niet gevonden (404).' :
-      `Serverfout (${resp.status}).`
-    );
+function runAnalysis() {
+  var session = getSession();
+  var usedLocally = getUses();
+  if (!session && usedLocally >= FREE_LIMIT && currentTier === 'free') {
+    goUpgrade();
+    return;
   }
-  return { resp, data: await resp.json() };
-}
 
-async function runAnalysis() {
-  const session = getSession();
-  const usedLocally = getUses();
-  if (!session && usedLocally >= FREE_LIMIT) { goUpgrade(); return; }
+  var cv = document.getElementById('cv-input').value.trim();
+  var job = document.getElementById('job-input').value.trim();
 
-  const cv = document.getElementById('cv-input').value.trim();
-  const job = document.getElementById('job-input').value.trim();
   if (cv.length < 30) { alert(t('errCv')); return; }
   if (job.length < 30) { alert(t('errJob')); return; }
 
   document.getElementById('analyse-btn').disabled = true;
-  document.getElementById('results').innerHTML =
-  `<div class="loading">
-     <div class="spinner"></div>
-     <p>${t('loading')}</p>
-   </div>`;
+  document.getElementById('results').innerHTML = '<div class="loading"><div class="spinner"></div><p>' + escHtml(t('loading')) + '</p></div>';
 
-  try {
-    const headers = { 'Content-Type': 'application/json' };
-  if (session) headers['x-ls-session'] = session;
+  var headers = { 'Content-Type': 'application/json' };
+  if (session) { headers['x-ls-session'] = session; }
 
-  const { resp, data } = await safeFetch('/api/analyse', {
+  fetch('/api/analyse', {
     method: 'POST',
-    headers,
-    body: JSON.stringify({ cv, job })
-   });
+    headers: headers,
+    body: JSON.stringify({ cv: cv, job: job })
+  }).then(function(resp) {
+    return resp.json().then(function(data) {
+      return { resp: resp, data: data };
+    });
+  }).then(function(obj) {
+    var resp = obj.resp;
+    var data = obj.data;
 
-  if (resp.status === 429) {
-    document.getElementById('results').innerHTML = `
-      <div class="error-box">
-        ${t('errLimit')}<br><br>
+    if (resp.status === 429) {
+      document.getElementById('results').innerHTML =
+        '<div class="error-box">' + escHtml(t('errLimit')) + '<br><br>' +
+        '<button onclick="goUpgrade()" style="background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-right:8px">' + escHtml(t('paywallPro')) + '</button>' +
+        '<button onclick="goPlus()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">' + escHtml(t('paywallPlus')) + '</button>' +
+        '</div>';
+      return;
+    }
 
-        <button onclick="goUpgrade()"
-          style="background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-right:8px">
-          ${t('paywallPro')}
-        </button>
+    if (!resp.ok) {
+      throw new Error(data.error || ('Fout ' + resp.status));
+    }
 
-        <button onclick="goPlus()"
-          style="background:none;border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">
-          ${t('paywallPlus')}
-        </button>
-      </div>
-    `;
-    return;
-  }
+    // SERVER is source of truth for tier
+    currentTier = data.tier || 'free';
+    currentCanPdf = data.canPdf === true;
+    currentMotivText = data.motivatiebrief || '';
 
-  if (!resp.ok) {
-  throw new Error(data.error || `Fout (${resp.status})`);
-}
+    if (currentTier === 'free') {
+      var used = getUses();
+      localStorage.setItem('sol_uses', String(used + 1));
+    }
 
-currentTier = data.tier || 'free';
-currentCanPdf = data.canPdf === true;
-currentMotivText = data.motivatiebrief || '';
+    renderUsageBar();
+    lastResult = data;
+    renderResults(data);
 
-localStorage.setItem('ls_tier', currentTier);
+    setTimeout(showReviewForm, 2000);
+    setTimeout(showEmailModal, 1500);
 
-if (data.sessionId) {
-  localStorage.setItem('ls_session_id', data.sessionId);
-}
-
-if (currentTier === 'free') {
-  localStorage.setItem('sol_uses', usedLocally + 1);
-}
-
-renderUsageBar();
-lastResult = data;
-renderResults(data);
-
-setTimeout(showReviewForm, 2000);
-setTimeout(showEmailModal, 1500);
-
-} catch (e) {
-  document.getElementById('results').innerHTML = `
-    <div class="error-box">${escHtml(e.message)}</div>
-  `;
-} finally {
-  document.getElementById('analyse-btn').disabled = false;
-}
-  
-function downloadPDF() {
-  if (!currentCanPdf || !currentMotivText) return;
-  const { jsPDF } = window.jspdf;
-  if (!jsPDF) { alert('PDF library not loaded. Please refresh.'); return; }
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const margin = 20;
-  doc.setFontSize(20); doc.setFont('helvetica', 'bold');
-  doc.text(lang === 'nl' ? 'Motivatiebrief' : 'Cover Letter', margin, 30);
-  doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(120,120,120);
-  doc.text('Sollicitatie Coach — sollicitatie-coach.vercel.app', margin, 38);
-  doc.setDrawColor(220,220,220); doc.line(margin, 42, 190, 42);
-  doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(30,30,30);
-  doc.text(doc.splitTextToSize(currentMotivText, 170), margin, 52);
-  doc.save(lang === 'nl' ? 'motivatiebrief.pdf' : 'cover-letter.pdf');
+  }).catch(function(e) {
+    document.getElementById('results').innerHTML =
+      '<div class="error-box">' + escHtml(e.message) + '</div>';
+  }).finally(function() {
+    document.getElementById('analyse-btn').disabled = false;
+  });
 }
 
 function scoreColor(s) {
-  return s >= 75 ? 'var(--green)' : s >= 50 ? 'var(--amber)' : 'var(--red)';
+  if (s >= 75) { return 'var(--green)'; }
+  if (s >= 50) { return 'var(--amber)'; }
+  return 'var(--red)';
+}
+
+function downloadPDF() {
+  if (!currentCanPdf) { return; }
+  if (!currentMotivText) { return; }
+  var jspdfLib = window.jspdf;
+  if (!jspdfLib || !jspdfLib.jsPDF) {
+    alert('PDF library not loaded. Please refresh.');
+    return;
+  }
+  var doc = new jspdfLib.jsPDF({ unit: 'mm', format: 'a4' });
+  var margin = 20;
+  var maxWidth = 210 - margin * 2;
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text(lang === 'nl' ? 'Motivatiebrief' : 'Cover Letter', margin, 30);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(120, 120, 120);
+  doc.text('Sollicitatie Coach \u2014 sollicitatie-coach.vercel.app', margin, 38);
+  doc.setDrawColor(220, 220, 220);
+  doc.line(margin, 42, 210 - margin, 42);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(30, 30, 30);
+  var lines = doc.splitTextToSize(currentMotivText, maxWidth);
+  doc.text(lines, margin, 52);
+  doc.save(lang === 'nl' ? 'motivatiebrief.pdf' : 'cover-letter.pdf');
+}
+
+function copyMotiv() {
+  if (!currentMotivText) { return; }
+  navigator.clipboard.writeText(currentMotivText).then(function() {
+    var btn = document.querySelector('.copy-btn');
+    if (btn) {
+      btn.textContent = t('copied');
+      setTimeout(function() { btn.textContent = t('copy'); }, 2000);
+    }
+  }).catch(function() {});
 }
 
 function renderResults(r) {
-  if (r.tier) {
-    currentTier = r.tier;
-    localStorage.setItem('ls_tier', r.tier);
-  }
+  // Sync from server response
+  currentTier = r.tier || currentTier;
   currentCanPdf = r.canPdf === true;
   currentMotivText = r.motivatiebrief || currentMotivText;
-  const color = scoreColor(r.score);
-  const circ = 2 * Math.PI * 32;
-  const offset = circ * (1 - r.score / 100);
-  const hasCoverLetter = (r.tier === 'plus' || r.tier === 'pro') && r.motivatiebrief;
-  const hasPdf = r.canPdf === true;
 
-  document.getElementById('results').innerHTML = `
-  <div class="results">
-    <div class="score-card">
-      <div class="score-ring">
-        <svg width="80" height="80" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" stroke-width="5"/>
-          <circle cx="40" cy="40" r="32" fill="none" stroke="${color}" stroke-width="5"
-            stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" stroke-linecap="round"/>
-        </svg>
-        <div class="score-number" style="color:${color}">${r.score}</div>
-      </div>
+  var color = scoreColor(r.score);
+  var circ = 2 * Math.PI * 32;
+  var offset = circ * (1 - r.score / 100);
+  var hasCoverLetter = (currentTier === 'plus' || currentTier === 'pro') && r.motivatiebrief;
+  var hasPdf = currentCanPdf && hasCoverLetter;
 
-      <div class="score-info">
-        <h3>${t('scoreLabel')}: ${r.score}/100</h3>
-        <p>${escHtml(r.score_uitleg)}</p>
-      </div>
-    </div>
-    `;
+  var matchTags = (r.match_keywords || []).map(function(k) {
+    return '<span class="tag match">' + escHtml(k) + '</span>';
+  }).join('') || '<span style="color:var(--faint);font-size:13px">' + escHtml(t('noKeywords')) + '</span>';
 
-    <div class="section">
-      <div class="section-header" onclick="toggleSection(this)">
-        <h3>${t('keywords')}</h3><span class="chevron up">&#9660;</span>
-      </div>
-      <div class="section-body">
-        <div class="tag-group-label">${t('present')}</div>
-        <div class="tag-row">${(r.match_keywords||[]).map(k => `<span class="tag match">${escHtml(k)}</span>`).join('')||<span style="color:var(--faint);font-size:13px">${t('noKeywords')}</span>}</div>
-        <div class="tag-group-label" style="margin-top:14px">${t('missing')}</div>
-        <div class="tag-row">${(r.mis_keywords||[]).map(k=><span class="tag miss">${escHtml(k)}</span>).join('')||<span style="color:var(--faint);font-size:13px">${t('noMissing')}</span>}</div>
-      </div>
-    </div>
+  var missTags = (r.mis_keywords || []).map(function(k) {
+    return '<span class="tag miss">' + escHtml(k) + '</span>';
+  }).join('') || '<span style="color:var(--faint);font-size:13px">' + escHtml(t('noMissing')) + '</span>';
 
-    <div class="section">
-      <div class="section-header" onclick="toggleSection(this)">
-        <h3>${t('strengths')}</h3><span class="chevron up">&#9660;</span>
-      </div>
-      <div class="section-body">
-        <ul class="bullet-list">
-          ${(r.sterke_punten||[]).map(p=><li class="good">${escHtml(p)}</li>).join('')}
-          ${(r.verbeterpunten||[]).map(p=><li class="bad">${escHtml(p)}</li>).join('')}
-        </ul>
-      </div>
-    </div>
+  var goodItems = (r.sterke_punten || []).map(function(p) {
+    return '<li class="good">' + escHtml(p) + '</li>';
+  }).join('');
 
-    <div class="section">
-      <div class="section-header" onclick="toggleSection(this)">
-        <h3>${hasCoverLetter ? t('motiv') : t('motivLocked')}</h3>
-        <div class="btn-row">
-          ${hasCoverLetter ? <button class="copy-btn" onclick="event.stopPropagation();copyMotiv()">${t('copy')}</button> : ''}
-          ${hasPdf ? <button class="pdf-btn" onclick="event.stopPropagation();downloadPDF()">${t('pdf')}</button> : ''}
-          <span class="chevron up">&#9660;</span>
-        </div>
-      </div>
-      <div class="section-body">
-        ${hasCoverLetter
-          ? <p class="motiv-text" id="motiv-text">${escHtml(r.motivatiebrief)}</p>
-          : r.tier === 'plus'
-            ? <div class="paywall-wrap">
-                 <div class="paywall-blur motiv-text">${escHtml(r.motivatiebrief || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.')}</div>
-                 <div class="paywall-overlay"><div class="paywall-box">
-                   <p>${t('motivPdfLocked')}</p>
-                   <small>${t('motivPdfLockedSub')}</small>
-                   <button class="cta" onclick="goUpgrade()">${t('paywallPro')}</button>
-                 </div></div>
-               </div>
-            : <div class="paywall-wrap">
-                 <div class="paywall-blur motiv-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
-                 <div class="paywall-overlay"><div class="paywall-box">
-                   <p>${t('motivLocked')}</p>
-                   <small>${t('motivLockedSub')}</small>
-                   <button class="cta" onclick="goUpgrade()">${t('paywallPro')}</button>
-                   <button class="cta-plus" onclick="goPlus()">${t('paywallPlus')}</button>
-                 </div></div>
-               </div>
-        }
-      </div>
-    </div>
+  var badItems = (r.verbeterpunten || []).map(function(p) {
+    return '<li class="bad">' + escHtml(p) + '</li>';
+  }).join('');
 
-    <div class="section">
-      <div class="section-header" onclick="toggleSection(this)">
-        <h3>${t('cvTips')}</h3><span class="chevron up">&#9660;</span>
-      </div>
-      <div class="section-body"><p>${escHtml(r.cv_tips)}</p></div>
-    </div>
-  </div>;
+  var copyBtn = hasCoverLetter ? '<button class="copy-btn" onclick="copyMotiv()">' + escHtml(t('copy')) + '</button>' : '';
+  var pdfBtn  = hasPdf ? '<button class="pdf-btn" onclick="downloadPDF()">' + escHtml(t('pdf')) + '</button>' : '';
+
+  var motivSection;
+  if (hasCoverLetter) {
+    motivSection = '<p class="motiv-text" id="motiv-text">' + escHtml(r.motivatiebrief) + '</p>';
+  } else if (currentTier === 'plus') {
+    motivSection = '<div class="paywall-wrap">' +
+      '<div class="paywall-blur motiv-text">Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation.</div>' +
+      '<div class="paywall-overlay"><div class="paywall-box">' +
+      '<p>' + escHtml(t('motivPdfLocked')) + '</p>' +
+      '<small>' + escHtml(t('motivPdfLockedSub')) + '</small>' +
+      '<button class="paywall-cta" onclick="goUpgrade()">' + escHtml(t('paywallPro')) + '</button>' +
+      '<a href="/activate.html" class="paywall-activate">' + escHtml(t('alreadyPaid')) + '</a>' +
+      '</div></div></div>';
+  } else {
+    motivSection = '<div class="paywall-wrap">' +
+      '<div class="paywall-blur motiv-text">Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation.</div>' +
+      '<div class="paywall-overlay"><div class="paywall-box">' +
+      '<p>' + escHtml(t('motivLocked')) + '</p>' +
+      '<small>' + escHtml(t('motivLockedSub')) + '</small>' +
+      '<button class="paywall-cta" onclick="goUpgrade()">' + escHtml(t('paywallPro')) + '</button>' +
+      '<button class="paywall-cta-sec" onclick="goPlus()">' + escHtml(t('paywallPlus')) + '</button>' +
+      '<a href="/activate.html" class="paywall-activate">' + escHtml(t('alreadyPaid')) + '</a>' +
+      '</div></div></div>';
+  }
+
+  document.getElementById('results').innerHTML =
+    '<div class="results">' +
+    '<div class="score-card">' +
+    '<div class="score-ring">' +
+    '<svg width="80" height="80" viewBox="0 0 80 80">' +
+    '<circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" stroke-width="5"/>' +
+    '<circle cx="40" cy="40" r="32" fill="none" stroke="' + color + '" stroke-width="5" stroke-dasharray="' + circ.toFixed(1) + '" stroke-dashoffset="' + offset.toFixed(1) + '" stroke-linecap="round"/>' +
+    '</svg>' +
+    '<div class="score-number" style="color:' + color + '">' + r.score + '</div>' +
+    '</div>' +
+    '<div class="score-info">' +
+    '<h3>' + escHtml(t('scoreLabel')) + ': ' + r.score + '/100</h3>' +
+    '<p>' + escHtml(r.score_uitleg || '') + '</p>' +
+    '</div>' +
+    '</div>' +
+
+    '<div class="section">' +
+    '<div class="section-header" onclick="toggleSection(this)">' +
+    '<h3>' + escHtml(t('keywords')) + '</h3><span class="chevron up">&#9660;</span>' +
+    '</div>' +
+    '<div class="section-body">' +
+    '<div class="tag-group-label">' + escHtml(t('present')) + '</div>' +
+    '<div class="tag-row">' + matchTags + '</div>' +
+    '<div class="tag-group-label" style="margin-top:14px">' + escHtml(t('missing')) + '</div>' +
+    '<div class="tag-row">' + missTags + '</div>' +
+    '</div></div>' +
+
+    '<div class="section">' +
+    '<div class="section-header" onclick="toggleSection(this)">' +
+    '<h3>' + escHtml(t('strengths')) + '</h3><span class="chevron up">&#9660;</span>' +
+    '</div>' +
+    '<div class="section-body">' +
+    '<ul class="bullet-list">' + goodItems + badItems + '</ul>' +
+    '</div></div>' +
+
+    '<div class="section">' +
+    '<div class="section-header" onclick="toggleSection(this)">' +
+    '<h3>' + escHtml(hasCoverLetter ? t('motiv') : t('motivLocked')) + '</h3>' +
+    '<div class="btn-row">' + copyBtn + pdfBtn + '<span class="chevron up">&#9660;</span></div>' +
+    '</div>' +
+    '<div class="section-body">' + motivSection + '</div>' +
+    '</div>' +
+
+    '<div class="section">' +
+    '<div class="section-header" onclick="toggleSection(this)">' +
+    '<h3>' + escHtml(t('cvTips')) + '</h3><span class="chevron up">&#9660;</span>' +
+    '</div>' +
+    '<div class="section-body"><p>' + escHtml(r.cv_tips || '') + '</p></div>' +
+    '</div>' +
+    '</div>';
 }
 
 function toggleSection(header) {
-  const body = header.nextElementSibling;
-  const chevron = header.querySelector('.chevron');
-  const isOpen = !body.classList.contains('hidden');
+  var body = header.nextElementSibling;
+  var chevron = header.querySelector('.chevron');
+  var isOpen = !body.classList.contains('hidden');
   body.classList.toggle('hidden', isOpen);
   chevron.classList.toggle('up', !isOpen);
 }
 
-function copyMotiv() {
-  if (!currentMotivText) return;
-  navigator.clipboard.writeText(currentMotivText).then(() => {
-    const btn = document.querySelector('.copy-btn');
-    if (btn) { btn.textContent = t('copied'); setTimeout(() => btn.textContent = t('copy'), 2000); }
-  });
-}
+var reviewRating = 0;
 
-let reviewRating = 0;
 function setStar(val) {
   reviewRating = val;
-  document.querySelectorAll('.star').forEach(s => {
-    s.classList.toggle('active', parseInt(s.dataset.val) <= val);
-  });
+  var stars = document.querySelectorAll('.star');
+  for (var i = 0; i < stars.length; i++) {
+    stars[i].classList.toggle('active', parseInt(stars[i].dataset.val) <= val);
+  }
 }
 
 function showReviewForm() {
-  if (localStorage.getItem('sol_reviewed')) return;
-  const form = document.getElementById('review-form');
-  if (!form) return;
+  if (localStorage.getItem('sol_reviewed')) { return; }
+  var form = document.getElementById('review-form');
+  if (!form) { return; }
   form.style.display = 'block';
   document.getElementById('review-title').textContent = lang === 'nl' ? 'Wat vond je ervan?' : 'How was your experience?';
   document.getElementById('review-input').placeholder = lang === 'nl' ? 'Vertel ons wat je vond...' : 'Tell us what you think...';
   document.getElementById('review-submit').textContent = lang === 'nl' ? 'Review versturen' : 'Submit review';
 }
 
-async function submitReview() {
+function submitReview() {
   if (reviewRating === 0) {
     document.getElementById('stars-row').style.outline = '2px solid var(--red)';
-    setTimeout(() => document.getElementById('stars-row').style.outline = '', 1500);
+    setTimeout(function() { document.getElementById('stars-row').style.outline = ''; }, 1500);
     return;
   }
-  const message = document.getElementById('review-input').value.trim();
+  var message = document.getElementById('review-input').value.trim();
   if (message.length < 5) {
     document.getElementById('review-input').style.borderColor = 'var(--red)';
-    setTimeout(() => document.getElementById('review-input').style.borderColor = '', 1500);
+    setTimeout(function() { document.getElementById('review-input').style.borderColor = ''; }, 1500);
     return;
   }
-  const btn = document.getElementById('review-submit');
+  var btn = document.getElementById('review-submit');
   btn.disabled = true;
   btn.textContent = lang === 'nl' ? 'Versturen...' : 'Sending...';
-  try {
-    const stars = '★'.repeat(reviewRating) + '☆'.repeat(5 - reviewRating);
-    const resp = await fetch('https://formspree.io/f/xnjozwbr', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rating: ${stars} (${reviewRating}/5), message })
-    });
-    if (!resp.ok) throw new Error('Failed');
+
+  var stars = '';
+  for (var i = 0; i < reviewRating; i++) { stars += '\u2605'; }
+  for (var j = reviewRating; j < 5; j++) { stars += '\u2606'; }
+
+  fetch('https://formspree.io/f/xnjozwbr', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rating: stars + ' (' + reviewRating + '/5)', message: message })
+  }).then(function(resp) {
+    if (!resp.ok) { throw new Error('Failed'); }
     localStorage.setItem('sol_reviewed', '1');
     btn.style.display = 'none';
     document.getElementById('review-thanks').style.display = 'block';
-  } catch (_) {
+  }).catch(function() {
     btn.disabled = false;
     btn.textContent = lang === 'nl' ? 'Review versturen' : 'Submit review';
-  }
+  });
 }
 
 function escHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  if (!str) { return ''; }
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 </script>
 </body>
