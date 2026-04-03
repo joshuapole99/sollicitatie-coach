@@ -112,7 +112,6 @@ export default async function handler(req, res) {
 
   if (
     eventName === 'subscription_created' ||
-    eventName === 'subscription_updated' ||
     eventName === 'subscription_resumed' ||
     eventName === 'subscription_unpaused'
   ) {
@@ -128,7 +127,22 @@ export default async function handler(req, res) {
     eventName === 'subscription_expired'  ||
     eventName === 'subscription_paused'
   ) {
+    // Explicit downgrade — always deactivate regardless of status field
     await handleSubscription(payload, false);
+
+  } else if (eventName === 'subscription_updated') {
+    // subscription_updated fires for ANY change (plan change, renewal, etc.)
+    // Must check status before deciding to activate or downgrade
+    const status = payload?.data?.attributes?.status || '';
+    if (['cancelled', 'expired', 'paused'].includes(status)) {
+      // Status confirms this update is a downgrade
+      await handleSubscription(payload, false);
+    } else if (['active', 'trialing', 'past_due'].includes(status)) {
+      // Status confirms this update is an upgrade/renewal
+      await handleSubscription(payload, true);
+    } else {
+      console.log(`[webhook] subscription_updated with unhandled status '${status}' — acknowledged`);
+    }
 
   } else {
     console.log(`[webhook] Unhandled event: ${eventName} — 200 acknowledged`);
