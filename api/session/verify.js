@@ -1,70 +1,40 @@
-/**
- * /api/session/verify.js
- *
- * THE single endpoint the frontend calls to learn its tier.
- * Server is ALWAYS single source of truth.
- *
- * ✅ Returns: { tier, usage, limits, features }
- * ❌ Frontend must NEVER derive or cache tier
- */
+// api/session/verify.js
+// Single entry point for tier verification.
+// Called by frontend on page load and immediately after payment redirect.
+// Returns tier + usage info. Frontend ONLY reads this — never calculates tier itself.
 
-const { resolveTier } = require("../lib/tierResolver");
+import { resolveTier } from '../_tier.js';
+import { checkAndEnforce } from '../_usage.js';
 
-module.exports = async function handler(req, res) {
-  // ── CORS ──────────────────────────────────────────────────────────────────
-  res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN ?? "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  res.setHeader("Cache-Control", "no-store");
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // ── Parse sessionId ───────────────────────────────────────────────────────
-  const { sessionId } = req.body ?? {};
+  const { sessionId } = req.body || {};
 
-  if (!sessionId || typeof sessionId !== "string") {
-    console.warn("[verify] Missing or invalid sessionId in request body");
-    return res.status(400).json({ error: "sessionId required" });
-  }
+  console.log('[verify] Request for sessionId:', sessionId
+    ? sessionId.slice(0, 12) + '...'
+    : 'NONE');
 
-  console.log(`[verify] Request received for sessionId=${sessionId.slice(0, 8)}…`);
+  // Resolve tier from LemonSqueezy (or free if no session)
+  const { tier, config, source } = await resolveTier(sessionId);
 
-  // ── Resolve tier (full debug logging is inside resolveTier) ───────────────
-  let resolution;
-  try {
-    resolution = await resolveTier(sessionId);
-  } catch (err) {
-    console.error("[verify] resolveTier failed:", err.message);
-    return res.status(500).json({ error: "Tier resolution failed" });
-  }
+  // Get current usage for this session
+  const usageKey = sessionId || 'anonymous';
+  const { used, remaining, limit, allowed } = await checkAndEnforce(usageKey, tier, config);
 
-  const { tier, limits, usage } = resolution;
+  console.log(`[verify] Result: tier=${tier} source=${source} used=${used}/${limit} allowed=${allowed}`);
 
-  // ── Build feature flags based on tier ────────────────────────────────────
-  const features = {
-    coverLetter: tier === "plus" || tier === "pro",
-    pdfExport: tier === "pro",
-    prioritySupport: tier === "pro",
-  };
-
-  // ── Final response ────────────────────────────────────────────────────────
-  const response = {
-    tier,
-    limits,
-    usage,
-    features,
-    resolvedAt: new Date().toISOString(),
-  };
-
-  console.log("[verify] Responding with:", {
-    sessionId: sessionId.slice(0, 8) + "…",
-    tier,
-    usage,
-    features,
+  return res.status(200).json({
+    tier,                        // 'free' | 'plus' | 'pro'
+    canPdf: config.pdf,          // true only for pro
+    coverLetter: config.coverLetter,
+    usage: { used, remaining, limit, windowType: config.windowType },
+    source,                      // for debugging
+    blocked: !allowed,           // true if limit reached
   });
-
-  return res.status(200).json(response);
-};
+}
