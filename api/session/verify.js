@@ -15,26 +15,34 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { sessionId } = req.body || {};
+  const sid = (typeof sessionId === 'string' ? sessionId.trim() : '') || null;
 
-  console.log('[verify] Request for sessionId:', sessionId
-    ? sessionId.slice(0, 12) + '...'
-    : 'NONE');
+  console.log('[verify] sessionId:', sid ? sid.slice(0, 12) + '...' : 'NONE');
 
-  // Resolve tier from LemonSqueezy (or free if no session)
-  const { tier, config, source } = await resolveTier(sessionId);
+  // Resolve tier from LemonSqueezy (or free if no/invalid session)
+  const { tier, config, source } = await resolveTier(sid);
 
-  // Get current usage for this session
-  const usageKey = sessionId || 'anonymous';
-  const { used, remaining, limit, allowed } = await checkAndEnforce(usageKey, tier, config);
+  // FIX: Use sessionId as usage key for paid users
+  // For verify without session (free users), return generic free state
+  // — we don't track usage in verify for free users (no stable key without session)
+  let usageData = { used: 0, remaining: config.maxAnalyses, limit: config.maxAnalyses, windowType: config.windowType };
+  let blocked = false;
 
-  console.log(`[verify] Result: tier=${tier} source=${source} used=${used}/${limit} allowed=${allowed}`);
+  if (sid) {
+    // Paid users: check usage against their session
+    const result = await checkAndEnforce(sid, tier, config);
+    usageData = { used: result.used, remaining: result.remaining, limit: result.limit, windowType: config.windowType };
+    blocked = !result.allowed;
+  }
+
+  console.log(`[verify] Result: tier=${tier} source=${source} used=${usageData.used}/${usageData.limit} blocked=${blocked}`);
 
   return res.status(200).json({
-    tier,                        // 'free' | 'plus' | 'pro'
-    canPdf: config.pdf,          // true only for pro
+    tier,                          // 'free' | 'plus' | 'pro'
+    canPdf:      config.pdf,       // true only for pro
     coverLetter: config.coverLetter,
-    usage: { used, remaining, limit, windowType: config.windowType },
-    source,                      // for debugging
-    blocked: !allowed,           // true if limit reached
+    usage:       usageData,
+    source,                        // for debugging
+    blocked,
   });
 }
