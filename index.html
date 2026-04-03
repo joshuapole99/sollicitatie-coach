@@ -200,7 +200,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <li id="pl7">Alles in Gratis</li>
         <li id="pl8">Motivatiebrief op maat</li>
       </ul>
-      <a href="https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/18245f15-0847-400a-8688-cdf664bf9771" class="pricing-btn paid" id="pb-plus">Plus starten →</a>
+      <a href="#" class="pricing-btn paid" id="pb-plus" onclick="goCheckout('plus');return false;">Plus starten →</a>
     </div>
     <div class="pricing-card">
       <div class="pricing-tag" id="pt-pro">Pro</div>
@@ -212,7 +212,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <li id="pl11">PDF export van motivatiebrief</li>
         <li id="pl12">Prioriteit support</li>
       </ul>
-      <a href="https://sollicitatie-coach.lemonsqueezy.com/checkout/buy/7719f367-3c74-4f30-bd9e-323f3f66a382" class="pricing-btn paid" id="pb-pro">Pro starten →</a>
+      <a href="#" class="pricing-btn paid" id="pb-pro" onclick="goCheckout('pro');return false;">Pro starten →</a>
     </div>
   </div>
 </div>
@@ -487,6 +487,36 @@ function toggleFaq(item) {
 }
 
 setLang(lang);
+
+// ── Checkout with sessionId via /api/checkout ─────────────────
+// Uses same localStorage key as app.html (sol_session_id)
+// so the same UUID is used across both pages.
+const _SESSION_KEY = 'sol_session_id';
+
+function getOrCreateIndexSession() {
+  let sid = localStorage.getItem(_SESSION_KEY);
+  if (!sid || sid.includes('{') || sid.length < 10) {
+    sid = crypto.randomUUID();
+    localStorage.setItem(_SESSION_KEY, sid);
+  }
+  return sid;
+}
+
+function goCheckout(plan) {
+  const sid = getOrCreateIndexSession();
+  // /api/checkout handles test/live mode and appends sessionId as custom_data
+  window.location.href = '/api/checkout?plan=' + plan + '&sessionId=' + encodeURIComponent(sid);
+}
+
+// Update href on load so right-click / open-in-tab works too
+document.addEventListener('DOMContentLoaded', function() {
+  const sid = getOrCreateIndexSession();
+  ['plus', 'pro'].forEach(function(plan) {
+    const el = document.getElementById('pb-' + plan);
+    if (el) el.href = '/api/checkout?plan=' + plan + '&sessionId=' + encodeURIComponent(sid);
+  });
+});
+
 </script>
 
 <div style="max-width:780px;margin:0 auto;padding:0 24px 40px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap">
