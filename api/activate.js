@@ -18,7 +18,10 @@ export default async function handler(req, res) {
   try {
     let foundOrder = null;
 
-    // ✅ FIX: haal orders op en zoek zelf op identifier
+    // 🔧 helper voor robuuste vergelijking
+    const normalize = (val) => String(val || '').replace('#', '').trim();
+
+    // ✅ FIX: haal orders op en zoek robuust op identifier
     const r1 = await fetch(
       `https://api.lemonsqueezy.com/v1/orders?page[size]=100`,
       {
@@ -32,7 +35,7 @@ export default async function handler(req, res) {
 
     if (r1.ok && d1.data?.length > 0) {
       foundOrder = d1.data.find(o =>
-        String(o.attributes?.identifier) === String(order)
+        normalize(o.attributes?.identifier) === normalize(order)
       );
     }
 
@@ -47,7 +50,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Poging 2: (blijft bestaan, maar praktisch niet meer nodig)
+    // Poging 2 (blijft intact, maar nu ook gefixt)
     if (!foundOrder) {
       const r2 = await fetch(
         `https://api.lemonsqueezy.com/v1/orders?page[size]=100`,
@@ -57,7 +60,7 @@ export default async function handler(req, res) {
         const d2 = await r2.json();
         if (d2.data?.length > 0) {
           foundOrder = d2.data.find(o =>
-            String(o.attributes?.identifier) === String(order)
+            normalize(o.attributes?.identifier) === normalize(order)
           );
         }
       }
