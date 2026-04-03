@@ -352,21 +352,22 @@ async function verifySession(sessionId) {
     console.log('[app] verify:', data);
 
     uiState = {
-      tier: data.tier,
-      canPdf: data.canPdf,
+      tier:        data.tier,
+      canPdf:      data.canPdf,
       coverLetter: data.coverLetter,
-      usage: data.usage,
-      blocked: data.blocked,
-      verified: true,
+      usage:       data.usage,
+      blocked:     data.blocked,
+      verified:    true,
     };
     renderUI();
 
   } catch (e) {
     console.error('[app] verifySession failed:', e.message);
-    // Keep previous uiState — don't downgrade on network error
+    // On network error: keep previous state, don't downgrade
+    // But do re-enable the button so user can still try
   } finally {
     bar.classList.remove('show');
-    btn.disabled = false;
+    btn.disabled = uiState.blocked; // keep disabled only if server confirmed blocked
   }
 }
 
