@@ -1,30 +1,47 @@
 // api/_tier.js — SINGLE shared tier resolver used by ALL endpoints
-// Import this in analyse.js, session/verify.js, review.js
+// Import this in analyse.js, session/verify.js
 // NEVER duplicate this logic anywhere else
 //
 // ✅ Source of truth: KV key `tier:{sessionId}` (written by webhook)
-// ❌ REMOVED: LemonSqueezy API lookup (was non-deterministic, always returned not_found)
+// ✅ Reads plain string 'plus' or 'pro' — no JSON.parse needed
+// ❌ No LemonSqueezy API calls
 
-// ─── KV helper ────────────────────────────────────────────────
+// ─── KV GET ──────────────────────────────────────────────────
 async function kvGet(key) {
   const url   = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return null;
+  if (!url || !token) {
+    console.warn('[tier] KV not configured — KV_REST_API_URL / KV_REST_API_TOKEN missing');
+    return null;
+  }
   try {
     const r = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (!r.ok) return null;
+    if (!r.ok) {
+      console.error(`[tier] kvGet HTTP ${r.status} for key ${key}`);
+      return null;
+    }
     const d = await r.json();
-    return d.result ?? null;
-  } catch { return null; }
+    // Upstash returns { result: "plus" } for plain strings
+    // or { result: null } when key doesn't exist
+    const raw = d.result;
+    if (raw === null || raw === undefined) return null;
+    // Strip JSON quotes if value was accidentally stored as '"plus"'
+    // This provides backward-compat if old webhook ran before this fix
+    const val = String(raw).replace(/^"|"$/g, '').trim();
+    return val;
+  } catch (e) {
+    console.error('[tier] kvGet error:', e.message);
+    return null;
+  }
 }
 
-// ─── Tier config ──────────────────────────────────────────────
+// ─── Tier config ─────────────────────────────────────────────
 export const TIER_CONFIG = {
   free: {
     maxAnalyses: 3,
-    windowType:  'lifetime',  // never resets
+    windowType:  'lifetime',
     coverLetter: false,
     pdf:         false,
   },
@@ -42,32 +59,26 @@ export const TIER_CONFIG = {
   },
 };
 
-// ─── MAIN EXPORT: resolveTier ─────────────────────────────────
-// Reads tier from KV `tier:{sessionId}` — written by webhook on payment.
-// Returns free if no session or no KV record (new user, not paid).
+// ─── resolveTier ─────────────────────────────────────────────
 export async function resolveTier(sessionId) {
   if (!sessionId || typeof sessionId !== 'string' || sessionId.trim() === '') {
-    console.log('[tier] No sessionId — free');
+    console.log('[tier] No sessionId → free');
     return { tier: 'free', config: TIER_CONFIG.free, source: 'no_session' };
   }
 
   const sid = sessionId.trim();
 
-  // Guard against unresolved LemonSqueezy template placeholders
   if (sid.includes('{') || sid.includes('}')) {
-    console.warn('[tier] Unresolved placeholder in sessionId — checkout misconfigured');
+    console.warn('[tier] Unresolved placeholder in sessionId');
     return { tier: 'free', config: TIER_CONFIG.free, source: 'invalid_session' };
   }
 
-  // KV lookup — single deterministic read
   const stored = await kvGet(`tier:${sid}`);
+  console.log(`[tier] KV lookup tier:${sid.slice(0, 10)}... → raw="${stored}"`);
 
   if (stored === 'plus' || stored === 'pro') {
-    console.log(`[tier] KV hit: ${sid.slice(0, 8)}... → ${stored}`);
     return { tier: stored, config: TIER_CONFIG[stored], source: 'kv' };
   }
 
-  // No KV record → free (new user or payment not yet processed)
-  console.log(`[tier] KV miss: ${sid.slice(0, 8)}... → free (stored=${stored})`);
   return { tier: 'free', config: TIER_CONFIG.free, source: 'not_found' };
 }
