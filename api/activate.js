@@ -12,16 +12,14 @@ export default async function handler(req, res) {
   const apiKey = process.env.LEMONSQUEEZY_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server configuration error' });
 
-  const PLUS_VARIANT_IDS  = ['1478006'];
-  const PRO_VARIANT_IDS   = ['1468118'];
+  const PLUS_VARIANT_IDS = ['1478006'];
+  const PRO_VARIANT_IDS  = ['1468118'];
 
   try {
-    // Stap 1: Zoek order op nummer
     const orderNum = order.replace(/\D/g, '');
     let foundOrder = null;
-    let foundTier = null;
 
-    // Probeer directe order lookup
+    // Probeer directe order lookup via ID
     if (orderNum) {
       const orderResp = await fetch(
         `https://api.lemonsqueezy.com/v1/orders/${orderNum}`,
@@ -33,7 +31,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // Als directe lookup faalt, zoek via filter
+    // Als directe lookup faalt, zoek via identifier filter
     if (!foundOrder) {
       const searchResp = await fetch(
         `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${encodeURIComponent(order)}`,
@@ -45,54 +43,59 @@ export default async function handler(req, res) {
       }
     }
 
-    if (!foundOrder) return res.status(404).json({ 
-      error: 'Order not found',
-      debug_orderNum: orderNum,
-      debug_originalOrder: order
-    });
-
+    // Als nog steeds niet gevonden — debug: haal orders lijst op
     if (!foundOrder) {
-  // Extra: probeer orders lijst ophalen om te zien wat er is
-  const listResp = await fetch(
-    `https://api.lemonsqueezy.com/v1/orders?page[size]=5`,
-    { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
-  );
-  const listData = listResp.ok ? await listResp.json() : { error: 'list failed' };
-  return res.status(404).json({ 
-    error: 'Order not found',
-    debug_orderNum: orderNum,
-    debug_listSample: listData?.data?.map(o => ({ id: o.id, number: o.attributes?.order_number, email: o.attributes?.user_email }))
-  });
-}
+      const listResp = await fetch(
+        'https://api.lemonsqueezy.com/v1/orders?page[size]=5',
+        { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
+      );
+      const listText = await listResp.text();
+      let listData;
+      try { listData = JSON.parse(listText); } catch(_) { listData = { raw: listText.slice(0, 300) }; }
 
-    // Stap 2: Valideer email
+      return res.status(404).json({
+        error: 'Order not found',
+        debug_orderNum: orderNum,
+        debug_apiStatus: listResp.status,
+        debug_listCount: listData?.data?.length ?? 0,
+        debug_listSample: listData?.data?.slice(0, 3)?.map(o => ({
+          id: o.id,
+          number: o.attributes?.order_number,
+          email: o.attributes?.user_email,
+          status: o.attributes?.status
+        })),
+        debug_errors: listData?.errors,
+        debug_raw: listData?.raw
+      });
+    }
+
+    // Valideer email
     const orderEmail = foundOrder.attributes?.user_email?.toLowerCase();
     if (orderEmail !== email.toLowerCase()) {
       return res.status(404).json({ error: 'Email does not match order' });
     }
 
-    // Stap 3: Check order status
+    // Check order status
     const orderStatus = foundOrder.attributes?.status;
     if (!['paid', 'refunded'].includes(orderStatus)) {
-      return res.status(404).json({ error: 'Order not paid' });
+      return res.status(404).json({ error: 'Order not paid', status: orderStatus });
     }
 
-    // Stap 4: Bepaal tier via subscription variant
+    // Bepaal tier via subscription variant
     const orderId = foundOrder.id;
     const subsResp = await fetch(
       `https://api.lemonsqueezy.com/v1/subscriptions?filter[order_id]=${orderId}`,
       { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
     );
 
-    let tier = 'plus'; // default als subscription gevonden
+    let tier = 'plus';
     if (subsResp.ok) {
       const subsData = await subsResp.json();
       if (subsData.data?.length > 0) {
         const sub = subsData.data[0];
         const subStatus = sub.attributes?.status;
-        // Check of subscription actief is
         if (!['active', 'trialing', 'past_due'].includes(subStatus)) {
-          return res.status(404).json({ error: 'Subscription is not active' });
+          return res.status(404).json({ error: 'Subscription is not active', subStatus });
         }
         const variantId = String(sub.attributes?.variant_id);
         if (PRO_VARIANT_IDS.includes(variantId)) tier = 'pro';
@@ -100,7 +103,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // Stap 5: Maak session ID aan — gebruik order ID + email hash
     const sessionId = `ls_${orderId}_${Buffer.from(email.toLowerCase()).toString('base64').slice(0, 8)}`;
 
     return res.status(200).json({
