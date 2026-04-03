@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
     // ✅ FIX: haal orders op en zoek zelf op identifier
     const r1 = await fetch(
-      `https://api.lemonsqueezy.com/v1/orders?page[size]=100&sort=-created_at`,
+      `https://api.lemonsqueezy.com/v1/orders?page[size]=100`,
       {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     // Poging 2: (blijft bestaan, maar praktisch niet meer nodig)
     if (!foundOrder) {
       const r2 = await fetch(
-        `https://api.lemonsqueezy.com/v1/orders?page[size]=100&sort=-created_at`,
+        `https://api.lemonsqueezy.com/v1/orders?page[size]=100`,
         { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
       );
       if (r2.ok) {
