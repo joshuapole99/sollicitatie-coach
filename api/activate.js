@@ -16,31 +16,31 @@ export default async function handler(req, res) {
   const PRO_VARIANT_IDS  = ['1468118'];
 
   try {
-    const orderNum = order.replace(/\D/g, '');
     let foundOrder = null;
 
-    // Poging 1: filter op order number
-    if (orderNum) {
-      const r1 = await fetch(
-        `https://api.lemonsqueezy.com/v1/orders?filter[number]=${orderNum}`,
-        { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
-      );
-      const d1 = await r1.json();
-      if (r1.ok && d1.data?.length > 0) foundOrder = d1.data[0];
+    // ✅ FIX: direct filter op identifier (correcte manier)
+    const r1 = await fetch(
+      `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${encodeURIComponent(order)}`,
+      { headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/vnd.api+json' } }
+    );
+    const d1 = await r1.json();
 
-      // DEBUG — verwijder na fix
-      if (!foundOrder) {
-        return res.status(404).json({
-          error: 'Order not found',
-          debug_filterNumberStatus: r1.status,
-          debug_filterNumberCount: d1.data?.length ?? 0,
-          debug_filterNumberErrors: d1.errors,
-          debug_orderNum: orderNum,
-        });
-      }
+    if (r1.ok && d1.data?.length > 0) {
+      foundOrder = d1.data[0];
     }
 
-    // Poging 2: filter op identifier
+    // DEBUG — laat je zitten zoals gevraagd
+    if (!foundOrder) {
+      return res.status(404).json({
+        error: 'Order not found',
+        debug_filterIdentifierStatus: r1.status,
+        debug_filterIdentifierCount: d1.data?.length ?? 0,
+        debug_filterIdentifierErrors: d1.errors,
+        debug_orderInput: order,
+      });
+    }
+
+    // Poging 2: (blijft bestaan, maar eigenlijk niet meer nodig)
     if (!foundOrder) {
       const r2 = await fetch(
         `https://api.lemonsqueezy.com/v1/orders?filter[identifier]=${encodeURIComponent(order)}`,
