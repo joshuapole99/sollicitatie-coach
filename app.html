@@ -483,7 +483,7 @@ function closeEmailModal() {
   document.getElementById('email-modal').classList.add('hidden');
   localStorage.setItem('sol_email', 'skipped');
 }
-function submitEmail() {
+async function submitEmail() {
   const v = document.getElementById('email-input').value.trim();
   if (!v || !v.includes('@')) {
     document.getElementById('email-input').style.borderColor = 'var(--red)';
@@ -491,6 +491,12 @@ function submitEmail() {
   }
   localStorage.setItem('sol_email', v);
   closeEmailModal();
+  // Send to Formspree (fire-and-forget — don't block or show errors to user)
+  fetch('https://formspree.io/f/xnjozwbr', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ email: v }),
+  }).catch(() => {});
 }
 document.getElementById('email-modal').addEventListener('click', function(e) {
   if (e.target === this) closeEmailModal();
@@ -650,7 +656,7 @@ function renderResults(r) {
             ? `<div class="paywall-wrap">
                  <div class="paywall-blur motiv-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna.</div>
                  <div class="paywall-overlay"><div class="paywall-box">
-                   <p>${t('motivPdfLocked')}</p><small>${t('motivPdfLockedSub')}</small>
+                   <p>${t('motivLocked')}</p><small>${t('motivLockedSub')}</small>
                    <button class="cta" onclick="goUpgrade()">${t('paywallPro')}</button>
                  </div></div>
                </div>`
@@ -701,6 +707,8 @@ function setStar(val) {
 }
 function showReviewForm() {
   if (localStorage.getItem('sol_reviewed')) return;
+  if (sessionStorage.getItem('sol_review_shown')) return;
+  sessionStorage.setItem('sol_review_shown', '1');
   const form = document.getElementById('review-form');
   if (!form) return;
   form.style.display = 'block';
