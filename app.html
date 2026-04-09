@@ -142,11 +142,11 @@ textarea::placeholder{color:var(--faint)}
   <div class="inputs">
     <div class="input-block">
       <label id="label-cv">Jouw CV</label>
-      <textarea id="cv-input" placeholder="Plak hier de tekst van je CV..."></textarea>
+      <textarea id="cv-input" placeholder="Plak hier de tekst van je CV..." autocomplete="off"></textarea>
     </div>
     <div class="input-block">
       <label id="label-job">Vacaturetekst</label>
-      <textarea id="job-input" placeholder="Plak hier de volledige vacaturetekst..."></textarea>
+      <textarea id="job-input" placeholder="Plak hier de volledige vacaturetekst..." autocomplete="off"></textarea>
     </div>
   </div>
 
@@ -430,6 +430,20 @@ function applyLang() {
   applyLang();
   renderUI();
 
+  // Restore textarea drafts — fixes content loss when switching tabs on mobile
+  // (iOS Safari unloads pages from memory on tab switch, resetting all form fields)
+  const savedCv  = sessionStorage.getItem('sol_cv_draft');
+  const savedJob = sessionStorage.getItem('sol_job_draft');
+  if (savedCv)  document.getElementById('cv-input').value  = savedCv;
+  if (savedJob) document.getElementById('job-input').value = savedJob;
+
+  document.getElementById('cv-input').addEventListener('input', function() {
+    sessionStorage.setItem('sol_cv_draft', this.value);
+  });
+  document.getElementById('job-input').addEventListener('input', function() {
+    sessionStorage.setItem('sol_job_draft', this.value);
+  });
+
   // Always verify on page load — creates session UUID if none exists yet
   const sid = getOrCreateSession();
   verifySession(sid);
@@ -449,6 +463,8 @@ function fillExample() {
   const ex = EXAMPLES[lang] || EXAMPLES.nl;
   document.getElementById('cv-input').value  = ex.cv;
   document.getElementById('job-input').value = ex.job;
+  sessionStorage.setItem('sol_cv_draft', ex.cv);
+  sessionStorage.setItem('sol_job_draft', ex.job);
   ['cv-input','job-input'].forEach(id => {
     const el = document.getElementById(id);
     el.style.borderColor = 'var(--green)';

@@ -35,7 +35,7 @@ export default async function handler(req, res) {
   const result = await checkAndEnforce(usageKey, tier, config);
   usageData = {
     used:       result.used,
-    remaining:  result.remaining,
+    remaining:  result.allowed ? result.limit - result.used : 0,
     limit:      result.limit,
     windowType: config.windowType,
   };
