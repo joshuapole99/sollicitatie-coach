@@ -116,7 +116,7 @@ export default async function handler(req, res) {
       });
     }
 
-    if (!process.env.ANTHROPIC_API_KEY)
+    if (!process.env.NVIDIA_API_KEY)
       return res.status(500).json({ error: 'Serverconfiguratie fout.' });
 
     // ── 5. Feature gating — server decides ───────────────────
@@ -129,18 +129,19 @@ export default async function handler(req, res) {
 
     let apiResp;
     try {
-      apiResp = await fetch('https://api.anthropic.com/v1/messages', {
+      apiResp = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': process.env.ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01',
+          'Authorization': `Bearer ${process.env.NVIDIA_API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'meta/llama-3.1-405b-instruct',
           max_tokens: 1500,
-          system: SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: buildPrompt(cv.trim(), job.trim(), includeCoverLetter) }],
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'user', content: buildPrompt(cv.trim(), job.trim(), includeCoverLetter) },
+          ],
         }),
         signal: controller.signal,
       });
@@ -150,12 +151,12 @@ export default async function handler(req, res) {
 
     if (!apiResp.ok) {
       const err = await apiResp.json().catch(() => ({}));
-      console.error('[analyse] Anthropic error:', err.error?.message);
+      console.error('[analyse] NVIDIA error:', err.error?.message);
       return res.status(502).json({ error: 'AI service niet beschikbaar. Probeer opnieuw.' });
     }
 
     const aiData = await apiResp.json();
-    const rawText = aiData.content?.[0]?.text;
+    const rawText = aiData.choices?.[0]?.message?.content;
     if (!rawText) return res.status(502).json({ error: 'Lege AI response. Probeer opnieuw.' });
 
     // ── 7. Parse AI response ──────────────────────────────────
