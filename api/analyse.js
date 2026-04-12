@@ -136,7 +136,7 @@ export default async function handler(req, res) {
           'Authorization': `Bearer ${process.env.NVIDIA_API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'meta/llama-3.1-405b-instruct',
+          model: 'meta/llama-3.3-70b-instruct',
           max_tokens: 1500,
           messages: [
             { role: 'system', content: SYSTEM_PROMPT },
