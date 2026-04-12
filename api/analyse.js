@@ -191,7 +191,7 @@ export default async function handler(req, res) {
       ...result,
       tier,
       canPdf:      config.pdf,
-      coverLetter: config.coverLetter,
+      coverLetter: includeCoverLetter,
       usage: { used: newCount, remaining: Math.max(0, limit - newCount), limit },
     });
 
