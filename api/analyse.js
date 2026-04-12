@@ -120,7 +120,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Serverconfiguratie fout.' });
 
     // ── 5. Feature gating — server decides ───────────────────
-    const includeCoverLetter = config.coverLetter || process.env.DEBUG_COVER_LETTER === 'true';
+    const includeCoverLetter = config.coverLetter;
     console.log(`[analyse] allowed: used=${used}/${limit} coverLetter=${includeCoverLetter} pdf=${config.pdf}`);
 
     // ── 6. AI call ────────────────────────────────────────────
@@ -190,7 +190,7 @@ export default async function handler(req, res) {
       ...result,
       tier,
       canPdf:      config.pdf,
-      coverLetter: includeCoverLetter,
+      coverLetter: config.coverLetter,
       usage: { used: newCount, remaining: Math.max(0, limit - newCount), limit },
     });
 
