@@ -1,9 +1,18 @@
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+
+async function getUser() {
+  try {
+    const { createClient } = await import('@/lib/supabase/server');
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}
 
 export default async function Nav() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser();
 
   return (
     <header className="nav">

@@ -1,10 +1,19 @@
-import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
+async function getUser() {
+  try {
+    const { createClient } = await import('@/lib/supabase/server');
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser();
   if (!user) redirect('/login');
 
   const email   = user.email || '';
@@ -14,10 +23,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="db-wrap">
       <div className="db-bar">
         <div className="db-bar-inner">
-          <Link href="/dashboard"            className="db-tab">Overzicht</Link>
-          <Link href="/dashboard/tracker"    className="db-tab">Tracker</Link>
-          <Link href="/dashboard/interview"  className="db-tab">Interview Prep</Link>
-          <Link href="/analyse"              className="db-tab">CV analyseren</Link>
+          <Link href="/dashboard"           className="db-tab">Overzicht</Link>
+          <Link href="/dashboard/tracker"   className="db-tab">Tracker</Link>
+          <Link href="/dashboard/interview" className="db-tab">Interview Prep</Link>
+          <Link href="/analyse"             className="db-tab">CV analyseren</Link>
           <div className="db-user">
             <span className="sm-hide" style={{ fontSize: 12, color: 'var(--text-3)' }}>{email}</span>
             <div className="db-avatar">{initial}</div>

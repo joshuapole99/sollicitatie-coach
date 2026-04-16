@@ -1,4 +1,3 @@
-import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -7,6 +6,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default async function DashboardPage() {
+  const { createClient } = await import('@/lib/supabase/server');
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
