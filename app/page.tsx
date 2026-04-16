@@ -1,95 +1,85 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import CheckoutButton from '@/components/CheckoutButton';
 
 export const metadata: Metadata = {
   title: 'Sollicitatie Coach — Schrijf je motivatiebrief in 30 seconden',
   description: 'Plak je CV en vacature — AI analyseert de match en schrijft een professionele motivatiebrief. Gratis proberen, geen account nodig.',
 };
 
-const features = [
-  { icon: '📊', title: 'CV Analyse & Match Score', desc: 'Zie direct hoe goed je CV aansluit op de vacature. Score van 0–100 met concrete verbeterpunten.' },
-  { icon: '✉️', title: 'Motivatiebrief op Maat', desc: 'Een volledige, professionele motivatiebrief die perfect aansluit op de specifieke vacature.' },
-  { icon: '🎯', title: 'Interview Voorbereiding', desc: 'Genereer de meest gestelde vragen voor jouw rol, inclusief sterke antwoorden.' },
-  { icon: '📋', title: 'Sollicitatie Tracker', desc: 'Houd al je sollicitaties bij op één plek. Status, notities en datums overzichtelijk.' },
-];
-
-const faqs = [
-  { q: 'Is het echt gratis?', a: 'Ja. De eerste 3 analyses zijn volledig gratis — inclusief de motivatiebrief. Geen creditcard nodig.' },
-  { q: 'Heb ik een account nodig?', a: 'Nee. Je kunt de CV-analyse direct gebruiken zonder account. Een account geeft je toegang tot het dashboard, de tracker en interview prep.' },
-  { q: 'Hoe nauwkeurig is de analyse?', a: 'De AI gebruikt Claude van Anthropic — een van de krachtigste modellen beschikbaar. Resultaten zijn specifiek voor jouw CV en vacature, niet generiek.' },
-  { q: 'Is mijn CV veilig?', a: 'Je CV wordt uitsluitend gebruikt voor de analyse en nooit opgeslagen zonder jouw toestemming. Elke analyse is een losse, beveiligde API call.' },
-  { q: 'Werkt het voor elke baan?', a: 'Ja. De tool werkt voor elke sector en elk functieniveau. Hoe gedetailleerder je CV en vacature, hoe beter de resultaten.' },
-  { q: 'In welke talen werkt het?', a: 'De tool werkt in het Nederlands en Engels. De motivatiebrief wordt geschreven in de taal van je CV en vacature.' },
-];
-
 export default function LandingPage() {
   return (
-    <div>
-      {/* Hero */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-12 text-center">
-        <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
-          <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-          Gratis proberen — geen account nodig
-        </div>
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-5 leading-tight">
-          Schrijf je motivatiebrief<br className="hidden sm:block" /> in 30 seconden
-        </h1>
-        <p className="text-lg text-gray-500 max-w-xl mx-auto mb-8 leading-relaxed">
-          Plak je CV en vacature. AI analyseert de match, geeft verbeterpunten en schrijft een professionele brief op maat. Geen sjablonen — alles 100% gepersonaliseerd.
+    <>
+      {/* ── Hero ─────────────────────────────────────────── */}
+      <div className="hero">
+        <div className="hero-badge">Gratis proberen — geen account nodig</div>
+        <h1>Schrijf je motivatiebrief<br />in 30 seconden</h1>
+        <p>
+          Plak je CV en vacature. AI analyseert de match, geeft concrete verbeterpunten
+          en schrijft een volledige motivatiebrief die aansluit op de specifieke vacature.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/analyse" className="btn-primary btn-lg">
-            Start gratis →
-          </Link>
-          <Link href="/pricing" className="btn-secondary btn-lg">
-            Bekijk prijzen
-          </Link>
+        <div className="hero-ctas">
+          <Link href="/analyse" className="btn btn-primary btn-lg">Start gratis →</Link>
+          <Link href="/pricing" className="btn btn-secondary btn-lg">Bekijk prijzen</Link>
         </div>
-        <p className="text-xs text-gray-400 mt-4">Eerste 3 analyses gratis · Geen creditcard nodig</p>
+        <p className="hero-note">
+          <span>Eerste 3 analyses gratis</span>
+          <span>Geen creditcard nodig</span>
+          <span>Direct resultaat</span>
+        </p>
+      </div>
 
-        {/* Trust badges */}
-        <div className="flex flex-wrap gap-2 justify-center mt-8">
-          {['Match score 0–100', 'Ontbrekende keywords', 'Motivatiebrief op maat', 'CV verbeterpunten', 'Interview prep', 'Sollicitatie tracker'].map(b => (
-            <span key={b} className="text-xs text-gray-500 bg-gray-50 border border-gray-200 px-3 py-1 rounded-full">{b}</span>
-          ))}
-        </div>
-      </section>
+      {/* ── Trust pills ──────────────────────────────────── */}
+      <div className="trust-bar">
+        {['Match score 0–100','Ontbrekende keywords','Motivatiebrief op maat','CV verbeterpunten','Interview voorbereiding','Sollicitatie tracker'].map(t => (
+          <span key={t} className="trust-pill">{t}</span>
+        ))}
+      </div>
 
-      {/* How it works */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
-        <div className="text-center mb-10">
-          <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">Hoe het werkt</p>
-          <h2 className="text-2xl sm:text-3xl font-extrabold">Drie stappen. Dertig seconden.</h2>
-        </div>
-        <div className="grid sm:grid-cols-3 gap-6">
-          {[
-            { n: '1', t: 'Plak je CV', d: 'Kopieer de tekst van je CV — werkervaring, opleiding en vaardigheden.' },
-            { n: '2', t: 'Plak de vacature', d: 'Voeg de volledige vacaturetekst toe inclusief vereisten.' },
-            { n: '3', t: 'Ontvang je analyse', d: 'Match score, verbeterpunten, keywords én een complete motivatiebrief.' },
-          ].map(s => (
-            <div key={s.n} className="card p-6">
-              <div className="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold mb-4">{s.n}</div>
-              <h3 className="font-bold text-sm mb-2">{s.t}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{s.d}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="bg-gray-50 border-y border-gray-100 py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">Alles in één</p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold">De tools die je nodig hebt om aangenomen te worden</h2>
+      {/* ── How it works ─────────────────────────────────── */}
+      <section className="section" style={{ background: 'var(--surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+        <div className="container">
+          <div className="section-header text-center">
+            <p className="section-label">Hoe het werkt</p>
+            <h2>Drie stappen. Dertig seconden.</h2>
+            <p>Geen sjablonen. Geen gedoe. Gewoon plakken en gaan.</p>
           </div>
-          <div className="grid sm:grid-cols-2 gap-5">
-            {features.map(f => (
-              <div key={f.title} className="card p-6 flex gap-4">
-                <span className="text-2xl flex-shrink-0">{f.icon}</span>
+          <div className="steps">
+            {[
+              { n: '1', t: 'Plak je CV', d: 'Kopieer de tekst van je CV — werkervaring, opleiding en vaardigheden.' },
+              { n: '2', t: 'Plak de vacature', d: 'Voeg de volledige vacaturetekst toe inclusief functie-eisen.' },
+              { n: '3', t: 'Ontvang je analyse', d: 'Match score, verbeterpunten, keywords én een complete motivatiebrief.' },
+            ].map(s => (
+              <div key={s.n} className="card step-card">
+                <div className="step-num">{s.n}</div>
+                <h3>{s.t}</h3>
+                <p style={{ fontSize: 14, marginTop: 6 }}>{s.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Features ─────────────────────────────────────── */}
+      <section className="section">
+        <div className="container">
+          <div className="section-header text-center">
+            <p className="section-label">Alles in één</p>
+            <h2>De tools die je nodig hebt</h2>
+            <p>Gebouwd voor mensen die betere sollicitaties willen met minder moeite.</p>
+          </div>
+          <div className="feature-grid">
+            {[
+              { icon: '📊', t: 'Match score', d: 'Zie direct hoe goed je CV aansluit op de vacature. Score van 0–100 met een heldere uitleg.' },
+              { icon: '🔑', t: 'Keyword analyse', d: 'Ontdek welke termen uit de vacature ontbreken in je CV en vergroot je kansen bij ATS-systemen.' },
+              { icon: '✉️', t: 'Motivatiebrief op maat', d: 'Een volledige, professionele motivatiebrief die aansluit op de specifieke vacature — niet een sjabloon.' },
+              { icon: '📋', t: 'Sollicitatie tracker', d: 'Houd alle sollicitaties bij op één plek. Status, notities en datums overzichtelijk in een dashboard.' },
+            ].map(f => (
+              <div key={f.t} className="card feature-card">
+                <span className="feature-icon">{f.icon}</span>
                 <div>
-                  <h3 className="font-bold text-sm mb-1.5">{f.title}</h3>
-                  <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
+                  <h3 style={{ marginBottom: 6 }}>{f.t}</h3>
+                  <p style={{ fontSize: 14 }}>{f.d}</p>
                 </div>
               </div>
             ))}
@@ -97,98 +87,110 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Social proof / stats */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-14 text-center">
-        <div className="grid grid-cols-3 gap-6 mb-12">
-          {[
-            { n: '10.000+', l: 'Analyses uitgevoerd' },
-            { n: '30 sec', l: 'Gemiddelde tijd' },
-            { n: 'Claude AI', l: 'Aangedreven door Anthropic' },
-          ].map(s => (
-            <div key={s.l}>
-              <div className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-1">{s.n}</div>
-              <div className="text-xs text-gray-400">{s.l}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Testimonials */}
-        <div className="grid sm:grid-cols-3 gap-4">
-          {[
-            { stars: 5, text: '"In 10 minuten had ik een motivatiebrief die perfect aansloot op de vacature. Binnen een week uitgenodigd voor een gesprek."', name: 'Laura M. — Marketing Manager' },
-            { stars: 5, text: '"De keyword-analyse opende mijn ogen. Ik miste 6 cruciale termen in mijn CV. Na aanpassing werd ik meteen vaker teruggebeld."', name: 'Thomas B. — Software Engineer' },
-            { stars: 5, text: '"Eindelijk een tool die echt helpt. Niet alleen een sjabloon, maar een echte analyse van mijn specifieke situatie."', name: 'Sanne V. — HR Consultant' },
-          ].map((r, i) => (
-            <div key={i} className="card p-5 text-left">
-              <div className="text-amber-400 text-sm mb-3">{'★'.repeat(r.stars)}</div>
-              <p className="text-sm text-gray-600 italic leading-relaxed mb-3">{r.text}</p>
-              <p className="text-xs font-semibold text-gray-400">{r.name}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Pricing teaser */}
-      <section className="bg-gray-50 border-y border-gray-100 py-14">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">Prijzen</p>
-          <h2 className="text-2xl sm:text-3xl font-extrabold mb-2">Begin gratis. Upgrade wanneer je klaar bent.</h2>
-          <p className="text-gray-500 text-sm mb-8">Geen creditcard nodig om te beginnen.</p>
-          <div className="grid sm:grid-cols-3 gap-5 text-left">
+      {/* ── Testimonials ─────────────────────────────────── */}
+      <section className="section" style={{ background: 'var(--surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+        <div className="container">
+          <div className="section-header text-center">
+            <p className="section-label">Wat gebruikers zeggen</p>
+            <h2>Echte resultaten</h2>
+          </div>
+          <div className="testimonial-grid">
             {[
-              { name: 'Gratis', price: '€0', sub: 'voor altijd', items: ['3 analyses', 'Match score', 'Keyword analyse', 'CV verbeterpunten'], cta: 'Gratis starten →', href: '/analyse', featured: false },
-              { name: 'Plus', price: '€2,99', sub: '/ maand', items: ['10 analyses/maand', 'Motivatiebrief op maat', 'Dashboard & historie', 'Sollicitatie tracker'], cta: 'Plus starten →', href: '/pricing', featured: true },
-              { name: 'Pro', price: '€9,99', sub: '/ maand', items: ['100 analyses/maand', 'Alles in Plus', 'PDF export', 'Interview prep', 'Prioriteit support'], cta: 'Pro starten →', href: '/pricing', featured: false },
-            ].map(p => (
-              <div key={p.name} className={`card p-6 ${p.featured ? 'ring-2 ring-primary' : ''}`}>
-                <p className={`text-xs font-bold uppercase tracking-wide mb-2 ${p.featured ? 'text-blue-600' : 'text-gray-400'}`}>{p.name}</p>
-                <p className="text-3xl font-extrabold mb-0.5">{p.price} <span className="text-sm font-normal text-gray-400">{p.sub}</span></p>
-                <ul className="mt-4 mb-5 space-y-2">
-                  {p.items.map(i => (
-                    <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
-                      <span className="text-green-500 font-bold">✓</span>{i}
-                    </li>
-                  ))}
-                </ul>
-                <Link href={p.href} className={p.featured ? 'btn-primary w-full text-center block' : 'btn-secondary w-full text-center block'}>
-                  {p.cta}
-                </Link>
+              { text: '"In 10 minuten had ik een motivatiebrief die perfect aansloot op de vacature. Binnen een week uitgenodigd voor een gesprek."', name: 'Laura M. — Marketing Manager' },
+              { text: '"De keyword-analyse opende mijn ogen. Ik miste 6 cruciale termen. Na het aanpassen van mijn CV werd ik meteen vaker teruggebeld."', name: 'Thomas B. — Software Engineer' },
+              { text: '"Eindelijk een tool die echt helpt. Niet alleen een sjabloon, maar een echte analyse van mijn situatie."', name: 'Sanne V. — HR Consultant' },
+            ].map((r, i) => (
+              <div key={i} className="card testimonial-card">
+                <div className="stars">★★★★★</div>
+                <p className="testimonial-text">"{r.text}"</p>
+                <p className="testimonial-author">{r.name}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="max-w-2xl mx-auto px-4 sm:px-6 py-14">
-        <div className="text-center mb-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">FAQ</p>
-          <h2 className="text-2xl font-extrabold">Veelgestelde vragen</h2>
-        </div>
-        <div className="space-y-0">
-          {faqs.map((f, i) => (
-            <details key={i} className="border-b border-gray-100 py-4 group">
-              <summary className="flex justify-between items-center cursor-pointer list-none font-semibold text-sm text-gray-900 select-none">
-                {f.q}
-                <span className="text-gray-400 group-open:rotate-45 transition-transform duration-200 text-lg leading-none ml-4 flex-shrink-0">+</span>
-              </summary>
-              <p className="mt-3 text-sm text-gray-500 leading-relaxed">{f.a}</p>
-            </details>
-          ))}
+      {/* ── Pricing ──────────────────────────────────────── */}
+      <section className="section">
+        <div className="container">
+          <div className="section-header text-center">
+            <p className="section-label">Prijzen</p>
+            <h2>Begin gratis. Upgrade wanneer je klaar bent.</h2>
+            <p>Geen creditcard nodig om te beginnen.</p>
+          </div>
+          <div className="pricing-grid">
+            {/* Free */}
+            <div className="card pricing-card">
+              <p className="pricing-tier">Gratis</p>
+              <p className="pricing-price"><sup>€</sup>0 <span>voor altijd</span></p>
+              <p className="pricing-desc">Probeer de tool zonder verplichting.</p>
+              <ul className="pricing-features">
+                {['3 analyses','Match score + uitleg','Keyword analyse','CV verbeterpunten'].map(i => <li key={i}>{i}</li>)}
+              </ul>
+              <Link href="/analyse" className="btn btn-secondary w-full" style={{ justifyContent: 'center' }}>Gratis starten →</Link>
+            </div>
+            {/* Plus */}
+            <div className="card pricing-card featured">
+              <p className="pricing-tier highlight">Plus — Meest gekozen</p>
+              <p className="pricing-price"><sup>€</sup>2,99 <span>/ maand</span></p>
+              <p className="pricing-desc">Voor mensen die actief solliciteren.</p>
+              <ul className="pricing-features">
+                {['10 analyses per maand','Alles in Gratis','Motivatiebrief op maat','Dashboard & analyse historie','Sollicitatie tracker','Interview voorbereiding'].map(i => <li key={i}>{i}</li>)}
+              </ul>
+              <CheckoutButton plan="plus" label="Plus starten →" highlight={true} />
+            </div>
+            {/* Pro */}
+            <div className="card pricing-card">
+              <p className="pricing-tier">Pro</p>
+              <p className="pricing-price"><sup>€</sup>9,99 <span>/ maand</span></p>
+              <p className="pricing-desc">Voor serieuze sollicitanten.</p>
+              <ul className="pricing-features">
+                {['100 analyses per maand','Alles in Plus','PDF export van motivatiebrief','Prioriteit support'].map(i => <li key={i}>{i}</li>)}
+              </ul>
+              <CheckoutButton plan="pro" label="Pro starten →" highlight={false} />
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Bottom CTA */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
-        <div className="card p-10 text-center bg-gray-900 border-0">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">Klaar voor een betere motivatiebrief?</h2>
-          <p className="text-gray-400 text-sm mb-6">Gratis proberen — geen account nodig — in 30 seconden klaar.</p>
-          <Link href="/analyse" className="inline-flex items-center justify-center px-7 py-3.5 bg-white text-gray-900 font-bold rounded-xl text-base hover:bg-gray-100 transition-colors">
-            Start gratis →
-          </Link>
-          <p className="text-xs text-gray-600 mt-4">Eerste 3 analyses volledig gratis · Geen creditcard nodig</p>
+      {/* ── FAQ ──────────────────────────────────────────── */}
+      <section className="section" style={{ background: 'var(--surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+        <div className="container-sm">
+          <div className="section-header text-center">
+            <p className="section-label">FAQ</p>
+            <h2>Veelgestelde vragen</h2>
+          </div>
+          <div className="faq-list">
+            {[
+              { q: 'Is het echt gratis?', a: 'Ja. De eerste 3 analyses zijn volledig gratis — inclusief de motivatiebrief. Geen creditcard nodig. Daarna kun je upgraden voor meer analyses.' },
+              { q: 'Heb ik een account nodig?', a: 'Nee. Je kunt de CV-analyse direct gebruiken zonder account. Een account geeft toegang tot het dashboard, de tracker en interview prep.' },
+              { q: 'Hoe nauwkeurig is de analyse?', a: 'De AI gebruikt Claude van Anthropic — een van de krachtigste modellen beschikbaar. Resultaten zijn specifiek voor jouw CV en vacature, niet generiek.' },
+              { q: 'Is mijn CV veilig?', a: 'Je CV wordt uitsluitend gebruikt voor de analyse. Elke analyse is een losse, beveiligde API-aanroep. Zonder account slaan we niets op.' },
+              { q: 'Werkt het voor elke baan?', a: 'Ja. De tool werkt voor elke sector en elk niveau. Hoe gedetailleerder je CV en vacature, hoe beter de resultaten.' },
+              { q: 'In welke talen werkt het?', a: 'De tool werkt in het Nederlands en Engels. De motivatiebrief wordt geschreven in de taal van je CV en vacature.' },
+            ].map((f, i) => (
+              <details key={i} className="faq-item">
+                <summary className="faq-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 0', cursor: 'pointer', fontWeight: 600, fontSize: 15, listStyle: 'none', gap: 24, color: 'var(--text)', borderBottom: 'none' }}>
+                  {f.q}<span className="faq-icon">+</span>
+                </summary>
+                <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.7, paddingBottom: 18 }}>{f.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
-    </div>
+
+      {/* ── Bottom CTA ───────────────────────────────────── */}
+      <section className="section">
+        <div className="container">
+          <div className="cta-banner">
+            <h2>Klaar voor een betere motivatiebrief?</h2>
+            <p>Gratis proberen — geen account nodig — in 30 seconden klaar.</p>
+            <Link href="/analyse" className="btn btn-light btn-lg">Start gratis →</Link>
+            <p style={{ marginTop: 14, fontSize: 12, color: '#55556A' }}>Eerste 3 analyses gratis · Geen creditcard</p>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

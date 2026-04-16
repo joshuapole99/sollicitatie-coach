@@ -1,308 +1,212 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import type { Metadata } from 'next';
 
-// ─── Types ────────────────────────────────────────────────────
-interface AnalysisResult {
-  score: number;
-  score_uitleg: string;
-  sterke_punten: string[];
-  verbeterpunten: string[];
-  match_keywords: string[];
-  mis_keywords: string[];
-  motivatiebrief: string;
-  cv_tips: string;
-  tier: string;
-  canPdf: boolean;
-  coverLetter: boolean;
+interface Result {
+  score: number; score_uitleg: string;
+  sterke_punten: string[]; verbeterpunten: string[];
+  match_keywords: string[]; mis_keywords: string[];
+  motivatiebrief: string; cv_tips: string;
+  tier: string; canPdf: boolean; coverLetter: boolean;
   usage: { used: number; remaining: number; limit: number };
-}
-
-interface UiState {
-  tier: string;
-  canPdf: boolean;
-  coverLetter: boolean;
-  usage: { used: number; remaining: number; limit: number };
-  blocked: boolean;
 }
 
 const EXAMPLES = {
-  cv: `Lisa de Vries\nMarketing Manager | linkedin.com/in/lisadevries | lisa@email.nl\n\nWERKERVARING\nMarketing Manager — TechStartup BV (2021–heden)\n• Verhoogde organisch websiteverkeer met 140% via SEO\n• Beheerde €200.000 advertentiebudget (Google Ads, Meta)\n• Leidde team van 4 marketeers\n\nJunior Marketeer — Retailbedrijf NV (2019–2021)\n• Social media — +8.000 volgers in 1 jaar\n\nOPLEIDING\nBachelor Marketing — Hogeschool Utrecht (2019)\n\nVAARDIGHEDEN\nGoogle Analytics, SEO, Google Ads, Meta Ads, HubSpot, Figma, Copywriting`,
+  cv:  `Lisa de Vries\nMarketing Manager | lisa@email.nl\n\nWERKERVARING\nMarketing Manager — TechStartup BV (2021–heden)\n• Verhoogde organisch verkeer met 140% via SEO\n• Beheerde €200.000 advertentiebudget (Google Ads, Meta)\n• Leidde team van 4 marketeers\n\nJunior Marketeer — Retailbedrijf NV (2019–2021)\n• Social media: +8.000 volgers in 1 jaar\n\nOPLEIDING\nBachelor Marketing — Hogeschool Utrecht (2019)\n\nVAARDIGHEDEN\nGoogle Analytics, SEO, Google Ads, Meta Ads, HubSpot, Copywriting`,
   job: `Vacature: Senior Digital Marketeer — ScaleUp BV (Amsterdam)\n\nVereisten:\n• Minimaal 3 jaar digitale marketing\n• Google Ads en SEO ervaring\n• HubSpot of vergelijkbaar CRM\n\nWij bieden: €45.000–€55.000 | Hybride werken`,
 };
 
-function scoreColor(s: number) {
-  return s >= 75 ? 'text-green-600' : s >= 50 ? 'text-amber-500' : 'text-red-500';
-}
-function scoreStroke(s: number) {
-  return s >= 75 ? '#16a34a' : s >= 50 ? '#d97706' : '#dc2626';
-}
+function scoreColor(s: number) { return s >= 75 ? 'var(--green)' : s >= 50 ? 'var(--amber)' : 'var(--red)'; }
+function scoreClass(s: number) { return s >= 75 ? 'score-green' : s >= 50 ? 'score-amber' : 'score-red'; }
 
 export default function AnalysePage() {
-  const [cv, setCv]           = useState('');
-  const [job, setJob]         = useState('');
-  const [loading, setLoading] = useState(false);
-  const [result, setResult]   = useState<AnalysisResult | null>(null);
-  const [error, setError]     = useState('');
-  const [ui, setUi]           = useState<UiState>({ tier: 'free', canPdf: false, coverLetter: false, usage: { used: 0, remaining: 3, limit: 3 }, blocked: false });
-  const [verifying, setVerifying] = useState(true);
-  const [copied, setCopied]   = useState(false);
-  const sessionRef            = useRef<string>('');
+  const [cv,       setCv]       = useState('');
+  const [job,      setJob]      = useState('');
+  const [loading,  setLoading]  = useState(false);
+  const [result,   setResult]   = useState<Result | null>(null);
+  const [error,    setError]    = useState('');
+  const [ui,       setUi]       = useState({ tier: 'free', canPdf: false, coverLetter: false, usage: { used: 0, remaining: 3, limit: 3 }, blocked: false });
+  const [verifying,setVerifying]= useState(true);
+  const [copied,   setCopied]   = useState(false);
+  const sid = useRef('');
 
-  // Restore drafts + verify session on mount
   useEffect(() => {
-    let sid = localStorage.getItem('sol_session_id') || '';
-    if (!sid || sid.includes('{') || sid.length < 10) {
-      sid = crypto.randomUUID();
-      localStorage.setItem('sol_session_id', sid);
-    }
-    sessionRef.current = sid;
-
-    const savedCv  = sessionStorage.getItem('sol_cv_draft');
-    const savedJob = sessionStorage.getItem('sol_job_draft');
-    if (savedCv)  setCv(savedCv);
-    if (savedJob) setJob(savedJob);
-
-    (async () => {
-      try {
-        const r = await fetch('/api/session/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId: sid }),
-        });
-        if (r.ok) {
-          const d = await r.json();
-          setUi({ tier: d.tier, canPdf: d.canPdf, coverLetter: d.coverLetter, usage: d.usage, blocked: d.blocked });
-        }
-      } finally {
-        setVerifying(false);
-      }
-    })();
+    let s = localStorage.getItem('sol_session_id') || '';
+    if (!s || s.includes('{') || s.length < 10) { s = crypto.randomUUID(); localStorage.setItem('sol_session_id', s); }
+    sid.current = s;
+    const c = sessionStorage.getItem('sol_cv_draft');
+    const j = sessionStorage.getItem('sol_job_draft');
+    if (c) setCv(c); if (j) setJob(j);
+    fetch('/api/session/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId: s }) })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setUi({ tier: d.tier, canPdf: d.canPdf, coverLetter: d.coverLetter, usage: d.usage, blocked: d.blocked }); })
+      .finally(() => setVerifying(false));
   }, []);
 
   async function runAnalysis() {
     if (ui.blocked) { window.location.href = '/pricing'; return; }
-    if (cv.trim().length < 30) { setError('Plak je CV in het linkerveld (minimaal 30 tekens).'); return; }
+    if (cv.trim().length < 30) { setError('Plak je CV in het linkerveld.'); return; }
     if (job.trim().length < 30) { setError('Plak de vacaturetekst in het rechterveld.'); return; }
-    setError('');
-    setLoading(true);
-    setResult(null);
-
+    setError(''); setLoading(true); setResult(null);
     try {
-      const r = await fetch('/api/analyse', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-session-id': sessionRef.current },
-        body: JSON.stringify({ cv, job }),
-      });
+      const r = await fetch('/api/analyse', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-session-id': sid.current }, body: JSON.stringify({ cv, job }) });
       const data = await r.json();
-      if (r.status === 429) {
-        setUi(p => ({ ...p, blocked: true }));
-        setError(data.message || 'Analysislimiet bereikt. Upgrade voor meer analyses.');
-        return;
-      }
+      if (r.status === 429) { setUi(p => ({ ...p, blocked: true })); setError(data.message || 'Analysislimiet bereikt.'); return; }
       if (!r.ok) throw new Error(data.error || 'Er is een fout opgetreden.');
       setResult(data);
       setUi({ tier: data.tier, canPdf: data.canPdf, coverLetter: data.coverLetter, usage: data.usage, blocked: false });
     } catch (e: any) {
       setError(e.message || 'Onverwachte fout. Probeer opnieuw.');
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   }
 
   function fillExample() {
-    setCv(EXAMPLES.cv);
-    setJob(EXAMPLES.job);
+    setCv(EXAMPLES.cv); setJob(EXAMPLES.job);
     sessionStorage.setItem('sol_cv_draft', EXAMPLES.cv);
     sessionStorage.setItem('sol_job_draft', EXAMPLES.job);
   }
 
   function copyLetter() {
     if (!result?.motivatiebrief) return;
-    navigator.clipboard.writeText(result.motivatiebrief).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+    navigator.clipboard.writeText(result.motivatiebrief).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   }
 
   const circ   = 2 * Math.PI * 32;
   const offset = result ? circ * (1 - result.score / 100) : circ;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+    <div className="app-wrap">
       {/* Header */}
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-extrabold text-gray-900 mb-1">
+      <div className="app-header">
+        <h1>
           CV Analyse
           {!verifying && (
-            <span className={`ml-2 text-xs font-semibold px-2 py-0.5 rounded-full align-middle ${
-              ui.tier === 'pro' ? 'badge-pro' : ui.tier === 'plus' ? 'badge-plus' : 'badge-free'
-            }`}>
+            <span className={`badge badge-${ui.tier}`} style={{ marginLeft: 10, verticalAlign: 'middle' }}>
               {ui.tier.toUpperCase()}
             </span>
           )}
         </h1>
-        <p className="text-sm text-gray-500">Zie in 30 seconden of jij de beste kandidaat bent voor de baan.</p>
+        <p>Zie in 30 seconden of jij de beste kandidaat bent voor de baan.</p>
       </div>
 
       {/* Usage bar */}
       {!verifying && (
-        <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 mb-5 text-xs">
+        <div className="usage-bar-wrap">
           {ui.tier === 'free' && (
-            <div className="flex gap-1.5">
+            <div className="usage-dots">
               {Array.from({ length: ui.usage.limit }, (_, i) => (
-                <div key={i} className={`w-2.5 h-2.5 rounded-full ${i < ui.usage.used ? 'bg-gray-900/30' : 'bg-gray-200 border border-gray-300'}`} />
+                <div key={i} className={`usage-dot ${i < ui.usage.used ? 'used' : 'avail'}`} />
               ))}
             </div>
           )}
-          <span className="text-gray-500">
-            {ui.tier === 'pro' ? 'Pro actief' :
-             ui.tier === 'plus' ? `Plus — ${ui.usage.remaining} over` :
+          <span>
+            {ui.tier === 'pro'  ? 'Pro actief — 100 analyses/maand' :
+             ui.tier === 'plus' ? `Plus actief — ${ui.usage.remaining} analyses over` :
              ui.usage.remaining > 0 ? `${ui.usage.remaining} van ${ui.usage.limit} analyses over` : 'Geen analyses meer'}
           </span>
           {ui.tier === 'free' && (
-            <a href="/pricing" className="ml-auto btn-primary text-xs px-3 py-1.5">Upgrade →</a>
+            <a href="/pricing" className="btn btn-primary btn-sm" style={{ marginLeft: 'auto' }}>Upgrade →</a>
           )}
         </div>
       )}
 
-      {/* Example button */}
-      <div className="text-center mb-4">
-        <button onClick={fillExample} className="btn-secondary text-xs px-4 py-2">
-          ✨ Probeer met voorbeeldtekst
-        </button>
+      {/* Example */}
+      <div className="example-bar">
+        <button onClick={fillExample} className="btn btn-secondary btn-sm">✨ Probeer met voorbeeldtekst</button>
       </div>
 
       {/* Inputs */}
-      <div className="grid sm:grid-cols-2 gap-3 mb-3">
+      <div className="input-grid">
         <div>
           <label className="label">Jouw CV</label>
-          <textarea
-            className="input resize-y min-h-[180px]"
-            placeholder="Plak hier de tekst van je CV..."
-            value={cv}
-            onChange={e => { setCv(e.target.value); sessionStorage.setItem('sol_cv_draft', e.target.value); }}
-          />
+          <textarea className="input" placeholder="Plak hier de tekst van je CV..." value={cv}
+            onChange={e => { setCv(e.target.value); sessionStorage.setItem('sol_cv_draft', e.target.value); }} />
         </div>
         <div>
           <label className="label">Vacaturetekst</label>
-          <textarea
-            className="input resize-y min-h-[180px]"
-            placeholder="Plak hier de volledige vacaturetekst..."
-            value={job}
-            onChange={e => { setJob(e.target.value); sessionStorage.setItem('sol_job_draft', e.target.value); }}
-          />
+          <textarea className="input" placeholder="Plak hier de volledige vacaturetekst..." value={job}
+            onChange={e => { setJob(e.target.value); sessionStorage.setItem('sol_job_draft', e.target.value); }} />
         </div>
       </div>
 
-      <button
-        onClick={runAnalysis}
-        disabled={loading || verifying}
-        className="btn-primary w-full btn-lg mb-4"
-      >
-        {loading ? (
-          <span className="flex items-center gap-2 justify-center">
-            <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-            AI analyseert jouw match...
-          </span>
-        ) : 'Analyseer mijn sollicitatie →'}
+      <button onClick={runAnalysis} disabled={loading || verifying} className="analyse-btn">
+        {loading ? <><span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid rgba(255,255,255,.35)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .65s linear infinite' }} /> AI analyseert jouw match...</> : 'Analyseer mijn sollicitatie →'}
       </button>
 
       {error && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4">
+        <p className="error-msg" style={{ marginTop: 12 }}>
           {error}
-          {ui.blocked && (
-            <a href="/pricing" className="ml-3 font-semibold underline">Upgrade →</a>
-          )}
-        </div>
+          {ui.blocked && <> <a href="/pricing" style={{ color: 'var(--red)', fontWeight: 700, textDecoration: 'underline' }}>Upgrade →</a></>}
+        </p>
       )}
 
       {/* Results */}
       {result && (
-        <div className="space-y-4 mt-2">
-          {/* Score card */}
-          <div className="card p-5 flex items-center gap-5">
-            <div className="relative w-20 h-20 flex-shrink-0">
-              <svg width="80" height="80" viewBox="0 0 80 80" className="-rotate-90">
-                <circle cx="40" cy="40" r="32" fill="none" stroke="#e5e7eb" strokeWidth="5" />
-                <circle cx="40" cy="40" r="32" fill="none" stroke={scoreStroke(result.score)} strokeWidth="5"
+        <div className="results-stack">
+          {/* Score */}
+          <div className="card score-card">
+            <div className="score-ring">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" strokeWidth="5" />
+                <circle cx="40" cy="40" r="32" fill="none" stroke={scoreColor(result.score)} strokeWidth="5"
                   strokeDasharray={circ.toFixed(1)} strokeDashoffset={offset.toFixed(1)} strokeLinecap="round" />
               </svg>
-              <div className={`absolute inset-0 flex items-center justify-center text-xl font-extrabold ${scoreColor(result.score)}`}>
-                {result.score}
-              </div>
+              <div className={`score-num ${scoreClass(result.score)}`}>{result.score}</div>
             </div>
-            <div>
-              <p className="font-bold text-sm mb-1">Match score: {result.score}/100</p>
-              <p className="text-sm text-gray-500 leading-relaxed">{result.score_uitleg}</p>
+            <div className="score-info">
+              <h3>Match score: {result.score}/100</h3>
+              <p style={{ fontSize: 14 }}>{result.score_uitleg}</p>
             </div>
           </div>
 
           {/* Keywords */}
-          <details className="card" open>
-            <summary className="flex items-center justify-between p-4 cursor-pointer font-bold text-sm select-none list-none">
-              Keywords <span className="text-gray-400 text-xs">▼</span>
-            </summary>
-            <div className="px-4 pb-4">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Aanwezig in je CV</p>
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                {result.match_keywords.length ? result.match_keywords.map(k => (
-                  <span key={k} className="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-semibold">{k}</span>
-                )) : <span className="text-xs text-gray-400">Geen gevonden</span>}
+          <details className="card result-section" open>
+            <summary className="result-summary">Keywords <span className="result-chev">▼</span></summary>
+            <div className="result-body">
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>Aanwezig in je CV</p>
+              <div className="tags-row" style={{ marginBottom: 14 }}>
+                {result.match_keywords.length ? result.match_keywords.map(k => <span key={k} className="tag-match">{k}</span>) : <span style={{ fontSize: 13, color: 'var(--text-3)' }}>Geen gevonden</span>}
               </div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Ontbreekt nog</p>
-              <div className="flex flex-wrap gap-1.5">
-                {result.mis_keywords.length ? result.mis_keywords.map(k => (
-                  <span key={k} className="px-2.5 py-1 bg-red-50 text-red-600 rounded-full text-xs font-semibold">{k}</span>
-                )) : <span className="text-xs text-gray-400">Geen</span>}
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>Ontbreekt nog</p>
+              <div className="tags-row">
+                {result.mis_keywords.length ? result.mis_keywords.map(k => <span key={k} className="tag-miss">{k}</span>) : <span style={{ fontSize: 13, color: 'var(--text-3)' }}>Geen</span>}
               </div>
             </div>
           </details>
 
           {/* Strengths */}
-          <details className="card" open>
-            <summary className="flex items-center justify-between p-4 cursor-pointer font-bold text-sm select-none list-none">
-              Sterke punten & verbeterpunten <span className="text-gray-400 text-xs">▼</span>
-            </summary>
-            <div className="px-4 pb-4 space-y-2">
-              {result.sterke_punten.map((p, i) => (
-                <div key={i} className="flex items-start gap-3 p-2.5 bg-green-50 border-l-2 border-green-500 rounded-r-lg text-sm text-gray-800">{p}</div>
-              ))}
-              {result.verbeterpunten.map((p, i) => (
-                <div key={i} className="flex items-start gap-3 p-2.5 bg-red-50 border-l-2 border-red-400 rounded-r-lg text-sm text-gray-800">{p}</div>
-              ))}
+          <details className="card result-section" open>
+            <summary className="result-summary">Sterke punten & verbeterpunten <span className="result-chev">▼</span></summary>
+            <div className="result-body">
+              <div className="bullet-list">
+                {result.sterke_punten.map((p, i) => <div key={i} className="bullet-good">{p}</div>)}
+                {result.verbeterpunten.map((p, i) => <div key={i} className="bullet-bad">{p}</div>)}
+              </div>
             </div>
           </details>
 
           {/* Cover letter */}
-          <details className="card" open>
-            <summary className="flex items-center justify-between p-4 cursor-pointer select-none list-none">
-              <span className="font-bold text-sm">
-                {result.coverLetter ? 'Motivatiebrief op maat' : '🔒 Motivatiebrief — upgrade naar Plus of Pro'}
-              </span>
-              <div className="flex items-center gap-2">
+          <details className="card result-section" open>
+            <summary className="result-summary">
+              {result.coverLetter ? 'Motivatiebrief op maat' : '🔒 Motivatiebrief — upgrade naar Plus of Pro'}
+              <div className="result-actions" onClick={e => e.preventDefault()}>
                 {result.coverLetter && (
-                  <button onClick={e => { e.preventDefault(); copyLetter(); }} className="btn-secondary text-xs px-3 py-1">
-                    {copied ? 'Gekopieerd!' : 'Kopieer'}
-                  </button>
+                  <button onClick={copyLetter} className="btn btn-secondary btn-sm">{copied ? 'Gekopieerd!' : 'Kopieer'}</button>
                 )}
-                <span className="text-gray-400 text-xs">▼</span>
+                <span className="result-chev">▼</span>
               </div>
             </summary>
-            <div className="px-4 pb-4">
+            <div className="result-body">
               {result.coverLetter ? (
-                <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">{result.motivatiebrief}</pre>
+                <pre className="cover-letter">{result.motivatiebrief}</pre>
               ) : (
-                <div className="relative">
-                  <div className="text-sm text-gray-300 blur-sm select-none pointer-events-none leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Uw brief wordt hier weergegeven na upgrade naar Plus of Pro. Nunc dapibus purus ac velit fermentum, vel posuere nisi hendrerit.
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="card p-5 text-center shadow-md">
-                      <p className="font-bold text-sm mb-1">Upgrade voor je motivatiebrief</p>
-                      <p className="text-xs text-gray-400 mb-3">Beschikbaar in Plus en Pro plannen</p>
-                      <a href="/pricing" className="btn-primary text-xs px-4 py-2">Bekijk plannen →</a>
+                <div className="paywall">
+                  <div className="paywall-blur cover-letter">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Beste mevrouw de Vries, met groot enthousiasme reageer ik op uw vacature voor de functie van Senior Digital Marketeer bij ScaleUp BV. Gezien mijn achtergrond in...</div>
+                  <div className="paywall-overlay">
+                    <div className="paywall-box">
+                      <h3>Upgrade voor je motivatiebrief</h3>
+                      <p>Beschikbaar in Plus (€2,99/mnd) en Pro.</p>
+                      <a href="/pricing" className="btn btn-primary" style={{ display: 'block', justifyContent: 'center' }}>Bekijk plannen →</a>
                     </div>
                   </div>
                 </div>
@@ -311,12 +215,10 @@ export default function AnalysePage() {
           </details>
 
           {/* CV tips */}
-          <details className="card" open>
-            <summary className="flex items-center justify-between p-4 cursor-pointer font-bold text-sm select-none list-none">
-              CV verbeterpunten <span className="text-gray-400 text-xs">▼</span>
-            </summary>
-            <div className="px-4 pb-4">
-              <p className="text-sm text-gray-600 leading-relaxed">{result.cv_tips}</p>
+          <details className="card result-section" open>
+            <summary className="result-summary">CV verbeterpunten <span className="result-chev">▼</span></summary>
+            <div className="result-body">
+              <p style={{ fontSize: 14, lineHeight: 1.7 }}>{result.cv_tips}</p>
             </div>
           </details>
         </div>

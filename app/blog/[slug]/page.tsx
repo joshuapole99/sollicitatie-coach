@@ -10,25 +10,17 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const post = getPostBySlug(params.slug);
   if (!post) return {};
-  return {
-    title: `${post.title} | Sollicitatie Coach Blog`,
-    description: post.description,
-    openGraph: { title: post.title, description: post.description, type: 'article' },
-  };
+  return { title: `${post.title} | Sollicitatie Coach Blog`, description: post.description };
 }
 
-// Minimal markdown renderer for headings, bold, lists
-function renderContent(markdown: string): string {
-  return markdown
-    .replace(/^## (.+)$/gm, '<h2 class="text-xl font-extrabold text-gray-900 mt-8 mb-3">$1</h2>')
-    .replace(/^### (.+)$/gm, '<h3 class="text-base font-bold text-gray-900 mt-6 mb-2">$1</h3>')
+function renderMd(md: string): string {
+  return md
+    .replace(/^## (.+)$/gm, '<h2 class="post-h2">$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3 class="post-h3">$1</h3>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/^- \[x\] (.+)$/gm, '<li class="flex gap-2 items-start"><span class="text-green-500 font-bold mt-0.5">✓</span><span>$1</span></li>')
-    .replace(/^- \[ \] (.+)$/gm, '<li class="flex gap-2 items-start"><span class="text-gray-300 font-bold mt-0.5">□</span><span>$1</span></li>')
-    .replace(/^- (.+)$/gm, '<li class="flex gap-2 items-start"><span class="text-primary font-bold mt-0.5">•</span><span>$1</span></li>')
-    .replace(/^(?!<[hlp]|<li)(.+)$/gm, (match) => match.trim() ? `<p class="text-gray-600 leading-relaxed text-sm mb-3">${match}</p>` : '')
-    // Wrap consecutive <li> elements in <ul>
-    .replace(/(<li[^>]*>.*<\/li>\n?)+/g, (match) => `<ul class="space-y-2 my-3 list-none">${match}</ul>`)
+    .replace(/^- (.+)$/gm, '<li class="post-li">$1</li>')
+    .replace(/(<li[^>]*>[\s\S]*?<\/li>\n?)+/g, m => `<ul class="post-ul">${m}</ul>`)
+    .replace(/^(?!<[hul])(.+)$/gm, m => m.trim() ? `<p class="post-p">${m}</p>` : '')
     .replace(/\n{2,}/g, '\n');
 }
 
@@ -37,43 +29,32 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   if (!post) notFound();
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
-      <Link href="/blog" className="text-xs text-gray-400 hover:text-gray-600 transition-colors mb-6 block">
-        ← Terug naar blog
-      </Link>
+    <div className="blog-post-wrap">
+      <Link href="/blog" style={{ fontSize: 13, color: 'var(--text-3)', display: 'block', marginBottom: 28 }}>← Terug naar blog</Link>
 
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs text-gray-400 mb-3">
-          <span>{new Date(post.date).toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-          <span>·</span>
-          <span>{post.readTime} lezen</span>
-        </div>
-        <h1 className="text-3xl font-extrabold text-gray-900 leading-tight mb-3">{post.title}</h1>
-        <p className="text-gray-500 text-sm leading-relaxed">{post.description}</p>
-      </div>
+      <p className="blog-meta" style={{ marginBottom: 12 }}>
+        {new Date(post.date).toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })} · {post.readTime} lezen
+      </p>
+      <h1 style={{ marginBottom: 12 }}>{post.title}</h1>
+      <p style={{ fontSize: 16, marginBottom: 36 }}>{post.description}</p>
 
-      <div
-        className="prose-custom"
-        dangerouslySetInnerHTML={{ __html: renderContent(post.content) }}
-      />
+      <div dangerouslySetInnerHTML={{ __html: renderMd(post.content) }} />
 
-      {/* CTA box */}
-      <div className="card p-7 text-center mt-10 bg-blue-50 border-blue-100">
-        <h3 className="font-extrabold text-gray-900 mb-2">Pas deze tips direct toe</h3>
-        <p className="text-sm text-gray-500 mb-4">Analyseer je CV op een vacature en ontvang gepersonaliseerde feedback in 30 seconden.</p>
-        <Link href="/analyse" className="btn-primary btn-lg">
-          Start gratis analyse →
-        </Link>
+      {/* CTA */}
+      <div className="card" style={{ marginTop: 48, padding: 32, textAlign: 'center', background: 'var(--blue-faint)', border: '1px solid #BFD4FF' }}>
+        <h3 style={{ marginBottom: 8 }}>Pas deze tips direct toe</h3>
+        <p style={{ fontSize: 14, marginBottom: 20 }}>Analyseer je CV op een vacature en ontvang gepersonaliseerde feedback in 30 seconden.</p>
+        <Link href="/analyse" className="btn btn-primary btn-lg" style={{ display: 'inline-flex' }}>Start gratis analyse →</Link>
       </div>
 
       {/* Other posts */}
-      <div className="mt-10">
-        <h2 className="font-bold text-sm text-gray-900 mb-4">Andere artikelen</h2>
-        <div className="space-y-3">
+      <div style={{ marginTop: 48 }}>
+        <h3 style={{ marginBottom: 16, fontSize: '1rem' }}>Andere artikelen</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {blogPosts.filter(p => p.slug !== post.slug).map(p => (
-            <Link key={p.slug} href={`/blog/${p.slug}`} className="block card p-4 hover:shadow-md transition-shadow group">
-              <h3 className="font-bold text-sm text-gray-900 group-hover:text-primary transition-colors">{p.title}</h3>
-              <p className="text-xs text-gray-400 mt-1">{p.readTime} lezen</p>
+            <Link key={p.slug} href={`/blog/${p.slug}`} className="card card-hover" style={{ display: 'block', padding: '16px 20px' }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>{p.title}</p>
+              <p style={{ fontSize: 12, color: 'var(--text-3)' }}>{p.readTime} lezen</p>
             </Link>
           ))}
         </div>

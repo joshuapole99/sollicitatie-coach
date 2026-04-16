@@ -3,34 +3,25 @@
 import { useState, useEffect, useCallback } from 'react';
 
 type Status = 'applied' | 'interview' | 'offer' | 'rejected';
+interface App { id: string; company: string; role: string; status: Status; notes: string; applied_at: string; }
 
-interface Application {
-  id: string;
-  company: string;
-  role: string;
-  status: Status;
-  notes: string;
-  applied_at: string;
-  created_at: string;
-}
+const STATUSES = [
+  { v: 'applied',   l: 'Gesolliciteerd', cls: 'status-applied'   },
+  { v: 'interview', l: 'Gesprek',        cls: 'status-interview' },
+  { v: 'offer',     l: 'Aanbod',         cls: 'status-offer'     },
+  { v: 'rejected',  l: 'Afgewezen',      cls: 'status-rejected'  },
+] as const;
 
-const STATUS_OPTIONS: { value: Status; label: string; cls: string }[] = [
-  { value: 'applied',   label: 'Gesolliciteerd', cls: 'status-applied' },
-  { value: 'interview', label: 'Gesprek',         cls: 'status-interview' },
-  { value: 'offer',     label: 'Aanbod',          cls: 'status-offer' },
-  { value: 'rejected',  label: 'Afgewezen',       cls: 'status-rejected' },
-];
-
-const EMPTY_FORM = { company: '', role: '', status: 'applied' as Status, notes: '', applied_at: new Date().toISOString().split('T')[0] };
+const EMPTY = { company: '', role: '', status: 'applied' as Status, notes: '', applied_at: new Date().toISOString().split('T')[0] };
 
 export default function TrackerPage() {
-  const [apps, setApps]         = useState<Application[]>([]);
-  const [loading, setLoading]   = useState(true);
+  const [apps,     setApps]     = useState<App[]>([]);
+  const [loading,  setLoading]  = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm]         = useState(EMPTY_FORM);
-  const [editId, setEditId]     = useState<string | null>(null);
-  const [saving, setSaving]     = useState(false);
-  const [filter, setFilter]     = useState<Status | 'all'>('all');
+  const [form,     setForm]     = useState(EMPTY);
+  const [editId,   setEditId]   = useState<string | null>(null);
+  const [saving,   setSaving]   = useState(false);
+  const [filter,   setFilter]   = useState<Status | 'all'>('all');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -41,93 +32,68 @@ export default function TrackerPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  function openNew() { setForm(EMPTY); setEditId(null); setShowForm(true); }
+  function openEdit(a: App) { setForm({ company: a.company, role: a.role, status: a.status, notes: a.notes || '', applied_at: a.applied_at || '' }); setEditId(a.id); setShowForm(true); }
+
   async function handleSave() {
     if (!form.company.trim() || !form.role.trim()) return;
     setSaving(true);
-    if (editId) {
-      await fetch('/api/tracker', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: editId, ...form }),
-      });
-    } else {
-      await fetch('/api/tracker', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-    }
+    const method = editId ? 'PATCH' : 'POST';
+    const body   = editId ? { id: editId, ...form } : form;
+    await fetch('/api/tracker', { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     setSaving(false);
     setShowForm(false);
     setEditId(null);
-    setForm(EMPTY_FORM);
     load();
   }
 
   async function handleDelete(id: string) {
     if (!confirm('Sollicitatie verwijderen?')) return;
-    await fetch('/api/tracker', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    });
+    await fetch('/api/tracker', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
     load();
-  }
-
-  function startEdit(a: Application) {
-    setForm({ company: a.company, role: a.role, status: a.status, notes: a.notes || '', applied_at: a.applied_at || '' });
-    setEditId(a.id);
-    setShowForm(true);
   }
 
   const filtered = filter === 'all' ? apps : apps.filter(a => a.status === filter);
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <>
+      <div className="db-page-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 className="text-xl font-extrabold text-gray-900">Sollicitatie Tracker</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Houd al je sollicitaties bij op één plek.</p>
+          <h1>Sollicitatie Tracker</h1>
+          <p>Houd al je sollicitaties bij op één plek.</p>
         </div>
-        <button
-          onClick={() => { setShowForm(true); setEditId(null); setForm(EMPTY_FORM); }}
-          className="btn-primary"
-        >
-          + Toevoegen
-        </button>
+        <button onClick={openNew} className="btn btn-primary">+ Toevoegen</button>
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex gap-2 mb-5 flex-wrap">
-        {[{ v: 'all', l: 'Alles' }, ...STATUS_OPTIONS.map(s => ({ v: s.value, l: s.label }))].map(f => (
-          <button
-            key={f.v}
-            onClick={() => setFilter(f.v as any)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${filter === f.v ? 'bg-gray-900 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-          >
-            {f.l} {f.v !== 'all' && <span className="ml-1 opacity-60">{apps.filter(a => a.status === f.v).length}</span>}
-            {f.v === 'all' && <span className="ml-1 opacity-60">{apps.length}</span>}
+      {/* Filters */}
+      <div className="filter-row">
+        <button className={`filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>
+          Alles <span style={{ opacity: .6 }}>{apps.length}</span>
+        </button>
+        {STATUSES.map(s => (
+          <button key={s.v} className={`filter-btn ${filter === s.v ? 'active' : ''}`} onClick={() => setFilter(s.v as Status)}>
+            {s.l} <span style={{ opacity: .6 }}>{apps.filter(a => a.status === s.v).length}</span>
           </button>
         ))}
       </div>
 
-      {/* Add/Edit form */}
+      {/* Form */}
       {showForm && (
-        <div className="card p-5 mb-6 bg-blue-50 border-blue-200">
-          <h3 className="font-bold text-sm mb-4">{editId ? 'Bewerken' : 'Nieuwe sollicitatie'}</h3>
-          <div className="grid sm:grid-cols-2 gap-3 mb-3">
+        <div className="form-panel">
+          <h3>{editId ? 'Bewerken' : 'Nieuwe sollicitatie'}</h3>
+          <div className="form-grid">
             <div>
               <label className="label">Bedrijf *</label>
-              <input className="input" placeholder="Bijv. ASML" value={form.company} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} />
+              <input className="input" placeholder="bijv. ASML" value={form.company} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} />
             </div>
             <div>
               <label className="label">Functie *</label>
-              <input className="input" placeholder="Bijv. Software Engineer" value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))} />
+              <input className="input" placeholder="bijv. Software Engineer" value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))} />
             </div>
             <div>
               <label className="label">Status</label>
               <select className="input" value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value as Status }))}>
-                {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                {STATUSES.map(s => <option key={s.v} value={s.v}>{s.l}</option>)}
               </select>
             </div>
             <div>
@@ -135,74 +101,60 @@ export default function TrackerPage() {
               <input type="date" className="input" value={form.applied_at} onChange={e => setForm(p => ({ ...p, applied_at: e.target.value }))} />
             </div>
           </div>
-          <div className="mb-4">
+          <div style={{ marginBottom: 14 }}>
             <label className="label">Notities</label>
-            <textarea
-              className="input resize-none"
-              rows={2}
-              placeholder="Contactpersoon, recruiter, follow-up datum..."
-              value={form.notes}
-              onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
-            />
+            <textarea className="input" rows={2} placeholder="Contactpersoon, recruiter, volgende stap..." value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} />
           </div>
-          <div className="flex gap-2">
-            <button onClick={handleSave} disabled={saving || !form.company || !form.role} className="btn-primary text-xs">
-              {saving ? 'Opslaan...' : editId ? 'Wijzigingen opslaan' : 'Toevoegen'}
+          <div className="form-actions">
+            <button onClick={handleSave} disabled={saving || !form.company || !form.role} className="btn btn-primary btn-sm">
+              {saving ? 'Opslaan...' : editId ? 'Opslaan' : 'Toevoegen'}
             </button>
-            <button onClick={() => { setShowForm(false); setEditId(null); }} className="btn-secondary text-xs">
-              Annuleren
-            </button>
+            <button onClick={() => setShowForm(false)} className="btn btn-secondary btn-sm">Annuleren</button>
           </div>
         </div>
       )}
 
       {/* Table */}
       {loading ? (
-        <div className="text-center py-16 text-sm text-gray-400">Laden...</div>
+        <div className="loading-box"><div className="spinner" /></div>
       ) : filtered.length === 0 ? (
-        <div className="card p-12 text-center">
-          <p className="text-gray-400 text-sm mb-3">{filter === 'all' ? 'Nog geen sollicitaties toegevoegd.' : 'Geen sollicitaties met deze status.'}</p>
-          {filter === 'all' && (
-            <button onClick={() => setShowForm(true)} className="btn-primary text-xs">Eerste toevoegen</button>
-          )}
-        </div>
-      ) : (
-        <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr>
-                  {['Bedrijf', 'Functie', 'Status', 'Datum', 'Notities', ''].map(h => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filtered.map(a => {
-                  const s = STATUS_OPTIONS.find(s => s.value === a.status);
-                  return (
-                    <tr key={a.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{a.company}</td>
-                      <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{a.role}</td>
-                      <td className="px-4 py-3">
-                        <span className={s?.cls}>{s?.label}</span>
-                      </td>
-                      <td className="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">{a.applied_at ? new Date(a.applied_at).toLocaleDateString('nl-NL') : '—'}</td>
-                      <td className="px-4 py-3 text-gray-400 max-w-xs truncate text-xs">{a.notes || '—'}</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex gap-2">
-                          <button onClick={() => startEdit(a)} className="text-xs text-primary hover:underline">Bewerk</button>
-                          <button onClick={() => handleDelete(a.id)} className="text-xs text-red-400 hover:underline">Verwijder</button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+        <div className="card">
+          <div className="empty-state">
+            <p>{filter === 'all' ? 'Nog geen sollicitaties.' : 'Geen sollicitaties met deze status.'}</p>
+            {filter === 'all' && <button onClick={openNew} className="btn btn-primary btn-sm">Eerste toevoegen</button>}
           </div>
         </div>
+      ) : (
+        <div className="table-wrap overflow-x">
+          <table>
+            <thead>
+              <tr>
+                <th>Bedrijf</th><th>Functie</th><th>Status</th>
+                <th>Datum</th><th>Notities</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(a => {
+                const s = STATUSES.find(s => s.v === a.status);
+                return (
+                  <tr key={a.id}>
+                    <td className="td-main">{a.company}</td>
+                    <td style={{ color: 'var(--text-2)', fontSize: 14 }}>{a.role}</td>
+                    <td><span className={s?.cls}>{s?.l}</span></td>
+                    <td className="td-sub">{a.applied_at ? new Date(a.applied_at).toLocaleDateString('nl-NL') : '—'}</td>
+                    <td className="td-notes">{a.notes || '—'}</td>
+                    <td className="td-actions">
+                      <button onClick={() => openEdit(a)} className="action-edit">Bewerk</button>
+                      {' '}
+                      <button onClick={() => handleDelete(a.id)} className="action-del">Verwijder</button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
-    </div>
+    </>
   );
 }

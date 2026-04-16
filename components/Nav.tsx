@@ -6,33 +6,23 @@ export default async function Nav() {
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
-    <header className="border-b border-gray-100 bg-white sticky top-0 z-40">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-        <Link href="/" className="font-bold text-gray-900 text-sm">
-          Sollicitatie Coach
-        </Link>
+    <header className="nav">
+      <div className="nav-inner">
+        <Link href="/" className="nav-logo">Sollicitatie Coach</Link>
 
-        <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
-          <Link href="/analyse" className="hover:text-gray-900 transition-colors">Analyseer CV</Link>
-          <Link href="/pricing" className="hover:text-gray-900 transition-colors">Prijzen</Link>
-          <Link href="/blog" className="hover:text-gray-900 transition-colors">Blog</Link>
+        <nav className="nav-links">
+          <Link href="/analyse" className="nav-link">CV analyseren</Link>
+          <Link href="/pricing" className="nav-link">Prijzen</Link>
+          <Link href="/blog"    className="nav-link">Blog</Link>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="nav-actions">
           {user ? (
-            <>
-              <Link href="/dashboard" className="btn-secondary text-xs px-4 py-2">
-                Dashboard
-              </Link>
-            </>
+            <Link href="/dashboard" className="btn btn-secondary btn-sm">Dashboard</Link>
           ) : (
             <>
-              <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 px-3 py-2">
-                Inloggen
-              </Link>
-              <Link href="/signup" className="btn-primary text-xs px-4 py-2">
-                Gratis starten →
-              </Link>
+              <Link href="/login"  className="btn btn-ghost btn-sm">Inloggen</Link>
+              <Link href="/signup" className="btn btn-primary btn-sm">Gratis starten →</Link>
             </>
           )}
         </div>

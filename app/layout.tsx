@@ -5,13 +5,8 @@ import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Sollicitatie Coach — AI CV Analyse & Motivatiebrief',
-  description: 'Schrijf in 30 seconden een professionele motivatiebrief op maat. Analyseer je CV op een vacature, bereid je voor op interviews en volg je sollicitaties. Gratis proberen.',
-  keywords: 'motivatiebrief schrijven, CV analyse, sollicitatiebrief AI, interview voorbereiding, sollicitatie coach',
-  openGraph: {
-    title: 'Sollicitatie Coach — AI CV Analyse & Motivatiebrief',
-    description: 'AI-powered sollicitatiecoach. Beter CV, betere brieven, meer interviews.',
-    type: 'website',
-  },
+  description: 'Schrijf in 30 seconden een professionele motivatiebrief op maat. Analyseer je CV, bereid je voor op interviews en volg je sollicitaties.',
+  keywords: 'motivatiebrief schrijven, CV analyse, sollicitatiebrief AI, interview voorbereiding',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -20,9 +15,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="google-site-verification" content="ryj8EEkXeSiHPluEDmeKREf6RJj9WhQjFtCgCwgOEDU" />
       </head>
-      <body className="min-h-screen flex flex-col">
+      <body>
         <Nav />
-        <main className="flex-1">{children}</main>
+        <main>{children}</main>
         <Footer />
       </body>
     </html>

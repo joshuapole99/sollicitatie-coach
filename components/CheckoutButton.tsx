@@ -13,7 +13,8 @@ export default function CheckoutButton({ plan, label, highlight }: { plan: strin
   return (
     <button
       onClick={handleClick}
-      className={`${highlight ? 'btn-primary' : 'btn-secondary'} w-full`}
+      className={`btn ${highlight ? 'btn-primary' : 'btn-secondary'} w-full`}
+      style={{ justifyContent: 'center' }}
     >
       {label}
     </button>

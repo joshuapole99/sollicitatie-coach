@@ -1,25 +1,10 @@
 import type { Config } from 'tailwindcss';
 
+// Tailwind is kept in the build pipeline but not used directly in JSX.
+// All visual styles are in app/globals.css as custom CSS.
 const config: Config = {
-  content: [
-    './app/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './lib/**/*.{ts,tsx}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          DEFAULT: '#2563eb',
-          dark: '#1d4ed8',
-          light: '#eff6ff',
-        },
-      },
-      fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
-      },
-    },
-  },
+  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  theme: { extend: {} },
   plugins: [],
 };
 
