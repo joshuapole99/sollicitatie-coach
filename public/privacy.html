@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Sollicitatie Coach</title>
+<meta name="description" content="Privacy Policy for Sollicitatie Coach">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg: #f5f4f0; --card: #fff; --border: #e8e6e0; --text: #1a1a18; --muted: #666; --faint: #999; --green: #1a7a4a; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #111110; --card: #1c1c1a; --border: #2e2e2b; --text: #e8e6e0; --muted: #999; --faint: #666; }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+.nav { max-width: 780px; margin: 0 auto; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { font-size: 15px; font-weight: 700; text-decoration: none; color: var(--text); }
+.nav-btn { background: var(--text); color: var(--bg); padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; }
+.wrap { max-width: 680px; margin: 0 auto; padding: 40px 24px 80px; }
+.label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; line-height: 1.2; }
+.meta { font-size: 13px; color: var(--faint); margin-bottom: 40px; }
+h2 { font-size: 18px; font-weight: 700; margin: 36px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 15px; font-weight: 700; margin: 20px 0 8px; }
+p { font-size: 14px; color: var(--muted); margin-bottom: 14px; line-height: 1.7; }
+ul { margin: 0 0 14px 20px; }
+ul li { font-size: 14px; color: var(--muted); margin-bottom: 6px; line-height: 1.6; }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+th { text-align: left; padding: 10px 12px; background: var(--card); border: 1px solid var(--border); font-weight: 700; color: var(--text); }
+td { padding: 10px 12px; border: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+.highlight { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin: 20px 0; }
+.highlight p { margin: 0; }
+.gdpr-box { background: var(--card); border: 2px solid var(--border); border-radius: 10px; padding: 20px; margin: 20px 0; }
+.gdpr-box h3 { margin-top: 0; }
+a { color: var(--text); }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="/" class="nav-logo">Sollicitatie Coach</a>
+  <a href="/app.html" class="nav-btn">Try for free &rarr;</a>
+</nav>
+<div class="wrap">
+  <div class="label">Legal</div>
+  <h1>Privacy Policy</h1>
+  <p class="meta">Last updated: April 2, 2026 &middot; Effective immediately</p>
+
+  <div class="highlight">
+    <p>We take your privacy seriously. This policy explains what data we collect, how we use it, and your rights as a user &mdash; including under GDPR.</p>
+  </div>
+
+  <h2>1. Who We Are</h2>
+  <p>Sollicitatie Coach is an AI-powered job application tool operated by an individual developer based in the Netherlands.</p>
+  <ul>
+    <li>Service name: Sollicitatie Coach</li>
+    <li>Website: <a href="https://sollicitatie-coach.vercel.app">sollicitatie-coach.vercel.app</a></li>
+    <li>Contact: <strong>joshuapole@live.nl</strong></li>
+    <li>Country: Netherlands (EU)</li>
+  </ul>
+  <p>As a service operating within the EU, we comply with the General Data Protection Regulation (GDPR).</p>
+
+  <h2>2. What Data We Collect</h2>
+  <h3>2.1 Data you provide directly</h3>
+  <table>
+    <tr><th>Data type</th><th>How it&apos;s collected</th><th>Purpose</th></tr>
+    <tr><td>CV text</td><td>You paste it into the app</td><td>AI analysis only</td></tr>
+    <tr><td>Job description text</td><td>You paste it into the app</td><td>AI analysis only</td></tr>
+    <tr><td>Email address</td><td>Optional, via email capture form</td><td>Product updates, tips (with consent)</td></tr>
+    <tr><td>Review / feedback</td><td>Optional, via review form</td><td>Product improvement</td></tr>
+  </table>
+
+  <h3>2.2 Data collected automatically</h3>
+  <table>
+    <tr><th>Data type</th><th>Source</th><th>Purpose</th></tr>
+    <tr><td>IP address + User-Agent</td><td>Server logs</td><td>Rate limiting and abuse prevention (hashed fingerprint)</td></tr>
+    <tr><td>Usage data (page views, interactions)</td><td>Vercel Analytics</td><td>Understanding how the service is used</td></tr>
+    <tr><td>Browser local storage</td><td>Your browser</td><td>Storing usage count, language preference, session ID</td></tr>
+  </table>
+
+  <h2>3. How We Process Your Data</h2>
+  <h3>3.1 CV and job description</h3>
+  <div class="highlight">
+    <p><strong>We do not store your CV or job description.</strong> When you run an analysis, your text is sent directly to the Anthropic API for processing and immediately discarded after the response is returned. No CV or job description text is saved to any database.</p>
+  </div>
+  <p>The processing flow is:</p>
+  <ul>
+    <li>Your text is sent from your browser to our serverless API (Vercel)</li>
+    <li>Our API forwards the text to the Anthropic Claude API for analysis</li>
+    <li>The AI response is returned to your browser</li>
+    <li>No text is stored at any point in this process</li>
+  </ul>
+
+  <h3>3.2 IP addresses and fingerprinting</h3>
+  <p>IP addresses and User-Agent strings are combined into a hashed fingerprint (SHA-256) used temporarily in server memory to enforce rate limits. The raw IP address is not written to persistent storage. Fingerprints are cleared periodically. We do not track or profile users.</p>
+
+  <h3>3.3 Email addresses</h3>
+  <p>If you voluntarily provide your email address via the optional email capture form, it is stored locally in your browser (localStorage) until we implement a proper email list integration. We will only send you product-related communications. You can opt out at any time.</p>
+
+  <h3>3.4 Reviews and feedback</h3>
+  <p>If you submit a review, the star rating and text are sent to us via Formspree.io. We may display anonymised feedback on the website. We will not publish your name without your explicit consent.</p>
+
+  <h2>4. Local Storage</h2>
+  <p>We use your browser&apos;s localStorage (not cookies) to store:</p>
+  <ul>
+    <li><strong>sol_uses:</strong> Number of analyses you&apos;ve run (for free tier tracking)</li>
+    <li><strong>sol_lang:</strong> Your language preference (NL or EN)</li>
+    <li><strong>ls_session_id:</strong> Your Lemon Squeezy subscription session (for tier validation — Plus or Pro)</li>
+    <li><strong>sol_email:</strong> Your email address if provided (or &ldquo;skipped&rdquo;)</li>
+    <li><strong>sol_reviewed:</strong> Whether you&apos;ve submitted a review</li>
+  </ul>
+  <p>This data stays in your browser only and is never sent to our servers unless explicitly described above. You can clear this data at any time by clearing your browser&apos;s local storage.</p>
+
+  <h2>5. Third-Party Services</h2>
+  <h3>5.1 Anthropic (AI Processing)</h3>
+  <p>Your CV and job description text is sent to Anthropic&apos;s API for AI analysis. Anthropic is a US-based company. By using Sollicitatie Coach, you acknowledge that your input text will be processed by Anthropic&apos;s systems.</p>
+  <p>Anthropic&apos;s privacy policy: <a href="https://www.anthropic.com/privacy" target="_blank">anthropic.com/privacy</a></p>
+
+  <h3>5.2 Lemon Squeezy (Payments)</h3>
+  <p>If you subscribe to Plus or Pro, your payment is processed by Lemon Squeezy. We receive an order session ID to validate your subscription tier but do not store your payment details (card number, billing address). Lemon Squeezy acts as the Merchant of Record and validates subscription status via their API.</p>
+  <p>Lemon Squeezy&apos;s privacy policy: <a href="https://www.lemonsqueezy.com/privacy" target="_blank">lemonsqueezy.com/privacy</a></p>
+
+  <h3>5.3 Vercel (Hosting)</h3>
+  <p>Our service is hosted on Vercel. Vercel may process request metadata (IP addresses, headers) as part of normal infrastructure operation.</p>
+  <p>Vercel&apos;s privacy policy: <a href="https://vercel.com/legal/privacy-policy" target="_blank">vercel.com/legal/privacy-policy</a></p>
+
+  <h3>5.4 Formspree.io (Review notifications)</h3>
+  <p>We use Formspree.io to receive review notifications. Review content (star rating and message) is transmitted via Formspree.io&apos;s infrastructure. No CV or personal identification data is included in these submissions.</p>
+  <p>Formspree.io&apos;s privacy policy: <a href="https://formspree.io/legal/privacy-policy/" target="_blank">formspree.io/legal/privacy-policy</a></p>
+
+  <h2>6. Legal Basis for Processing (GDPR)</h2>
+  <table>
+    <tr><th>Processing activity</th><th>Legal basis</th></tr>
+    <tr><td>CV and job description analysis</td><td>Performance of a contract (providing the service you requested)</td></tr>
+    <tr><td>Rate limiting via hashed IP fingerprint</td><td>Legitimate interest (preventing abuse, ensuring fair access)</td></tr>
+    <tr><td>Email marketing (if opted in)</td><td>Consent (you voluntarily provided your email)</td></tr>
+    <tr><td>Analytics (Vercel)</td><td>Legitimate interest (understanding usage to improve the service)</td></tr>
+    <tr><td>Payment processing and tier validation</td><td>Performance of a contract (processing your subscription)</td></tr>
+  </table>
+
+  <h2>7. Data Retention</h2>
+  <table>
+    <tr><th>Data type</th><th>Retention period</th></tr>
+    <tr><td>CV and job description text</td><td>Not stored &mdash; discarded immediately after processing</td></tr>
+    <tr><td>IP fingerprints (rate limiting)</td><td>In-memory only &mdash; cleared on server restart (typically within hours)</td></tr>
+    <tr><td>Email address (if provided)</td><td>Until you request deletion or unsubscribe</td></tr>
+    <tr><td>Review submissions</td><td>Until you request deletion</td></tr>
+    <tr><td>Payment and subscription records</td><td>Managed by Lemon Squeezy per their policy</td></tr>
+    <tr><td>Local storage data</td><td>Until you clear your browser data</td></tr>
+  </table>
+
+  <h2>8. Your Rights Under GDPR</h2>
+  <div class="gdpr-box">
+    <h3>As an EU/EEA resident, you have the following rights:</h3>
+    <ul>
+      <li><strong>Right of access:</strong> Request a copy of any personal data we hold about you</li>
+      <li><strong>Right to rectification:</strong> Request correction of inaccurate data</li>
+      <li><strong>Right to erasure:</strong> Request deletion of your personal data (&ldquo;right to be forgotten&rdquo;)</li>
+      <li><strong>Right to restrict processing:</strong> Ask us to limit how we use your data</li>
+      <li><strong>Right to data portability:</strong> Receive your data in a portable format</li>
+      <li><strong>Right to object:</strong> Object to processing based on legitimate interest</li>
+      <li><strong>Right to withdraw consent:</strong> Withdraw consent for email communications at any time</li>
+    </ul>
+    <p style="margin-top:12px">To exercise any of these rights, contact us at <strong>joshuapole@live.nl</strong>. We will respond within 30 days.</p>
+  </div>
+  <p>You also have the right to lodge a complaint with the Dutch Data Protection Authority (Autoriteit Persoonsgegevens): <a href="https://www.autoriteitpersoonsgegevens.nl" target="_blank">autoriteitpersoonsgegevens.nl</a></p>
+
+  <h2>9. Data Security</h2>
+  <p>We take reasonable technical measures to protect your data:</p>
+  <ul>
+    <li>All data is transmitted over HTTPS (TLS encryption)</li>
+    <li>API keys and secrets are stored as environment variables and never exposed client-side</li>
+    <li>We do not store sensitive personal data (CV text, payment details)</li>
+    <li>Server-side rate limiting with hashed fingerprints protects against abuse</li>
+    <li>Subscription tier is validated server-side via Lemon Squeezy API &mdash; cannot be faked client-side</li>
+  </ul>
+  <p>However, no method of transmission over the internet is 100% secure. We cannot guarantee absolute security of data in transit.</p>
+
+  <h2>10. Children&apos;s Privacy</h2>
+  <p>Sollicitatie Coach is not intended for users under the age of 16. We do not knowingly collect personal data from children. If you believe a child has provided us with personal data, please contact us and we will delete it promptly.</p>
+
+  <h2>11. International Data Transfers</h2>
+  <p>By using Sollicitatie Coach, your data may be transferred to and processed in the United States (Anthropic, Lemon Squeezy, Vercel, Formspree.io). These transfers are subject to appropriate safeguards including Standard Contractual Clauses (SCCs) as required by GDPR.</p>
+
+  <h2>12. Changes to This Policy</h2>
+  <p>We may update this Privacy Policy from time to time. We will update the &ldquo;last updated&rdquo; date at the top of this page. Continued use of the service after changes constitutes acceptance of the updated policy. For significant changes, we will make reasonable efforts to notify users.</p>
+
+  <h2>13. Contact Us</h2>
+  <p>For any privacy-related questions or to exercise your rights:</p>
+  <ul>
+    <li>Email: <strong>joshuapole@live.nl</strong></li>
+    <li>Website: <a href="https://sollicitatie-coach.vercel.app">sollicitatie-coach.vercel.app</a></li>
+    <li>Response time: within 30 days</li>
+  </ul>
+</div>
+</body>
+</html>

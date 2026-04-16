@@ -15,7 +15,9 @@
       "Bash(npm install *)",
       "Bash(npx tsc *)",
       "Bash(npm run *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(cp \"/c/Users/joshu/sollicitatie-coach/privacy.html\" \"/c/Users/joshu/sollicitatie-coach/public/privacy.html\")",
+      "Bash(cp \"/c/Users/joshu/sollicitatie-coach/terms.html\" \"/c/Users/joshu/sollicitatie-coach/public/terms.html\")"
     ]
   }
 }
