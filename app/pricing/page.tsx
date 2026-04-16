@@ -1,75 +1,74 @@
-import type { Metadata } from 'next';
+'use client';
+
 import Link from 'next/link';
 import CheckoutButton from '@/components/CheckoutButton';
-
-export const metadata: Metadata = {
-  title: 'Prijzen — Sollicitatie Coach',
-  description: 'Kies het plan dat bij jouw situatie past. Begin gratis, upgrade wanneer je klaar bent.',
-};
+import { useLanguage } from '@/components/LanguageProvider';
+import { T } from '@/lib/i18n';
 
 export default function PricingPage() {
+  const { lang } = useLanguage();
+  const t = T[lang];
+
   return (
     <div style={{ padding: '56px 0 80px' }}>
       <div className="container-sm">
         <div className="section-header text-center">
-          <p className="section-label">Prijzen</p>
-          <h1 style={{ fontSize: '2.2rem', marginBottom: 10 }}>Begin gratis. Upgrade wanneer je klaar bent.</h1>
-          <p>Geen creditcard nodig om te beginnen. Maandelijks opzegbaar.</p>
+          <p className="section-label">{t.priceLabel}</p>
+          <h1 style={{ fontSize: '2.2rem', marginBottom: 10 }}>{t.pricingTitle}</h1>
+          <p>{t.priceSub}</p>
         </div>
 
         <div className="pricing-grid" style={{ marginTop: 40 }}>
           {/* Free */}
-          <div className="card pricing-card">
-            <p className="pricing-tier">Gratis</p>
-            <p className="pricing-price"><sup>€</sup>0 <span>voor altijd</span></p>
-            <p className="pricing-desc">Probeer de tool zonder verplichting.</p>
+          <div className="pricing-card">
+            <p className="pricing-tier">{t.planFree}</p>
+            <p className="pricing-price"><sup>€</sup>0</p>
+            <p className="pricing-price-sub">{t.planFreeSub}</p>
+            <p className="pricing-desc">{t.planFreeDesc}</p>
+            <div className="pricing-divider" />
             <ul className="pricing-features">
-              {['3 analyses (eenmalig)','Match score + uitleg','Keyword analyse','Sterke punten & verbeterpunten','CV verbeterpunten'].map(i => <li key={i}>{i}</li>)}
+              {t.featFreeItems.map(i => <li key={i}><span className="pricing-check">✓</span>{i}</li>)}
             </ul>
-            <Link href="/analyse" className="btn btn-secondary w-full" style={{ justifyContent: 'center' }}>Gratis starten →</Link>
+            <Link href="/analyse" className="btn btn-ghost w-full" style={{ justifyContent: 'center' }}>{t.planCtaFree}</Link>
           </div>
 
           {/* Plus */}
-          <div className="card pricing-card featured">
-            <p className="pricing-tier highlight">Plus — Meest gekozen</p>
-            <p className="pricing-price"><sup>€</sup>2,99 <span>/ maand</span></p>
-            <p className="pricing-desc">Voor mensen die actief solliciteren.</p>
+          <div className="pricing-card featured">
+            <div className="pricing-popular">{t.planPlusPopular}</div>
+            <p className="pricing-tier">{t.planPlus}</p>
+            <p className="pricing-price"><sup>€</sup>2,99</p>
+            <p className="pricing-price-sub">{t.planPlusSub}</p>
+            <p className="pricing-desc">{t.planPlusDesc}</p>
+            <div className="pricing-divider" />
             <ul className="pricing-features">
-              {['10 analyses per maand','Alles in Gratis','Motivatiebrief op maat','Dashboard & analyse historie','Sollicitatie tracker','Interview voorbereiding'].map(i => <li key={i}>{i}</li>)}
+              {t.featPlusItems.map(i => <li key={i}><span className="pricing-check">✓</span>{i}</li>)}
             </ul>
-            <CheckoutButton plan="plus" label="Plus starten →" highlight={true} />
+            <CheckoutButton plan="plus" label={t.planCtaPlus} highlight={true} />
           </div>
 
           {/* Pro */}
-          <div className="card pricing-card">
-            <p className="pricing-tier">Pro</p>
-            <p className="pricing-price"><sup>€</sup>9,99 <span>/ maand</span></p>
-            <p className="pricing-desc">Voor serieuze sollicitanten.</p>
+          <div className="pricing-card">
+            <p className="pricing-tier">{t.planPro}</p>
+            <p className="pricing-price"><sup>€</sup>9,99</p>
+            <p className="pricing-price-sub">{t.planProSub}</p>
+            <p className="pricing-desc">{t.planProDesc}</p>
+            <div className="pricing-divider" />
             <ul className="pricing-features">
-              {['100 analyses per maand','Alles in Plus','PDF export van motivatiebrief','Prioriteit support'].map(i => <li key={i}>{i}</li>)}
+              {t.featProItems.map(i => <li key={i}><span className="pricing-check">✓</span>{i}</li>)}
             </ul>
-            <CheckoutButton plan="pro" label="Pro starten →" highlight={false} />
+            <CheckoutButton plan="pro" label={t.planCtaPro} highlight={false} />
           </div>
         </div>
 
         {/* FAQ */}
         <div style={{ marginTop: 64 }}>
-          <h2 style={{ fontSize: '1.5rem', textAlign: 'center', marginBottom: 28 }}>Veelgestelde vragen</h2>
-          <div className="faq-list">
-            {[
-              { q: 'Kan ik op elk moment opzeggen?', a: 'Ja. Abonnementen zijn maandelijks opzegbaar, zonder minimale looptijd of opzegtermijn.' },
-              { q: 'Welke betaalmethoden worden geaccepteerd?', a: 'iDEAL, creditcard (Visa/Mastercard) en andere methoden via LemonSqueezy.' },
-              { q: 'Wat als ik mijn maandlimiet bereik?', a: 'Je ontvangt een melding. Je kunt op elk moment upgraden of wachten tot de volgende maand.' },
-              { q: 'Zijn analyses echt gepersonaliseerd?', a: 'Ja. De AI analyseert jouw specifieke CV en vacature. Er worden geen sjablonen gebruikt.' },
-            ].map((f, i) => (
-              <details key={i} className="faq-item">
-                <summary style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', cursor: 'pointer', fontWeight: 600, fontSize: 15, listStyle: 'none', gap: 20, color: 'var(--text)' }}>
-                  {f.q}<span className="faq-icon">+</span>
-                </summary>
-                <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.7, paddingBottom: 16 }}>{f.a}</p>
-              </details>
-            ))}
-          </div>
+          <h2 style={{ fontSize: '1.5rem', textAlign: 'center', marginBottom: 28 }}>{t.pricingFaqTitle}</h2>
+          {t.pricingFaq.map((f, i) => (
+            <details key={i} className="faq-item">
+              <summary>{f.q}<span className="faq-icon">+</span></summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
         </div>
       </div>
     </div>

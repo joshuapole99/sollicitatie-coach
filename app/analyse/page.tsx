@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '@/components/LanguageProvider';
+import { T } from '@/lib/i18n';
 
 interface Result {
   score: number; score_uitleg: string;
@@ -12,14 +14,22 @@ interface Result {
 }
 
 const EXAMPLES = {
-  cv:  `Lisa de Vries\nMarketing Manager | lisa@email.nl\n\nWERKERVARING\nMarketing Manager — TechStartup BV (2021–heden)\n• Verhoogde organisch verkeer met 140% via SEO\n• Beheerde €200.000 advertentiebudget\n• Leidde team van 4 marketeers\n\nJunior Marketeer — Retailbedrijf NV (2019–2021)\n• Social media: +8.000 volgers in 1 jaar\n\nOPLEIDING\nBachelor Marketing — Hogeschool Utrecht (2019)\n\nVAARDIGHEDEN\nGoogle Analytics, SEO, Google Ads, Meta Ads, HubSpot, Copywriting`,
-  job: `Vacature: Senior Digital Marketeer — ScaleUp BV (Amsterdam)\n\nVereisten:\n• Minimaal 3 jaar digitale marketing\n• Google Ads en SEO ervaring\n• HubSpot of vergelijkbaar CRM\n\nWij bieden: €45.000–€55.000 | Hybride werken`,
+  nl: {
+    cv:  `Lisa de Vries\nMarketing Manager | lisa@email.nl\n\nWERKERVARING\nMarketing Manager — TechStartup BV (2021–heden)\n• Verhoogde organisch verkeer met 140% via SEO\n• Beheerde €200.000 advertentiebudget\n• Leidde team van 4 marketeers\n\nOPLEIDING\nBachelor Marketing — Hogeschool Utrecht (2019)\n\nVAARDIGHEDEN\nGoogle Analytics, SEO, Google Ads, Meta Ads, HubSpot`,
+    job: `Vacature: Senior Digital Marketeer — ScaleUp BV (Amsterdam)\n\nVereisten:\n• Minimaal 3 jaar digitale marketing\n• Google Ads en SEO ervaring\n• HubSpot of vergelijkbaar CRM\n\nWij bieden: €45.000–€55.000 | Hybride werken`,
+  },
+  en: {
+    cv:  `James Carter\nSoftware Engineer | james@email.com\n\nWORK EXPERIENCE\nSenior Software Engineer — FinTech Ltd (2021–present)\n• Built microservices handling 2M+ daily transactions\n• Reduced API response time by 60%\n\nEDUCATION\nBSc Computer Science — University of Amsterdam (2019)\n\nSKILLS\nJavaScript, TypeScript, Node.js, React, PostgreSQL, Docker, AWS`,
+    job: `Job: Full Stack Engineer — GrowthApp\n\nRequirements:\n• 3+ years full stack experience\n• React and Node.js\n• PostgreSQL\n\nSalary: €55.000–€70.000 | Remote-friendly`,
+  },
 };
 
 function scoreColor(s: number) { return s >= 75 ? '#16a34a' : s >= 50 ? '#d97706' : '#dc2626'; }
 function scoreClass(s: number) { return s >= 75 ? 'score-hi' : s >= 50 ? 'score-mid' : 'score-lo'; }
 
 export default function AnalysePage() {
+  const { lang } = useLanguage();
+  const t = T[lang];
   const [cv,       setCv]       = useState('');
   const [job,      setJob]      = useState('');
   const [loading,  setLoading]  = useState(false);
@@ -45,8 +55,8 @@ export default function AnalysePage() {
 
   async function runAnalysis() {
     if (ui.blocked) { window.location.href = '/pricing'; return; }
-    if (cv.trim().length < 30) { setError('Plak je CV in het linkerveld.'); return; }
-    if (job.trim().length < 30) { setError('Plak de vacaturetekst in het rechterveld.'); return; }
+    if (cv.trim().length < 30) { setError(t.analyseErrCv); return; }
+    if (job.trim().length < 30) { setError(t.analyseErrJob); return; }
     setError(''); setLoading(true); setResult(null);
     try {
       const r = await fetch('/api/analyse', {
@@ -55,20 +65,21 @@ export default function AnalysePage() {
         body: JSON.stringify({ cv, job }),
       });
       const data = await r.json();
-      if (r.status === 429) { setUi(p => ({ ...p, blocked: true })); setError(data.message || 'Analysislimiet bereikt.'); return; }
-      if (!r.ok) throw new Error(data.error || 'Er is een fout opgetreden.');
+      if (r.status === 429) { setUi(p => ({ ...p, blocked: true })); setError(data.message || t.analyseUsageNone); return; }
+      if (!r.ok) throw new Error(data.error || 'Error.');
       setResult(data);
       setUi({ tier: data.tier, canPdf: data.canPdf, coverLetter: data.coverLetter, usage: data.usage, blocked: false });
       setTimeout(() => document.getElementById('results-top')?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e: any) {
-      setError(e.message || 'Onverwachte fout. Probeer opnieuw.');
+      setError(e.message || 'Unexpected error. Please try again.');
     } finally { setLoading(false); }
   }
 
   function fillExample() {
-    setCv(EXAMPLES.cv); setJob(EXAMPLES.job);
-    sessionStorage.setItem('sol_cv_draft', EXAMPLES.cv);
-    sessionStorage.setItem('sol_job_draft', EXAMPLES.job);
+    const ex = EXAMPLES[lang];
+    setCv(ex.cv); setJob(ex.job);
+    sessionStorage.setItem('sol_cv_draft', ex.cv);
+    sessionStorage.setItem('sol_job_draft', ex.job);
   }
 
   function copyLetter() {
@@ -79,22 +90,24 @@ export default function AnalysePage() {
   const circ   = 2 * Math.PI * 32;
   const offset = result ? circ * (1 - result.score / 100) : circ;
 
+  const usageText = ui.tier === 'pro'  ? t.analyseUsagePro :
+                    ui.tier === 'plus' ? t.analyseUsagePlus(ui.usage.remaining) :
+                    ui.usage.remaining > 0 ? t.analyseUsageFree(ui.usage.remaining, ui.usage.limit) : t.analyseUsageNone;
+
   return (
     <div className="app-wrap">
-      {/* Header */}
       <div className="app-header">
         <h1>
-          CV Analyse
+          {t.analyseTitle}
           {!verifying && (
             <span className={`badge-${ui.tier}`} style={{ marginLeft: 10, verticalAlign: 'middle', fontSize: 11 }}>
               {ui.tier.toUpperCase()}
             </span>
           )}
         </h1>
-        <p>Zie in 30 seconden hoe goed je aansluit op de vacature.</p>
+        <p>{t.analyseSub}</p>
       </div>
 
-      {/* Usage bar */}
       {!verifying && (
         <div className="usage-bar">
           {ui.tier === 'free' && (
@@ -104,57 +117,47 @@ export default function AnalysePage() {
               ))}
             </div>
           )}
-          <span style={{ color: '#475569', fontSize: 13 }}>
-            {ui.tier === 'pro'  ? '✓ Pro actief — 100 analyses/maand' :
-             ui.tier === 'plus' ? `✓ Plus actief — ${ui.usage.remaining} over deze maand` :
-             ui.usage.remaining > 0 ? `${ui.usage.remaining} van ${ui.usage.limit} gratis analyses resterend` : 'Geen gratis analyses meer'}
-          </span>
+          <span style={{ color: '#475569', fontSize: 13 }}>{usageText}</span>
           {ui.tier === 'free' && (
             <a href="/pricing" className="btn btn-primary btn-sm" style={{ marginLeft: 'auto' }}>
-              {ui.blocked ? 'Upgrade vereist →' : 'Upgrade →'}
+              {ui.blocked ? t.analyseUpgradeRequired : t.analyseUpgrade}
             </a>
           )}
         </div>
       )}
 
-      {/* Example button */}
       <div className="example-bar">
-        <button onClick={fillExample} className="btn btn-ghost btn-sm">
-          ✨ Probeer met voorbeeldtekst
-        </button>
+        <button onClick={fillExample} className="btn btn-ghost btn-sm">{t.analyseExample}</button>
       </div>
 
-      {/* Inputs */}
       <div className="input-grid">
         <div>
-          <label className="label">Jouw CV</label>
-          <textarea className="input" placeholder="Plak hier de tekst van je CV..." value={cv}
+          <label className="label">{t.analyseLabelCv}</label>
+          <textarea className="input" placeholder={t.analysePlaceholderCv} value={cv}
             onChange={e => { setCv(e.target.value); sessionStorage.setItem('sol_cv_draft', e.target.value); }} />
         </div>
         <div>
-          <label className="label">Vacaturetekst</label>
-          <textarea className="input" placeholder="Plak hier de volledige vacaturetekst..." value={job}
+          <label className="label">{t.analyseLabelJob}</label>
+          <textarea className="input" placeholder={t.analysePlaceholderJob} value={job}
             onChange={e => { setJob(e.target.value); sessionStorage.setItem('sol_job_draft', e.target.value); }} />
         </div>
       </div>
 
       <button onClick={runAnalysis} disabled={loading || verifying} className="analyse-btn">
         {loading
-          ? <><span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .65s linear infinite' }} /> AI analyseert je match...</>
-          : 'Analyseer mijn sollicitatie →'}
+          ? <><span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .65s linear infinite' }} /> {t.analyseLoading}</>
+          : t.analyseBtn}
       </button>
 
       {error && (
         <div className="error-msg" style={{ marginTop: 14 }}>
           {error}
-          {ui.blocked && <> <a href="/pricing" style={{ color: '#dc2626', fontWeight: 700, textDecoration: 'underline' }}>Upgrade →</a></>}
+          {ui.blocked && <> <a href="/pricing" style={{ color: '#dc2626', fontWeight: 700, textDecoration: 'underline' }}>{t.analyseUpgrade}</a></>}
         </div>
       )}
 
-      {/* Results */}
       {result && (
         <div id="results-top" className="results">
-          {/* Score */}
           <div className="score-card">
             <div className="score-ring">
               <svg width="84" height="84" viewBox="0 0 84 84">
@@ -165,29 +168,27 @@ export default function AnalysePage() {
               <div className={`score-num ${scoreClass(result.score)}`}>{result.score}</div>
             </div>
             <div>
-              <p className="score-title">Match score: {result.score}/100</p>
+              <p className="score-title">{t.analyseScoreTitle(result.score)}</p>
               <p className="score-desc">{result.score_uitleg}</p>
             </div>
           </div>
 
-          {/* Keywords */}
           <details className="result-card" open>
-            <summary className="result-summary">🔑 Keywords <span className="result-chev">▼</span></summary>
+            <summary className="result-summary">{t.analyseKeywords} <span className="result-chev">▼</span></summary>
             <div className="result-body">
-              <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>Aanwezig in je CV</p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>{t.analysePresent}</p>
               <div className="tags-row" style={{ marginBottom: 16 }}>
-                {result.match_keywords.length ? result.match_keywords.map(k => <span key={k} className="tag-match">{k}</span>) : <span style={{ fontSize: 13, color: '#94a3b8' }}>Geen gevonden</span>}
+                {result.match_keywords.length ? result.match_keywords.map(k => <span key={k} className="tag-match">{k}</span>) : <span style={{ fontSize: 13, color: '#94a3b8' }}>{t.analyseNoneFound}</span>}
               </div>
-              <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>Ontbreekt in je CV</p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>{t.analyseMissing}</p>
               <div className="tags-row">
-                {result.mis_keywords.length ? result.mis_keywords.map(k => <span key={k} className="tag-miss">{k}</span>) : <span style={{ fontSize: 13, color: '#94a3b8' }}>Geen</span>}
+                {result.mis_keywords.length ? result.mis_keywords.map(k => <span key={k} className="tag-miss">{k}</span>) : <span style={{ fontSize: 13, color: '#94a3b8' }}>{t.analyseNone}</span>}
               </div>
             </div>
           </details>
 
-          {/* Strengths */}
           <details className="result-card" open>
-            <summary className="result-summary">💪 Sterke punten & verbeterpunten <span className="result-chev">▼</span></summary>
+            <summary className="result-summary">{t.analyseStrengths} <span className="result-chev">▼</span></summary>
             <div className="result-body">
               <div className="bullets">
                 {result.sterke_punten.map((p, i) => <div key={i} className="bullet-good">✓ {p}</div>)}
@@ -196,14 +197,13 @@ export default function AnalysePage() {
             </div>
           </details>
 
-          {/* Cover letter */}
           <details className="result-card" open>
             <summary className="result-summary">
-              {result.coverLetter ? '✉️ Motivatiebrief op maat' : '🔒 Motivatiebrief — upgrade naar Plus of Pro'}
+              {result.coverLetter ? t.analyseCoverTitle : t.analyseCoverLocked}
               <div className="result-actions" onClick={e => e.preventDefault()}>
                 {result.coverLetter && (
                   <button onClick={copyLetter} className="btn btn-ghost btn-sm" style={{ fontSize: 12 }}>
-                    {copied ? '✓ Gekopieerd' : 'Kopieer'}
+                    {copied ? t.analyseCopied : t.analyseCopy}
                   </button>
                 )}
                 <span className="result-chev">▼</span>
@@ -214,12 +214,12 @@ export default function AnalysePage() {
                 <pre className="cover-txt">{result.motivatiebrief}</pre>
               ) : (
                 <div className="paywall">
-                  <div className="paywall-blur cover-txt">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Beste mevrouw de Vries, met groot enthousiasme reageer ik op uw vacature voor de functie van Senior Digital Marketeer bij ScaleUp BV. Gezien mijn achtergrond in digitale marketing en mijn bewezen resultaten...</div>
+                  <div className="paywall-blur cover-txt">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Beste mevrouw de Vries, met groot enthousiasme reageer ik op uw vacature voor de functie van Senior Digital Marketeer bij ScaleUp BV...</div>
                   <div className="paywall-overlay">
                     <div className="paywall-box">
-                      <h3>Motivatiebrief inbegrepen bij Plus</h3>
-                      <p>Upgrade voor €2,99/mnd en ontvang een volledige motivatiebrief bij elke analyse.</p>
-                      <a href="/pricing" className="btn btn-primary" style={{ display: 'block', justifyContent: 'center' }}>Bekijk plannen →</a>
+                      <h3>{t.analyseCoverPaywallTitle}</h3>
+                      <p>{t.analyseCoverPaywallSub}</p>
+                      <a href="/pricing" className="btn btn-primary" style={{ display: 'block', justifyContent: 'center' }}>{t.analyseCoverPaywallBtn}</a>
                     </div>
                   </div>
                 </div>
@@ -227,9 +227,8 @@ export default function AnalysePage() {
             </div>
           </details>
 
-          {/* CV tips */}
           <details className="result-card" open>
-            <summary className="result-summary">📝 CV verbeterpunten <span className="result-chev">▼</span></summary>
+            <summary className="result-summary">{t.analyseCvTips} <span className="result-chev">▼</span></summary>
             <div className="result-body">
               <p style={{ fontSize: 14, lineHeight: 1.75, color: '#475569' }}>{result.cv_tips}</p>
             </div>
@@ -237,18 +236,17 @@ export default function AnalysePage() {
         </div>
       )}
 
-      {/* Empty state — show features when no result yet */}
       {!result && !loading && (
         <div style={{ marginTop: 48, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
           {[
-            { icon: '📊', t: 'Match score', d: 'Hoe goed sluit je CV aan op de vacature — score van 0–100.' },
-            { icon: '🔑', t: 'Keyword analyse', d: 'Welke termen ontbreken in je CV die de vacature vereist.' },
-            { icon: '✉️', t: 'Motivatiebrief', d: 'Een volledige, gepersonaliseerde motivatiebrief in seconden.' },
+            { icon: '📊', title: t.analyseFeat1T, desc: t.analyseFeat1D },
+            { icon: '🔑', title: t.analyseFeat2T, desc: t.analyseFeat2D },
+            { icon: '✉️', title: t.analyseFeat3T, desc: t.analyseFeat3D },
           ].map(f => (
-            <div key={f.t} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20, textAlign: 'center' }}>
+            <div key={f.title} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20, textAlign: 'center' }}>
               <div style={{ fontSize: 28, marginBottom: 10 }}>{f.icon}</div>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>{f.t}</p>
-              <p style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{f.d}</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>{f.title}</p>
+              <p style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{f.desc}</p>
             </div>
           ))}
         </div>
