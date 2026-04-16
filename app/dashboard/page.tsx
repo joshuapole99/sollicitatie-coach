@@ -21,23 +21,23 @@ export default async function DashboardPage() {
   const interviews = (applications ?? []).filter((a: any) => ['interview','offer'].includes(a.status)).length;
 
   function scoreClass(s: number) {
-    return s >= 75 ? 'score-green' : s >= 50 ? 'score-amber' : 'score-red';
+    return s >= 75 ? 'score-hi' : s >= 50 ? 'score-mid' : 'score-lo';
   }
 
   return (
     <>
-      <div className="db-page-header">
-        <h1>Welkom terug, {name} 👋</h1>
-        <p>Overzicht van je sollicitatieactiviteiten.</p>
+      <div>
+        <h1 className="db-page-title">Welkom terug, {name} 👋</h1>
+        <p className="db-page-sub">Hier is een overzicht van je sollicitatieactiviteiten.</p>
       </div>
 
       {/* Quick actions */}
       <div className="quick-actions">
         {[
-          { href: '/analyse',             icon: '📊', label: 'CV analyseren',           cls: 'blue'   },
-          { href: '/dashboard/tracker',   icon: '➕', label: 'Sollicitatie toevoegen',   cls: 'green'  },
-          { href: '/dashboard/interview', icon: '🎯', label: 'Interview voorbereiding', cls: 'amber'  },
-          { href: '/pricing',             icon: '⚡', label: 'Upgrade plan',             cls: 'purple' },
+          { href: '/analyse',             icon: '📊', label: 'CV analyseren',          cls: 'qa-blue'   },
+          { href: '/dashboard/tracker',   icon: '➕', label: 'Sollicitatie toevoegen', cls: 'qa-green'  },
+          { href: '/dashboard/interview', icon: '🎯', label: 'Interview prep',          cls: 'qa-amber'  },
+          { href: '/pricing',             icon: '⚡', label: 'Upgrade plan',            cls: 'qa-purple' },
         ].map(a => (
           <Link key={a.href} href={a.href} className={`quick-action ${a.cls}`}>
             <span className="quick-action-icon">{a.icon}</span>
@@ -48,28 +48,27 @@ export default async function DashboardPage() {
 
       {/* Stats */}
       <div className="stat-grid">
-        <div className="card stat-card">
+        <div className="stat-card">
           <div className="stat-num">{totalAn}</div>
           <div className="stat-label">Analyses gedaan</div>
         </div>
-        <div className="card stat-card">
+        <div className="stat-card">
           <div className="stat-num">{totalAp}</div>
           <div className="stat-label">Sollicitaties bijgehouden</div>
         </div>
-        <div className="card stat-card">
+        <div className="stat-card">
           <div className="stat-num">{interviews}</div>
           <div className="stat-label">Gesprekken / aanbiedingen</div>
         </div>
       </div>
 
-      {/* Recent content */}
+      {/* Recent */}
       <div className="two-col">
-        {/* Analyses */}
         <div className="card">
           <div className="card-body">
-            <div className="section-header-row">
-              <h2>Recente analyses</h2>
-              <Link href="/analyse">Nieuwe analyse →</Link>
+            <div className="card-header">
+              <span className="card-title">Recente analyses</span>
+              <Link href="/analyse" className="card-link">Nieuwe analyse →</Link>
             </div>
             {!analyses?.length ? (
               <div className="empty-state">
@@ -80,20 +79,19 @@ export default async function DashboardPage() {
               <div key={a.id} className="list-row">
                 <div className="min-w-0">
                   <p className="list-main truncate">{a.job_title || 'Onbekende rol'}</p>
-                  <p className="list-sub">{a.company || ''}{a.company ? ' · ' : ''}{new Date(a.created_at).toLocaleDateString('nl-NL')}</p>
+                  <p className="list-sub">{a.company ? `${a.company} · ` : ''}{new Date(a.created_at).toLocaleDateString('nl-NL')}</p>
                 </div>
-                <span className={`list-score ${scoreClass(a.score ?? 0)}`}>{a.score ?? 0}/100</span>
+                <span className={scoreClass(a.score ?? 0)}>{a.score ?? 0}/100</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Applications */}
         <div className="card">
           <div className="card-body">
-            <div className="section-header-row">
-              <h2>Recente sollicitaties</h2>
-              <Link href="/dashboard/tracker">Alles bekijken →</Link>
+            <div className="card-header">
+              <span className="card-title">Recente sollicitaties</span>
+              <Link href="/dashboard/tracker" className="card-link">Alles bekijken →</Link>
             </div>
             {!applications?.length ? (
               <div className="empty-state">
