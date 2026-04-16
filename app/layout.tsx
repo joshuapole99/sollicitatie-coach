@@ -12,10 +12,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="nl">
       <head>
         <meta name="google-site-verification" content="ryj8EEkXeSiHPluEDmeKREf6RJj9WhQjFtCgCwgOEDU" />
-        {/* CSS inlined — bypasses Next.js/Tailwind/PostCSS pipeline entirely */}
-        <style dangerouslySetInnerHTML={{ __html: CSS }} />
       </head>
       <body>
+        {/* style in body — avoids Next.js head deduplication stripping it */}
+        <style>{CSS}</style>
         <Nav />
         <main>{children}</main>
         <Footer />
