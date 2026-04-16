@@ -108,6 +108,66 @@ export const T = {
 
     // Footer
     footerPrivacy: 'Privacy', footerTerms: 'Voorwaarden',
+
+    // Dashboard layout
+    dashTabOverview: 'Overzicht', dashTabTracker: 'Tracker', dashTabInterview: 'Interview Prep',
+    dashTabAnalyse: 'CV analyseren', dashLogout: 'Uitloggen',
+
+    // Dashboard home
+    dashWelcome: (name: string) => `Welkom terug, ${name} 👋`,
+    dashSub: 'Hier is een overzicht van je sollicitatieactiviteiten.',
+    dashActionAnalyse: 'CV analyseren', dashActionTracker: 'Sollicitatie toevoegen',
+    dashActionInterview: 'Interview prep', dashActionUpgrade: 'Upgrade plan',
+    dashStatAnalyses: 'Analyses gedaan', dashStatApps: 'Sollicitaties bijgehouden',
+    dashStatInterviews: 'Gesprekken / aanbiedingen',
+    dashRecentAnalyses: 'Recente analyses', dashNewAnalysis: 'Nieuwe analyse →',
+    dashEmptyAnalyses: 'Nog geen analyses opgeslagen.', dashFirstAnalysis: 'Start eerste analyse',
+    dashUnknownRole: 'Onbekende rol',
+    dashRecentApps: 'Recente sollicitaties', dashViewAll: 'Alles bekijken →',
+    dashEmptyApps: 'Nog geen sollicitaties bijgehouden.', dashFirstApp: 'Eerste toevoegen',
+
+    // Tracker
+    trackerTitle: 'Sollicitatie Tracker', trackerSub: 'Houd al je sollicitaties bij op één plek.',
+    trackerAdd: '+ Toevoegen', trackerAll: 'Alles',
+    trackerStatusApplied: 'Gesolliciteerd', trackerStatusInterview: 'Gesprek',
+    trackerStatusOffer: 'Aanbod', trackerStatusRejected: 'Afgewezen',
+    trackerFormNew: 'Nieuwe sollicitatie', trackerFormEdit: 'Bewerken',
+    trackerLabelCompany: 'Bedrijf *', trackerPlaceholderCompany: 'bijv. ASML',
+    trackerLabelRole: 'Functie *', trackerPlaceholderRole: 'bijv. Software Engineer',
+    trackerLabelStatus: 'Status', trackerLabelDate: 'Datum gesolliciteerd',
+    trackerLabelNotes: 'Notities', trackerPlaceholderNotes: 'Contactpersoon, recruiter, volgende stap...',
+    trackerSave: 'Opslaan', trackerSaving: 'Opslaan...', trackerCancel: 'Annuleren',
+    trackerDeleteConfirm: 'Sollicitatie verwijderen?',
+    trackerEmptyAll: 'Nog geen sollicitaties.', trackerEmptyFiltered: 'Geen sollicitaties met deze status.',
+    trackerFirstAdd: 'Eerste toevoegen',
+    trackerColCompany: 'Bedrijf', trackerColRole: 'Functie', trackerColStatus: 'Status',
+    trackerColDate: 'Datum', trackerColNotes: 'Notities',
+    trackerEditBtn: 'Bewerk', trackerDeleteBtn: 'Verwijder',
+
+    // Interview
+    interviewTitle: 'Interview Voorbereiding',
+    interviewSub: 'Genereer veelgestelde vragen voor jouw rol — inclusief sterke antwoorden.',
+    interviewLabelRole: 'Functietitel *',
+    interviewPlaceholderRole: 'bijv. Software Engineer, Marketing Manager, Data Analyst...',
+    interviewLabelContext: 'Extra context', interviewOptional: '(optioneel)',
+    interviewPlaceholderContext: 'bijv. 5 jaar ervaring, bij een scale-up, technisch team, focus op B2B...',
+    interviewGenerate: '🎯  Genereer interviewvragen', interviewGenerating: 'Vragen genereren...',
+    interviewError: 'Er is iets misgegaan. Probeer opnieuw.',
+    interviewQuestionsFor: (n: number) => `${n} vragen voor:`,
+    interviewCopyAll: 'Alles kopiëren', interviewAnswerLabel: 'Sterk antwoord', interviewTipLabel: '💡 Pro tip',
+
+    // Blog
+    blogTitle: 'Sollicitatie Tips & Advies',
+    blogSub: 'Praktisch advies voor een beter CV, sterkere motivatiebrief en meer interviews.',
+    blogRead: 'lezen', blogReadMore: 'Lees meer →',
+    blogCtaTitle: 'Pas de tips direct toe',
+    blogCtaSub: 'Analyseer je CV op een vacature en ontvang gepersonaliseerde feedback in 30 seconden.',
+    blogCtaBtn: 'Start gratis analyse →',
+    blogBack: '← Terug naar blog',
+    blogPostCtaTitle: 'Pas deze tips direct toe',
+    blogPostCtaSub: 'Analyseer je CV op een vacature en ontvang gepersonaliseerde feedback in 30 seconden.',
+    blogPostCtaBtn: 'Start gratis analyse →',
+    blogOtherPosts: 'Andere artikelen',
   },
 
   en: {
@@ -217,6 +277,66 @@ export const T = {
 
     // Footer
     footerPrivacy: 'Privacy', footerTerms: 'Terms',
+
+    // Dashboard layout
+    dashTabOverview: 'Overview', dashTabTracker: 'Tracker', dashTabInterview: 'Interview Prep',
+    dashTabAnalyse: 'Analyse CV', dashLogout: 'Log out',
+
+    // Dashboard home
+    dashWelcome: (name: string) => `Welcome back, ${name} 👋`,
+    dashSub: 'Here is an overview of your job search activity.',
+    dashActionAnalyse: 'Analyse CV', dashActionTracker: 'Add application',
+    dashActionInterview: 'Interview prep', dashActionUpgrade: 'Upgrade plan',
+    dashStatAnalyses: 'Analyses done', dashStatApps: 'Applications tracked',
+    dashStatInterviews: 'Interviews / offers',
+    dashRecentAnalyses: 'Recent analyses', dashNewAnalysis: 'New analysis →',
+    dashEmptyAnalyses: 'No analyses saved yet.', dashFirstAnalysis: 'Start first analysis',
+    dashUnknownRole: 'Unknown role',
+    dashRecentApps: 'Recent applications', dashViewAll: 'View all →',
+    dashEmptyApps: 'No applications tracked yet.', dashFirstApp: 'Add first one',
+
+    // Tracker
+    trackerTitle: 'Application Tracker', trackerSub: 'Track all your applications in one place.',
+    trackerAdd: '+ Add', trackerAll: 'All',
+    trackerStatusApplied: 'Applied', trackerStatusInterview: 'Interview',
+    trackerStatusOffer: 'Offer', trackerStatusRejected: 'Rejected',
+    trackerFormNew: 'New application', trackerFormEdit: 'Edit',
+    trackerLabelCompany: 'Company *', trackerPlaceholderCompany: 'e.g. Google',
+    trackerLabelRole: 'Role *', trackerPlaceholderRole: 'e.g. Software Engineer',
+    trackerLabelStatus: 'Status', trackerLabelDate: 'Date applied',
+    trackerLabelNotes: 'Notes', trackerPlaceholderNotes: 'Contact, recruiter, next step...',
+    trackerSave: 'Save', trackerSaving: 'Saving...', trackerCancel: 'Cancel',
+    trackerDeleteConfirm: 'Delete this application?',
+    trackerEmptyAll: 'No applications yet.', trackerEmptyFiltered: 'No applications with this status.',
+    trackerFirstAdd: 'Add first one',
+    trackerColCompany: 'Company', trackerColRole: 'Role', trackerColStatus: 'Status',
+    trackerColDate: 'Date', trackerColNotes: 'Notes',
+    trackerEditBtn: 'Edit', trackerDeleteBtn: 'Delete',
+
+    // Interview
+    interviewTitle: 'Interview Preparation',
+    interviewSub: 'Generate common questions for your role — including strong answers.',
+    interviewLabelRole: 'Job title *',
+    interviewPlaceholderRole: 'e.g. Software Engineer, Marketing Manager, Data Analyst...',
+    interviewLabelContext: 'Extra context', interviewOptional: '(optional)',
+    interviewPlaceholderContext: 'e.g. 5 years experience, scale-up, technical team, B2B focus...',
+    interviewGenerate: '🎯  Generate interview questions', interviewGenerating: 'Generating questions...',
+    interviewError: 'Something went wrong. Please try again.',
+    interviewQuestionsFor: (n: number) => `${n} questions for:`,
+    interviewCopyAll: 'Copy all', interviewAnswerLabel: 'Strong answer', interviewTipLabel: '💡 Pro tip',
+
+    // Blog
+    blogTitle: 'Job Search Tips & Advice',
+    blogSub: 'Practical advice for a better CV, stronger cover letter and more interviews.',
+    blogRead: 'read', blogReadMore: 'Read more →',
+    blogCtaTitle: 'Apply these tips right now',
+    blogCtaSub: 'Analyse your CV against a job posting and get personalised feedback in 30 seconds.',
+    blogCtaBtn: 'Start free analysis →',
+    blogBack: '← Back to blog',
+    blogPostCtaTitle: 'Apply these tips right now',
+    blogPostCtaSub: 'Analyse your CV against a job posting and get personalised feedback in 30 seconds.',
+    blogPostCtaBtn: 'Start free analysis →',
+    blogOtherPosts: 'Other articles',
   },
 } as const;
 

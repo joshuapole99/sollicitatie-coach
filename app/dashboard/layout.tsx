@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import DashboardNav from '@/components/DashboardNav';
 
 async function getUser() {
   try {
@@ -21,23 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="db-wrap">
-      <div className="db-bar">
-        <div className="db-bar-inner">
-          <Link href="/dashboard"           className="db-tab">Overzicht</Link>
-          <Link href="/dashboard/tracker"   className="db-tab">Tracker</Link>
-          <Link href="/dashboard/interview" className="db-tab">Interview Prep</Link>
-          <Link href="/analyse"             className="db-tab">CV analyseren</Link>
-          <div className="db-user">
-            <span className="sm-hide" style={{ fontSize: 12, color: 'var(--text-3)' }}>{email}</span>
-            <div className="db-avatar">{initial}</div>
-            <form action="/api/auth/signout" method="POST">
-              <button type="submit" style={{ background: 'none', border: 'none', fontSize: 12, color: 'var(--text-3)', cursor: 'pointer', padding: '4px 8px' }}>
-                Uitloggen
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
+      <DashboardNav email={email} initial={initial} />
       <div className="db-content">{children}</div>
     </div>
   );

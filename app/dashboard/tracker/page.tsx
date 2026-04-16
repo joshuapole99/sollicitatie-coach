@@ -1,20 +1,27 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useLanguage } from '@/components/LanguageProvider';
+import { T } from '@/lib/i18n';
 
 type Status = 'applied' | 'interview' | 'offer' | 'rejected';
 interface App { id: string; company: string; role: string; status: Status; notes: string; applied_at: string; }
 
-const STATUSES = [
-  { v: 'applied',   l: 'Gesolliciteerd', cls: 'status-applied'   },
-  { v: 'interview', l: 'Gesprek',        cls: 'status-interview' },
-  { v: 'offer',     l: 'Aanbod',         cls: 'status-offer'     },
-  { v: 'rejected',  l: 'Afgewezen',      cls: 'status-rejected'  },
-] as const;
-
 const EMPTY = { company: '', role: '', status: 'applied' as Status, notes: '', applied_at: new Date().toISOString().split('T')[0] };
 
 export default function TrackerPage() {
+  const { lang } = useLanguage();
+  const t = T[lang];
+
+  const STATUSES = [
+    { v: 'applied'   as Status, l: t.trackerStatusApplied,   cls: 'status-applied'   },
+    { v: 'interview' as Status, l: t.trackerStatusInterview,  cls: 'status-interview' },
+    { v: 'offer'     as Status, l: t.trackerStatusOffer,      cls: 'status-offer'     },
+    { v: 'rejected'  as Status, l: t.trackerStatusRejected,   cls: 'status-rejected'  },
+  ];
+
+  const locale = lang === 'nl' ? 'nl-NL' : 'en-GB';
+
   const [apps,     setApps]     = useState<App[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -48,7 +55,7 @@ export default function TrackerPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Sollicitatie verwijderen?')) return;
+    if (!confirm(t.trackerDeleteConfirm)) return;
     await fetch('/api/tracker', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
     load();
   }
@@ -57,71 +64,68 @@ export default function TrackerPage() {
 
   return (
     <>
-      <div className="db-page-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
         <div>
-          <h1>Sollicitatie Tracker</h1>
-          <p>Houd al je sollicitaties bij op één plek.</p>
+          <h1 className="db-page-title">{t.trackerTitle}</h1>
+          <p className="db-page-sub">{t.trackerSub}</p>
         </div>
-        <button onClick={openNew} className="btn btn-primary">+ Toevoegen</button>
+        <button onClick={openNew} className="btn btn-primary">{t.trackerAdd}</button>
       </div>
 
-      {/* Filters */}
       <div className="filter-row">
         <button className={`filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>
-          Alles <span style={{ opacity: .6 }}>{apps.length}</span>
+          {t.trackerAll} <span style={{ opacity: .6 }}>{apps.length}</span>
         </button>
         {STATUSES.map(s => (
-          <button key={s.v} className={`filter-btn ${filter === s.v ? 'active' : ''}`} onClick={() => setFilter(s.v as Status)}>
+          <button key={s.v} className={`filter-btn ${filter === s.v ? 'active' : ''}`} onClick={() => setFilter(s.v)}>
             {s.l} <span style={{ opacity: .6 }}>{apps.filter(a => a.status === s.v).length}</span>
           </button>
         ))}
       </div>
 
-      {/* Form */}
       {showForm && (
         <div className="form-panel">
-          <h3>{editId ? 'Bewerken' : 'Nieuwe sollicitatie'}</h3>
+          <h3>{editId ? t.trackerFormEdit : t.trackerFormNew}</h3>
           <div className="form-grid">
             <div>
-              <label className="label">Bedrijf *</label>
-              <input className="input" placeholder="bijv. ASML" value={form.company} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} />
+              <label className="label">{t.trackerLabelCompany}</label>
+              <input className="input" placeholder={t.trackerPlaceholderCompany} value={form.company} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} />
             </div>
             <div>
-              <label className="label">Functie *</label>
-              <input className="input" placeholder="bijv. Software Engineer" value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))} />
+              <label className="label">{t.trackerLabelRole}</label>
+              <input className="input" placeholder={t.trackerPlaceholderRole} value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))} />
             </div>
             <div>
-              <label className="label">Status</label>
+              <label className="label">{t.trackerLabelStatus}</label>
               <select className="input" value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value as Status }))}>
                 {STATUSES.map(s => <option key={s.v} value={s.v}>{s.l}</option>)}
               </select>
             </div>
             <div>
-              <label className="label">Datum gesolliciteerd</label>
+              <label className="label">{t.trackerLabelDate}</label>
               <input type="date" className="input" value={form.applied_at} onChange={e => setForm(p => ({ ...p, applied_at: e.target.value }))} />
             </div>
           </div>
           <div style={{ marginBottom: 14 }}>
-            <label className="label">Notities</label>
-            <textarea className="input" rows={2} placeholder="Contactpersoon, recruiter, volgende stap..." value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} />
+            <label className="label">{t.trackerLabelNotes}</label>
+            <textarea className="input" rows={2} placeholder={t.trackerPlaceholderNotes} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} />
           </div>
           <div className="form-actions">
             <button onClick={handleSave} disabled={saving || !form.company || !form.role} className="btn btn-primary btn-sm">
-              {saving ? 'Opslaan...' : editId ? 'Opslaan' : 'Toevoegen'}
+              {saving ? t.trackerSaving : t.trackerSave}
             </button>
-            <button onClick={() => setShowForm(false)} className="btn btn-secondary btn-sm">Annuleren</button>
+            <button onClick={() => setShowForm(false)} className="btn btn-secondary btn-sm">{t.trackerCancel}</button>
           </div>
         </div>
       )}
 
-      {/* Table */}
       {loading ? (
         <div className="loading-box"><div className="spinner" /></div>
       ) : filtered.length === 0 ? (
         <div className="card">
           <div className="empty-state">
-            <p>{filter === 'all' ? 'Nog geen sollicitaties.' : 'Geen sollicitaties met deze status.'}</p>
-            {filter === 'all' && <button onClick={openNew} className="btn btn-primary btn-sm">Eerste toevoegen</button>}
+            <p>{filter === 'all' ? t.trackerEmptyAll : t.trackerEmptyFiltered}</p>
+            {filter === 'all' && <button onClick={openNew} className="btn btn-primary btn-sm">{t.trackerFirstAdd}</button>}
           </div>
         </div>
       ) : (
@@ -129,8 +133,8 @@ export default function TrackerPage() {
           <table>
             <thead>
               <tr>
-                <th>Bedrijf</th><th>Functie</th><th>Status</th>
-                <th>Datum</th><th>Notities</th><th></th>
+                <th>{t.trackerColCompany}</th><th>{t.trackerColRole}</th><th>{t.trackerColStatus}</th>
+                <th>{t.trackerColDate}</th><th>{t.trackerColNotes}</th><th></th>
               </tr>
             </thead>
             <tbody>
@@ -139,14 +143,14 @@ export default function TrackerPage() {
                 return (
                   <tr key={a.id}>
                     <td className="td-main">{a.company}</td>
-                    <td style={{ color: 'var(--text-2)', fontSize: 14 }}>{a.role}</td>
+                    <td style={{ fontSize: 14 }}>{a.role}</td>
                     <td><span className={s?.cls}>{s?.l}</span></td>
-                    <td className="td-sub">{a.applied_at ? new Date(a.applied_at).toLocaleDateString('nl-NL') : '—'}</td>
-                    <td className="td-notes">{a.notes || '—'}</td>
-                    <td className="td-actions">
-                      <button onClick={() => openEdit(a)} className="action-edit">Bewerk</button>
+                    <td>{a.applied_at ? new Date(a.applied_at).toLocaleDateString(locale) : '—'}</td>
+                    <td>{a.notes || '—'}</td>
+                    <td>
+                      <button onClick={() => openEdit(a)} className="action-edit">{t.trackerEditBtn}</button>
                       {' '}
-                      <button onClick={() => handleDelete(a.id)} className="action-del">Verwijder</button>
+                      <button onClick={() => handleDelete(a.id)} className="action-del">{t.trackerDeleteBtn}</button>
                     </td>
                   </tr>
                 );
