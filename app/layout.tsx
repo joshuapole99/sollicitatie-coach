@@ -6,6 +6,10 @@ import { LanguageProvider } from '@/components/LanguageProvider';
 export const metadata: Metadata = {
   title: 'Sollicitatie Coach — AI CV Analyse & Motivatiebrief',
   description: 'Schrijf in 30 seconden een professionele motivatiebrief op maat.',
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -13,6 +17,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="nl">
       <head>
         <meta name="google-site-verification" content="ryj8EEkXeSiHPluEDmeKREf6RJj9WhQjFtCgCwgOEDU" />
+        <link rel="alternate" hrefLang="nl" href="https://sollicitatie-coach.vercel.app/" />
+        <link rel="alternate" hrefLang="en" href="https://sollicitatie-coach.vercel.app/" />
+        <link rel="alternate" hrefLang="x-default" href="https://sollicitatie-coach.vercel.app/" />
       </head>
       <body>
         <style>{CSS}</style>
