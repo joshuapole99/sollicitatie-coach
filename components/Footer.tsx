@@ -8,8 +8,8 @@ export default function Footer() {
         <div className="footer-links">
           <Link href="/blog">Blog</Link>
           <Link href="/pricing">Prijzen</Link>
-          <Link href="/privacy.html">Privacy</Link>
-          <Link href="/terms.html">Voorwaarden</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Voorwaarden</Link>
         </div>
         <span style={{ fontSize: 13, color: '#475569' }}>© 2026</span>
       </div>
