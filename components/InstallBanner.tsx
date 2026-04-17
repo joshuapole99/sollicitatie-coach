@@ -13,6 +13,9 @@ export default function InstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
     // Don't show if already running as installed app
     if (window.matchMedia('(display-mode: standalone)').matches) return;
     // Don't show if dismissed recently
