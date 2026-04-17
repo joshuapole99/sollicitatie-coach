@@ -8,9 +8,9 @@ export const T = {
 
     // Hero
     heroBadge: 'Gratis proberen — geen account nodig',
-    heroTitle1: 'Schrijf je motivatiebrief', heroTitle2: 'in 30 seconden',
-    heroSub: 'Plak je CV en vacature. AI analyseert de match, geeft verbeterpunten en schrijft een professionele brief die aansluit op de specifieke vacature.',
-    heroCta: 'Start gratis →', heroCtaSec: 'Bekijk prijzen',
+    heroTitle1: 'Je stuurt sollicitaties.', heroTitle2: 'Niemand reageert.',
+    heroSub: 'Plak je CV. Zie in 30 seconden wat er mist — en ontvang een motivatiebrief die wél werkt.',
+    heroCta: 'Ontdek wat ontbreekt →', heroCtaSec: 'Bekijk prijzen',
     heroN1: '3 analyses gratis', heroN2: 'Geen creditcard', heroN3: 'Direct resultaat',
     heroStat1: 'Analyses uitgevoerd', heroStat2: 'Gemiddelde tijd', heroStat3: 'Gemiddelde beoordeling',
 
@@ -22,8 +22,8 @@ export const T = {
     step3T: 'Ontvang je analyse', step3D: 'Match score, verbeterpunten, keywords én een complete motivatiebrief op maat.',
 
     // Features
-    featLabel: 'Wat je krijgt', featTitle: 'Alles in één tool',
-    featSub: 'Gebouwd voor mensen die betere sollicitaties willen met minder moeite.',
+    featLabel: 'Wat je krijgt', featTitle: 'Alles wat je nodig hebt voor je volgende gesprek',
+    featSub: 'Zodat je niet méér sollicitaties hoeft te sturen — maar betere.',
     feat1T: 'CV Match Score', feat1D: 'Zie direct hoe goed je CV aansluit op de vacature. Score van 0–100 met concrete verbeterpunten.',
     feat2T: 'Keyword Analyse', feat2D: 'Ontdek welke termen uit de vacature ontbreken in je CV. Vergroot je kansen bij ATS-systemen.',
     feat3T: 'Motivatiebrief op Maat', feat3D: 'Een volledige, professionele motivatiebrief die aansluit op de specifieke vacature. Niet een sjabloon.',
@@ -39,9 +39,9 @@ export const T = {
     priceLabel: 'Prijzen', priceTitle: 'Begin gratis. Upgrade wanneer je klaar bent.',
     priceSub: 'Geen creditcard nodig. Maandelijks opzegbaar.',
     planFree: 'Gratis', planFreeSub: 'voor altijd', planFreeDesc: 'Probeer de tool zonder verplichting.',
-    planPlus: 'Plus', planPlusSub: 'per maand', planPlusDesc: 'Voor mensen die actief solliciteren.',
+    planPlus: 'Plus', planPlusSub: 'per maand', planPlusDesc: 'Voor wie serieus zoekt en snel resultaat wil.',
     planPlusPopular: '⚡ Meest gekozen',
-    planPro: 'Pro', planProSub: 'per maand', planProDesc: 'Voor serieuze sollicitanten.',
+    planPro: 'Pro', planProSub: 'per maand', planProDesc: 'Voor wie maximale kansen wil bij elke sollicitatie.',
     planCtaFree: 'Gratis starten →', planCtaPlus: 'Plus starten →', planCtaPro: 'Pro starten →',
     featFreeItems: ['3 analyses (eenmalig)', 'Match score + uitleg', 'Keyword analyse', 'CV verbeterpunten'],
     featPlusItems: ['10 analyses per maand', 'Alles in Gratis', 'Motivatiebrief op maat', 'Dashboard & analyse historie', 'Sollicitatie tracker', 'Interview voorbereiding'],
@@ -58,9 +58,9 @@ export const T = {
     ],
 
     // CTA
-    ctaTitle: 'Klaar voor een betere motivatiebrief?',
+    ctaTitle: 'Klaar om eindelijk uitgenodigd te worden?',
     ctaSub: 'Gratis proberen — geen account nodig — in 30 seconden klaar.',
-    ctaBtn: 'Start gratis analyse →',
+    ctaBtn: 'Ontdek wat ontbreekt →',
     ctaNote: '3 analyses gratis · Geen creditcard',
 
     // Analyse page
@@ -183,9 +183,9 @@ export const T = {
 
     // Hero
     heroBadge: 'Try for free — no account needed',
-    heroTitle1: 'Write your cover letter', heroTitle2: 'in 30 seconds',
-    heroSub: 'Paste your CV and job posting. AI analyses the match, gives improvement tips and writes a professional cover letter tailored to the specific role.',
-    heroCta: 'Start for free →', heroCtaSec: 'View pricing',
+    heroTitle1: 'You send applications.', heroTitle2: 'Nobody replies.',
+    heroSub: 'Paste your CV. See in 30 seconds what\'s missing — and get a cover letter that actually works.',
+    heroCta: 'Find out what\'s missing →', heroCtaSec: 'View pricing',
     heroN1: '3 free analyses', heroN2: 'No credit card', heroN3: 'Instant results',
     heroStat1: 'Analyses completed', heroStat2: 'Average time', heroStat3: 'Average rating',
 
@@ -197,8 +197,8 @@ export const T = {
     step3T: 'Get your results', step3D: 'Match score, improvements, missing keywords and a complete tailored cover letter.',
 
     // Features
-    featLabel: 'What you get', featTitle: 'Everything in one tool',
-    featSub: 'Built for job seekers who want better results with less effort.',
+    featLabel: 'What you get', featTitle: 'Everything you need for your next interview',
+    featSub: 'So you don\'t need to send more applications — just better ones.',
     feat1T: 'CV Match Score', feat1D: 'See instantly how well your CV matches the job posting. Score from 0–100 with concrete improvement tips.',
     feat2T: 'Keyword Analysis', feat2D: 'Discover which keywords are missing from your CV. Boost your chances with ATS systems.',
     feat3T: 'Tailored Cover Letter', feat3D: 'A complete, professional cover letter perfectly aligned with the specific job. Not a template.',
@@ -214,9 +214,9 @@ export const T = {
     priceLabel: 'Pricing', priceTitle: 'Start free. Upgrade when ready.',
     priceSub: 'No credit card required. Cancel anytime.',
     planFree: 'Free', planFreeSub: 'forever', planFreeDesc: 'Try the tool with no commitment.',
-    planPlus: 'Plus', planPlusSub: 'per month', planPlusDesc: 'For active job seekers.',
+    planPlus: 'Plus', planPlusSub: 'per month', planPlusDesc: 'For those who want results fast.',
     planPlusPopular: '⚡ Most popular',
-    planPro: 'Pro', planProSub: 'per month', planProDesc: 'For serious job seekers.',
+    planPro: 'Pro', planProSub: 'per month', planProDesc: 'For maximum chances on every application.',
     planCtaFree: 'Start for free →', planCtaPlus: 'Start Plus →', planCtaPro: 'Start Pro →',
     featFreeItems: ['3 analyses (one-time)', 'Match score + explanation', 'Keyword analysis', 'CV improvement tips'],
     featPlusItems: ['10 analyses per month', 'Everything in Free', 'Tailored cover letter', 'Dashboard & history', 'Application tracker', 'Interview preparation'],
@@ -233,9 +233,9 @@ export const T = {
     ],
 
     // CTA
-    ctaTitle: 'Ready to write a better cover letter?',
+    ctaTitle: 'Ready to finally get invited?',
     ctaSub: 'Try for free — no account needed — ready in 30 seconds.',
-    ctaBtn: 'Start free analysis →',
+    ctaBtn: 'Find out what\'s missing →',
     ctaNote: '3 analyses free · No credit card',
 
     // Analyse page
