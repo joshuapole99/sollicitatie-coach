@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
     const sessionId = (req.headers.get('x-session-id') || '').trim() || null;
     const { tier, config, source } = await resolveTier(sessionId);
 
-    console.log(`[analyse] sid=${sessionId?.slice(0, 10) || 'NONE'} tier=${tier} source=${source}`);
+    console.log(`[analyse-v4] sid=${sessionId?.slice(0, 10) || 'NONE'} tier=${tier} source=${source}`);
 
     // Free tier: return scripted response — no Claude API cost
     if (tier === 'free') {
