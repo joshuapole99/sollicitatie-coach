@@ -17,17 +17,17 @@ export const T = {
     // How it works
     howLabel: 'Hoe het werkt', howTitle: 'Drie stappen. Dertig seconden.',
     howSub: 'Geen sjablonen. Geen gedoe. Plak en ontvang direct resultaat.',
-    step1T: 'Plak je CV', step1D: 'Kopieer de tekst van je CV — werkervaring, opleiding en vaardigheden.',
-    step2T: 'Plak de vacature', step2D: 'Voeg de volledige vacaturetekst toe inclusief functie-eisen.',
-    step3T: 'Ontvang je analyse', step3D: 'Match score, verbeterpunten, keywords én een complete motivatiebrief op maat.',
+    step1T: 'Plak je CV', step1D: 'Kopieer de tekst van je CV in het tekstveld — werkervaring, opleiding, vaardigheden en eventuele certificeringen. Hoe meer detail, hoe nauwkeuriger de analyse.',
+    step2T: 'Plak de vacature', step2D: 'Voeg de volledige vacaturetekst toe, inclusief functie-eisen, gewenste ervaring en bedrijfsomschrijving. De AI leest alles mee.',
+    step3T: 'Ontvang je analyse', step3D: 'Je ontvangt een persoonlijke match score, een overzicht van ontbrekende keywords, concrete verbeterpunten voor je CV én een complete motivatiebrief die aansluit op deze specifieke vacature.',
 
     // Features
     featLabel: 'Wat je krijgt', featTitle: 'Alles wat je nodig hebt voor je volgende gesprek',
     featSub: 'Zodat je niet méér sollicitaties hoeft te sturen — maar betere.',
-    feat1T: 'CV Match Score', feat1D: 'Zie direct hoe goed je CV aansluit op de vacature. Score van 0–100 met concrete verbeterpunten.',
-    feat2T: 'Keyword Analyse', feat2D: 'Ontdek welke termen uit de vacature ontbreken in je CV. Vergroot je kansen bij ATS-systemen.',
-    feat3T: 'Motivatiebrief op Maat', feat3D: 'Een volledige, professionele motivatiebrief die aansluit op de specifieke vacature. Niet een sjabloon.',
-    feat4T: 'Sollicitatie Tracker', feat4D: 'Houd alle sollicitaties bij op één plek. Status, notities en datums overzichtelijk in je dashboard.',
+    feat1T: 'CV Match Score', feat1D: 'Zie direct hoe goed je CV aansluit op de vacature. Je ontvangt een score van 0 tot 100, met een duidelijke uitleg waarom je hoog of laag scoort en wat je kunt verbeteren.',
+    feat2T: 'Keyword Analyse', feat2D: 'Veel bedrijven gebruiken ATS-software die CV\'s automatisch filtert op keywords. Onze analyse toont precies welke termen uit de vacature ontbreken in jouw CV — zodat je niet onterecht wordt afgewezen.',
+    feat3T: 'Motivatiebrief op Maat', feat3D: 'Geen sjabloon, maar een volledige motivatiebrief geschreven op basis van jouw CV én de specifieke vacature. Professioneel, persoonlijk en klaar om te versturen.',
+    feat4T: 'Sollicitatie Tracker', feat4D: 'Houd al je sollicitaties bij op één overzichtelijke plek. Noteer de status, contactpersoon en volgende stap — zodat je nooit een kans mist.',
 
     // Testimonials
     revLabel: 'Gebruikerservaringen', revTitle: 'Wat mensen zeggen',
@@ -192,17 +192,17 @@ export const T = {
     // How it works
     howLabel: 'How it works', howTitle: 'Three steps. Thirty seconds.',
     howSub: 'No templates. No hassle. Just paste and get instant results.',
-    step1T: 'Paste your CV', step1D: 'Copy the text from your CV — work experience, education and skills.',
-    step2T: 'Paste the job posting', step2D: 'Add the full job posting including requirements and responsibilities.',
-    step3T: 'Get your results', step3D: 'Match score, improvements, missing keywords and a complete tailored cover letter.',
+    step1T: 'Paste your CV', step1D: 'Copy your CV text into the field — work experience, education, skills and any certifications. The more detail you include, the more accurate the analysis.',
+    step2T: 'Paste the job posting', step2D: 'Add the full job posting including requirements, desired experience and company description. The AI reads everything.',
+    step3T: 'Get your results', step3D: 'You receive a personal match score, a breakdown of missing keywords, concrete CV improvement tips and a complete cover letter tailored to this specific job.',
 
     // Features
     featLabel: 'What you get', featTitle: 'Everything you need for your next interview',
     featSub: 'So you don\'t need to send more applications — just better ones.',
-    feat1T: 'CV Match Score', feat1D: 'See instantly how well your CV matches the job posting. Score from 0–100 with concrete improvement tips.',
-    feat2T: 'Keyword Analysis', feat2D: 'Discover which keywords are missing from your CV. Boost your chances with ATS systems.',
-    feat3T: 'Tailored Cover Letter', feat3D: 'A complete, professional cover letter perfectly aligned with the specific job. Not a template.',
-    feat4T: 'Application Tracker', feat4D: 'Keep track of all your applications in one place. Status, notes and dates in your personal dashboard.',
+    feat1T: 'CV Match Score', feat1D: 'See exactly how well your CV matches the job posting. You get a score from 0 to 100, with a clear explanation of why you score high or low and what to improve.',
+    feat2T: 'Keyword Analysis', feat2D: 'Most companies use ATS software that automatically filters CVs by keywords. Our analysis shows exactly which terms from the job posting are missing from your CV — so you don\'t get rejected unfairly.',
+    feat3T: 'Tailored Cover Letter', feat3D: 'Not a template — a full cover letter written based on your specific CV and the specific job posting. Professional, personal and ready to send.',
+    feat4T: 'Application Tracker', feat4D: 'Keep all your applications organised in one clear overview. Track status, contact person and next steps — so you never miss an opportunity.',
 
     // Testimonials
     revLabel: 'User experiences', revTitle: 'What people say',

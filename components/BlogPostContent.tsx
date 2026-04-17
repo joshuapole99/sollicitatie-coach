@@ -22,6 +22,11 @@ export default function BlogPostContent({ post }: { post: BlogPost }) {
   const t = T[lang];
   const locale = lang === 'nl' ? 'nl-NL' : 'en-GB';
 
+  const title = (lang === 'en' && post.titleEn) ? post.titleEn : post.title;
+  const description = (lang === 'en' && post.descriptionEn) ? post.descriptionEn : post.description;
+  const readTime = (lang === 'en' && post.readTimeEn) ? post.readTimeEn : post.readTime;
+  const content = (lang === 'en' && post.contentEn) ? post.contentEn : post.content;
+
   return (
     <div>
       <div style={{ background: 'linear-gradient(135deg,#0f172a 0%,#1e3a8a 60%,#312e81 100%)', padding: '56px 24px 48px' }}>
@@ -30,17 +35,17 @@ export default function BlogPostContent({ post }: { post: BlogPost }) {
             {t.blogBack}
           </Link>
           <p style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>
-            {new Date(post.date).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })} · {post.readTime} {t.blogRead}
+            {new Date(post.date).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })} · {readTime} {t.blogRead}
           </p>
           <h1 style={{ fontSize: 'clamp(1.7rem,3vw,2.3rem)', fontWeight: 900, color: '#fff', letterSpacing: '-.04em', lineHeight: 1.1, marginBottom: 16 }}>
-            {post.title}
+            {title}
           </h1>
-          <p style={{ fontSize: 16, color: '#94a3b8', lineHeight: 1.65 }}>{post.description}</p>
+          <p style={{ fontSize: 16, color: '#94a3b8', lineHeight: 1.65 }}>{description}</p>
         </div>
       </div>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '48px 24px 80px' }}>
-        <div dangerouslySetInnerHTML={{ __html: renderMd(post.content) }} />
+        <div dangerouslySetInnerHTML={{ __html: renderMd(content) }} />
 
         <div style={{ marginTop: 56, background: 'linear-gradient(135deg,#eff6ff,#eef2ff)', border: '1px solid #c7d2fe', borderRadius: 20, padding: '40px 32px', textAlign: 'center' }}>
           <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0f172a', marginBottom: 10 }}>{t.blogPostCtaTitle}</h3>

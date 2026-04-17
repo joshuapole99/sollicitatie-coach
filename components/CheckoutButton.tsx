@@ -7,7 +7,9 @@ export default function CheckoutButton({ plan, label, highlight }: { plan: strin
       sid = crypto.randomUUID();
       localStorage.setItem('sol_session_id', sid);
     }
-    window.location.href = `/api/checkout?plan=${plan}&sessionId=${encodeURIComponent(sid)}`;
+    const utmRaw = localStorage.getItem('sol_utm');
+    const utm = utmRaw ? `&utm=${encodeURIComponent(utmRaw)}` : '';
+    window.location.href = `/api/checkout?plan=${plan}&sessionId=${encodeURIComponent(sid)}${utm}`;
   }
 
   return (

@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import { LanguageProvider } from '@/components/LanguageProvider';
 import InstallBanner from '@/components/InstallBanner';
+import UtmCapture from '@/components/UtmCapture';
 
 export const metadata: Metadata = {
   title: 'Sollicitatie Coach — AI CV Analyse & Motivatiebrief',
@@ -31,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <style>{CSS}</style>
         <LanguageProvider>
+          <Suspense fallback={null}><UtmCapture /></Suspense>
           <Nav />
           <main>{children}</main>
           <Footer />

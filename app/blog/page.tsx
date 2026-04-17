@@ -32,6 +32,9 @@ export default function BlogPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {blogPosts.map((post, i) => {
             const c = colors[i % colors.length];
+            const title = (lang === 'en' && post.titleEn) ? post.titleEn : post.title;
+            const description = (lang === 'en' && post.descriptionEn) ? post.descriptionEn : post.description;
+            const readTime = (lang === 'en' && post.readTimeEn) ? post.readTimeEn : post.readTime;
             return (
               <Link key={post.slug} href={`/blog/${post.slug}`} style={{ display: 'block', textDecoration: 'none' }}>
                 <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 20, padding: 28, transition: 'all .2s', boxShadow: '0 1px 4px rgba(0,0,0,.06)', cursor: 'pointer', display: 'flex', gap: 24, alignItems: 'flex-start' }}>
@@ -40,12 +43,12 @@ export default function BlogPage() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>
-                      {new Date(post.date).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })} · {post.readTime} {t.blogRead}
+                      {new Date(post.date).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })} · {readTime} {t.blogRead}
                     </p>
                     <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', marginBottom: 8, letterSpacing: '-.02em', lineHeight: 1.3 }}>
-                      {post.title}
+                      {title}
                     </h2>
-                    <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.65, marginBottom: 12 }}>{post.description}</p>
+                    <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.65, marginBottom: 12 }}>{description}</p>
                     <span style={{ fontSize: 13, color: c.accent, fontWeight: 700 }}>{t.blogReadMore}</span>
                   </div>
                 </div>

@@ -118,6 +118,24 @@ export default function AnalysePage() {
     navigator.clipboard.writeText(result.motivatiebrief).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   }
 
+  async function downloadPdf() {
+    if (!result?.motivatiebrief) return;
+    const { jsPDF } = await import('jspdf');
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const margin = 20;
+    const width = doc.internal.pageSize.getWidth() - margin * 2;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    const lines = doc.splitTextToSize(result.motivatiebrief, width);
+    let y = margin;
+    lines.forEach((line: string) => {
+      if (y > 270) { doc.addPage(); y = margin; }
+      doc.text(line, margin, y);
+      y += 6;
+    });
+    doc.save('motivatiebrief.pdf');
+  }
+
   const circ   = 2 * Math.PI * 32;
   const offset = result ? circ * (1 - result.score / 100) : circ;
 
@@ -228,6 +246,11 @@ export default function AnalysePage() {
                 {result.coverLetter && (
                   <button onClick={copyLetter} className="btn btn-ghost btn-sm" style={{ fontSize: 12 }}>
                     {copied ? t.analyseCopied : t.analyseCopy}
+                  </button>
+                )}
+                {result.coverLetter && result.canPdf && (
+                  <button onClick={downloadPdf} className="btn btn-ghost btn-sm" style={{ fontSize: 12 }}>
+                    ↓ PDF
                   </button>
                 )}
                 <span className="result-chev">▼</span>
