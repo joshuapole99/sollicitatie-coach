@@ -1,20 +1,14 @@
-// app/api/analyse/route.ts — v2 (free tier = scripted, paid = Claude)
+// app/api/analyse/route.ts — v3 (free tier = scripted, paid = Claude)
 import { NextRequest, NextResponse } from 'next/server';
 import { resolveTier } from '@/lib/tier';
 import { checkAndEnforce, recordUsage } from '@/lib/usage';
 import { createClient } from '@/lib/supabase/server';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sollicitatie-coach.vercel.app';
-
-function corsHeaders(req: NextRequest) {
-  const origin = req.headers.get('origin') || '';
-  const allowed = [SITE_URL, 'https://sollico.nl', 'https://www.sollico.nl', 'http://localhost:3000'];
-  return {
-    'Access-Control-Allow-Origin': allowed.includes(origin) ? origin : SITE_URL,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, x-session-id',
-  };
-}
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, x-session-id',
+};
 
 // Generic scripted response for free-tier users (no Claude API cost)
 const SCRIPTED_RESPONSE = {
@@ -86,8 +80,8 @@ Geef EXACT dit JSON terug:
 BELANGRIJK: Alleen dit JSON object. Niets anders.`;
 }
 
-export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, { headers: corsHeaders(req) });
+export async function OPTIONS(_req: NextRequest) {
+  return new NextResponse(null, { headers: CORS });
 }
 
 export async function POST(req: NextRequest) {
@@ -113,7 +107,7 @@ export async function POST(req: NextRequest) {
         canPdf: false,
         coverLetter: false,
         usage: { used: 0, remaining: 0, limit: 0 },
-      }, { headers: corsHeaders(req) });
+      }, { headers: CORS });
     }
 
     // Plus / Pro: enforce usage limits then call Claude
@@ -125,11 +119,11 @@ export async function POST(req: NextRequest) {
         error: 'Limiet bereikt',
         message: `Je maandlimiet van ${limit} analyses is bereikt.`,
         tier, usage: { used, remaining: 0, limit },
-      }, { status: 429, headers: corsHeaders(req) });
+      }, { status: 429, headers: CORS });
     }
 
     if (!process.env.ANTHROPIC_API_KEY)
-      return NextResponse.json({ error: 'Serverconfiguratie fout.' }, { status: 500, headers: corsHeaders(req) });
+      return NextResponse.json({ error: 'Serverconfiguratie fout.' }, { status: 500, headers: CORS });
 
     const includeCoverLetter = config.coverLetter;
 
@@ -159,23 +153,23 @@ export async function POST(req: NextRequest) {
     if (!apiResp.ok) {
       const err = await apiResp.json().catch(() => ({}));
       console.error('[analyse] Anthropic error:', (err as any).error?.message);
-      return NextResponse.json({ error: 'AI service niet beschikbaar. Probeer opnieuw.' }, { status: 502, headers: corsHeaders(req) });
+      return NextResponse.json({ error: 'AI service niet beschikbaar. Probeer opnieuw.' }, { status: 502, headers: CORS });
     }
 
     const aiData = await apiResp.json();
     const rawText = aiData.content?.[0]?.text;
-    if (!rawText) return NextResponse.json({ error: 'Lege AI response.' }, { status: 502, headers: corsHeaders(req) });
+    if (!rawText) return NextResponse.json({ error: 'Lege AI response.' }, { status: 502, headers: CORS });
 
     let result: any;
     try { result = extractJSON(rawText); }
     catch (_) {
       console.error('[analyse] JSON parse error:', rawText.slice(0, 300));
-      return NextResponse.json({ error: 'AI response onverwacht formaat. Probeer opnieuw.' }, { status: 502, headers: corsHeaders(req) });
+      return NextResponse.json({ error: 'AI response onverwacht formaat. Probeer opnieuw.' }, { status: 502, headers: CORS });
     }
 
     for (const f of ['score', 'score_uitleg', 'sterke_punten', 'verbeterpunten', 'match_keywords', 'mis_keywords', 'motivatiebrief', 'cv_tips']) {
       if (result[f] === undefined || result[f] === null)
-        return NextResponse.json({ error: `Analyse onvolledig (${f}).` }, { status: 502, headers: corsHeaders(req) });
+        return NextResponse.json({ error: `Analyse onvolledig (${f}).` }, { status: 502, headers: CORS });
     }
 
     result.score = Math.min(100, Math.max(0, parseInt(result.score) || 0));
@@ -209,7 +203,7 @@ export async function POST(req: NextRequest) {
       usage: { used: newCount, remaining: Math.max(0, limit - newCount), limit },
     }, {
       headers: {
-        ...corsHeaders(req),
+        ...CORS,
         'X-RateLimit-Remaining': String(Math.max(0, limit - newCount)),
       },
     });
