@@ -1,23 +1,16 @@
-// app/api/analyse/route.ts
+// app/api/analyse/route.ts — v2 (free tier = scripted, paid = Claude)
 import { NextRequest, NextResponse } from 'next/server';
 import { resolveTier } from '@/lib/tier';
 import { checkAndEnforce, recordUsage } from '@/lib/usage';
 import { createClient } from '@/lib/supabase/server';
 
-const ALLOWED_ORIGINS = [
-  'https://sollicitatie-coach.vercel.app',
-  'https://sollico.nl',
-  'https://www.sollico.nl',
-];
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sollicitatie-coach.vercel.app';
 
 function corsHeaders(req: NextRequest) {
   const origin = req.headers.get('origin') || '';
-  const allowed = process.env.NODE_ENV === 'development'
-    ? [...ALLOWED_ORIGINS, 'http://localhost:3000']
-    : ALLOWED_ORIGINS;
-  const corsOrigin = allowed.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const allowed = [SITE_URL, 'https://sollico.nl', 'https://www.sollico.nl', 'http://localhost:3000'];
   return {
-    'Access-Control-Allow-Origin': corsOrigin,
+    'Access-Control-Allow-Origin': allowed.includes(origin) ? origin : SITE_URL,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, x-session-id',
   };
