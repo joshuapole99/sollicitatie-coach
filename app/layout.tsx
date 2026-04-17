@@ -326,10 +326,10 @@ details[open] .result-chev{transform:rotate(180deg)}
 .bullet-good{padding:10px 14px;background:#f0fdf4;border-left:3px solid #22c55e;border-radius:0 8px 8px 0;font-size:13px;color:#0f172a}
 .bullet-bad{padding:10px 14px;background:#fff1f2;border-left:3px solid #f87171;border-radius:0 8px 8px 0;font-size:13px;color:#0f172a}
 .cover-txt{white-space:pre-wrap;font-size:14px;line-height:1.75;color:#374151}
-.paywall{position:relative}
-.paywall-blur{filter:blur(6px);user-select:none;pointer-events:none;font-size:14px;line-height:1.75;color:#64748b}
-.paywall-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.paywall-box{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.12);max-width:300px}
+.paywall{position:relative;min-height:200px}
+.paywall-blur{filter:blur(6px);user-select:none;pointer-events:none;font-size:14px;line-height:1.75;color:#64748b;min-height:200px}
+.paywall-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.paywall-box{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.12);max-width:300px;width:90%}
 .paywall-box h3{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:6px}
 .paywall-box p{font-size:13px;color:#64748b;margin-bottom:18px}
 .result-actions{display:flex;gap:8px;align-items:center}
