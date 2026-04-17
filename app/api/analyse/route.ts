@@ -1,8 +1,49 @@
-// app/api/analyse/route.ts — Main AI analysis endpoint (ported from api/analyse.js)
+// app/api/analyse/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { resolveTier } from '@/lib/tier';
 import { checkAndEnforce, recordUsage } from '@/lib/usage';
 import { createClient } from '@/lib/supabase/server';
+
+const ALLOWED_ORIGINS = [
+  'https://sollicitatie-coach.vercel.app',
+  'https://sollico.nl',
+  'https://www.sollico.nl',
+];
+
+function corsHeaders(req: NextRequest) {
+  const origin = req.headers.get('origin') || '';
+  const allowed = process.env.NODE_ENV === 'development'
+    ? [...ALLOWED_ORIGINS, 'http://localhost:3000']
+    : ALLOWED_ORIGINS;
+  const corsOrigin = allowed.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': corsOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, x-session-id',
+  };
+}
+
+// Generic scripted response for free-tier users (no Claude API cost)
+const SCRIPTED_RESPONSE = {
+  score: 65,
+  score_uitleg: 'Dit is een voorbeeldanalyse. Upgrade naar Plus of Pro voor jouw persoonlijke match score op basis van jouw specifieke CV en vacature.',
+  sterke_punten: [
+    'Je CV bevat werkervaring die relevant kan zijn voor de functie',
+    'Je opleiding sluit mogelijk aan op de functievereisten',
+    'Upgrade naar Plus voor 3 concrete sterke punten uit jouw CV',
+  ],
+  verbeterpunten: [
+    'Veel CV\'s missen vacature-specifieke keywords — dit verlaagt je ATS-score',
+    'Een op maat gemaakte motivatiebrief verhoogt je kansen significant',
+    'Upgrade naar Plus voor jouw persoonlijke verbeterpunten',
+  ],
+  match_keywords: ['werkervaring', 'opleiding', 'vaardigheden'],
+  mis_keywords: ['upgrade voor jouw specifieke keywords', 'ATS-termen uit vacature', 'functie-specifieke competenties'],
+  motivatiebrief: '',
+  cv_tips: 'Upgrade naar Plus of Pro voor gepersonaliseerde CV-verbeterpunten. Plus-gebruikers ontvangen gemiddeld 4 concrete tips om hun CV te versterken voor deze specifieke vacature.',
+  job_title: null,
+  company: null,
+};
 
 function extractJSON(text: string) {
   let s = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
@@ -52,14 +93,8 @@ Geef EXACT dit JSON terug:
 BELANGRIJK: Alleen dit JSON object. Niets anders.`;
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, x-session-id',
-    },
-  });
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, { headers: corsHeaders(req) });
 }
 
 export async function POST(req: NextRequest) {
@@ -77,25 +112,34 @@ export async function POST(req: NextRequest) {
 
     console.log(`[analyse] sid=${sessionId?.slice(0, 10) || 'NONE'} tier=${tier} source=${source}`);
 
-    const usageKey = sessionId || `anon:${Buffer.from(req.headers.get('x-forwarded-for') || 'unknown').toString('base64').slice(0, 20)}`;
+    // Free tier: return scripted response — no Claude API cost
+    if (tier === 'free') {
+      return NextResponse.json({
+        ...SCRIPTED_RESPONSE,
+        tier: 'free',
+        canPdf: false,
+        coverLetter: false,
+        usage: { used: 0, remaining: 0, limit: 0 },
+      }, { headers: corsHeaders(req) });
+    }
+
+    // Plus / Pro: enforce usage limits then call Claude
+    const usageKey = sessionId!;
     const { allowed, used, remaining, limit } = await checkAndEnforce(usageKey, tier, config);
 
     if (!allowed) {
       return NextResponse.json({
         error: 'Limiet bereikt',
-        message: tier === 'free'
-          ? 'Je hebt je 3 gratis analyses gebruikt. Upgrade voor meer.'
-          : `Je maandlimiet van ${limit} analyses is bereikt.`,
+        message: `Je maandlimiet van ${limit} analyses is bereikt.`,
         tier, usage: { used, remaining: 0, limit },
-      }, { status: 429 });
+      }, { status: 429, headers: corsHeaders(req) });
     }
 
     if (!process.env.ANTHROPIC_API_KEY)
-      return NextResponse.json({ error: 'Serverconfiguratie fout.' }, { status: 500 });
+      return NextResponse.json({ error: 'Serverconfiguratie fout.' }, { status: 500, headers: corsHeaders(req) });
 
     const includeCoverLetter = config.coverLetter;
 
-    // AI call with timeout
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 25000);
     let apiResp: Response;
@@ -122,23 +166,23 @@ export async function POST(req: NextRequest) {
     if (!apiResp.ok) {
       const err = await apiResp.json().catch(() => ({}));
       console.error('[analyse] Anthropic error:', (err as any).error?.message);
-      return NextResponse.json({ error: 'AI service niet beschikbaar. Probeer opnieuw.' }, { status: 502 });
+      return NextResponse.json({ error: 'AI service niet beschikbaar. Probeer opnieuw.' }, { status: 502, headers: corsHeaders(req) });
     }
 
     const aiData = await apiResp.json();
     const rawText = aiData.content?.[0]?.text;
-    if (!rawText) return NextResponse.json({ error: 'Lege AI response.' }, { status: 502 });
+    if (!rawText) return NextResponse.json({ error: 'Lege AI response.' }, { status: 502, headers: corsHeaders(req) });
 
     let result: any;
     try { result = extractJSON(rawText); }
     catch (_) {
       console.error('[analyse] JSON parse error:', rawText.slice(0, 300));
-      return NextResponse.json({ error: 'AI response onverwacht formaat. Probeer opnieuw.' }, { status: 502 });
+      return NextResponse.json({ error: 'AI response onverwacht formaat. Probeer opnieuw.' }, { status: 502, headers: corsHeaders(req) });
     }
 
     for (const f of ['score', 'score_uitleg', 'sterke_punten', 'verbeterpunten', 'match_keywords', 'mis_keywords', 'motivatiebrief', 'cv_tips']) {
       if (result[f] === undefined || result[f] === null)
-        return NextResponse.json({ error: `Analyse onvolledig (${f}).` }, { status: 502 });
+        return NextResponse.json({ error: `Analyse onvolledig (${f}).` }, { status: 502, headers: corsHeaders(req) });
     }
 
     result.score = Math.min(100, Math.max(0, parseInt(result.score) || 0));
@@ -148,7 +192,6 @@ export async function POST(req: NextRequest) {
 
     const newCount = await recordUsage(usageKey, config);
 
-    // Save to Supabase if user is authenticated
     try {
       const supabase = await createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -163,7 +206,6 @@ export async function POST(req: NextRequest) {
       }
     } catch (e: any) {
       console.warn('[analyse] Failed to save to Supabase:', e.message);
-      // Non-fatal — don't fail the request
     }
 
     return NextResponse.json({
@@ -173,7 +215,10 @@ export async function POST(req: NextRequest) {
       coverLetter: config.coverLetter,
       usage: { used: newCount, remaining: Math.max(0, limit - newCount), limit },
     }, {
-      headers: { 'X-RateLimit-Remaining': String(Math.max(0, limit - newCount)) }
+      headers: {
+        ...corsHeaders(req),
+        'X-RateLimit-Remaining': String(Math.max(0, limit - newCount)),
+      },
     });
 
   } catch (e: any) {

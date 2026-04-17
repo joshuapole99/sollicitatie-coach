@@ -92,7 +92,7 @@ export default function AnalysePage() {
 
   const usageText = ui.tier === 'pro'  ? t.analyseUsagePro :
                     ui.tier === 'plus' ? t.analyseUsagePlus(ui.usage.remaining) :
-                    ui.usage.remaining > 0 ? t.analyseUsageFree(ui.usage.remaining, ui.usage.limit) : t.analyseUsageNone;
+                    lang === 'nl' ? '✨ Voorbeeldanalyse — upgrade voor jouw persoonlijke resultaat' : '✨ Demo analysis — upgrade for your personal result';
 
   return (
     <div className="app-wrap">
@@ -110,17 +110,10 @@ export default function AnalysePage() {
 
       {!verifying && (
         <div className="usage-bar">
-          {ui.tier === 'free' && (
-            <div className="usage-dots">
-              {Array.from({ length: ui.usage.limit }, (_, i) => (
-                <div key={i} className={`udot ${i < ui.usage.used ? 'udot-used' : 'udot-free'}`} />
-              ))}
-            </div>
-          )}
           <span style={{ color: '#475569', fontSize: 13 }}>{usageText}</span>
           {ui.tier === 'free' && (
             <a href="/pricing" className="btn btn-primary btn-sm" style={{ marginLeft: 'auto' }}>
-              {ui.blocked ? t.analyseUpgradeRequired : t.analyseUpgrade}
+              {t.analyseUpgrade}
             </a>
           )}
         </div>

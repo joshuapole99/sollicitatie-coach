@@ -1,5 +1,6 @@
-// app/api/interview/route.ts — Interview question generator
+// app/api/interview/route.ts — Interview question generator (Plus/Pro only)
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 
 function extractJSON(text: string) {
   let s = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
@@ -14,6 +15,11 @@ function extractJSON(text: string) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Auth check — dashboard feature, must be logged in
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Niet ingelogd.' }, { status: 401 });
+
     const { role, context } = await req.json();
 
     if (!role || typeof role !== 'string' || role.trim().length < 2)
