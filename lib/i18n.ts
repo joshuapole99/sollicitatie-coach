@@ -109,6 +109,12 @@ export const T = {
     // Footer
     footerPrivacy: 'Privacy', footerTerms: 'Voorwaarden',
 
+    // Install banner
+    installTitle: 'Voeg toe aan startscherm',
+    installSub: 'Open de app direct vanuit je startscherm',
+    installBtn: 'Installeren', installDismiss: 'Niet nu',
+    installIosHint: 'Tik op Delen → Zet op beginscherm',
+
     // Dashboard layout
     dashTabOverview: 'Overzicht', dashTabTracker: 'Tracker', dashTabInterview: 'Interview Prep',
     dashTabAnalyse: 'CV analyseren', dashLogout: 'Uitloggen',
@@ -277,6 +283,12 @@ export const T = {
 
     // Footer
     footerPrivacy: 'Privacy', footerTerms: 'Terms',
+
+    // Install banner
+    installTitle: 'Add to home screen',
+    installSub: 'Open the app directly from your home screen',
+    installBtn: 'Install', installDismiss: 'Not now',
+    installIosHint: 'Tap Share → Add to Home Screen',
 
     // Dashboard layout
     dashTabOverview: 'Overview', dashTabTracker: 'Tracker', dashTabInterview: 'Interview Prep',

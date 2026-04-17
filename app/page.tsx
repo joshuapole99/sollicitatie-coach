@@ -37,7 +37,7 @@ export default function LandingPage() {
 
       {/* ── TRUST PILLS ──────────────────────────────── */}
       <div className="trust-bar">
-        {[t.feat1T, t.feat2T, t.feat3T, t.feat4T, lang === 'nl' ? 'Interview voorbereiding' : 'Interview preparation', lang === 'nl' ? 'Sollicitatie tracker' : 'Application tracker'].map(pill => (
+        {[t.feat1T, t.feat2T, t.feat3T, t.feat4T, lang === 'nl' ? 'Interview voorbereiding' : 'Interview preparation', lang === 'nl' ? 'Sollicitatie tracker' : 'Application tracker', lang === 'nl' ? '📱 Installeerbaar als app' : '📱 Installable as app'].map(pill => (
           <span key={pill} className="trust-pill">{pill}</span>
         ))}
       </div>

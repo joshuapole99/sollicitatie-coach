@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import { LanguageProvider } from '@/components/LanguageProvider';
+import InstallBanner from '@/components/InstallBanner';
 
 export const metadata: Metadata = {
   title: 'Sollicitatie Coach — AI CV Analyse & Motivatiebrief',
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Nav />
           <main>{children}</main>
           <Footer />
+          <InstallBanner />
         </LanguageProvider>
       </body>
     </html>
