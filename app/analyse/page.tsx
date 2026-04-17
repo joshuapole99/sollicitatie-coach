@@ -54,7 +54,7 @@ export default function AnalysePage() {
   }, []);
 
   async function runAnalysis() {
-    if (ui.blocked) { window.location.href = '/pricing'; return; }
+    if (ui.blocked && ui.tier !== 'free') { window.location.href = '/pricing'; return; }
     if (cv.trim().length < 30) { setError(t.analyseErrCv); return; }
     if (job.trim().length < 30) { setError(t.analyseErrJob); return; }
     setError(''); setLoading(true); setResult(null);

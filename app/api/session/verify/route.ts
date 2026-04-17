@@ -26,6 +26,6 @@ export async function POST(req: NextRequest) {
     coverLetter: config.coverLetter,
     usage:       usageData,
     source,
-    blocked:     !result.allowed,
+    blocked:     tier !== 'free' && !result.allowed,
   }, { headers: { 'Cache-Control': 'no-store' } });
 }
