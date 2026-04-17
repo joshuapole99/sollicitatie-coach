@@ -27,6 +27,28 @@ const EXAMPLES = {
 function scoreColor(s: number) { return s >= 75 ? '#16a34a' : s >= 50 ? '#d97706' : '#dc2626'; }
 function scoreClass(s: number) { return s >= 75 ? 'score-hi' : s >= 50 ? 'score-mid' : 'score-lo'; }
 
+const DEMO_RESULT_NL: Result = {
+  score: 65,
+  score_uitleg: 'Dit is een voorbeeldanalyse. Upgrade naar Plus of Pro voor jouw persoonlijke match score op basis van jouw specifieke CV en vacature.',
+  sterke_punten: ['Je CV bevat werkervaring die relevant kan zijn voor de functie', 'Je opleiding sluit mogelijk aan op de functievereisten', 'Upgrade naar Plus voor 3 concrete sterke punten uit jouw CV'],
+  verbeterpunten: ['Veel CVs missen vacature-specifieke keywords — dit verlaagt je ATS-score', 'Een op maat gemaakte motivatiebrief verhoogt je kansen significant', 'Upgrade naar Plus voor jouw persoonlijke verbeterpunten'],
+  match_keywords: ['werkervaring', 'opleiding', 'vaardigheden'],
+  mis_keywords: ['upgrade voor jouw specifieke keywords', 'ATS-termen uit vacature', 'functie-specifieke competenties'],
+  motivatiebrief: '', cv_tips: 'Upgrade naar Plus of Pro voor gepersonaliseerde CV-verbeterpunten op basis van jouw specifieke CV en deze vacature.',
+  tier: 'free', canPdf: false, coverLetter: false, usage: { used: 0, remaining: 0, limit: 0 },
+};
+
+const DEMO_RESULT_EN: Result = {
+  score: 65,
+  score_uitleg: 'This is a demo analysis. Upgrade to Plus or Pro for your personal match score based on your specific CV and job posting.',
+  sterke_punten: ['Your CV contains work experience that may be relevant to the role', 'Your education may align with the job requirements', 'Upgrade to Plus for 3 concrete strengths from your CV'],
+  verbeterpunten: ['Many CVs are missing role-specific keywords — this lowers your ATS score', 'A tailored cover letter significantly increases your chances', 'Upgrade to Plus for your personal improvement points'],
+  match_keywords: ['work experience', 'education', 'skills'],
+  mis_keywords: ['upgrade for your specific keywords', 'ATS terms from job posting', 'role-specific competencies'],
+  motivatiebrief: '', cv_tips: 'Upgrade to Plus or Pro for personalised CV improvement tips based on your specific CV and this job posting.',
+  tier: 'free', canPdf: false, coverLetter: false, usage: { used: 0, remaining: 0, limit: 0 },
+};
+
 export default function AnalysePage() {
   const { lang } = useLanguage();
   const t = T[lang];
@@ -58,6 +80,15 @@ export default function AnalysePage() {
     if (cv.trim().length < 30) { setError(t.analyseErrCv); return; }
     if (job.trim().length < 30) { setError(t.analyseErrJob); return; }
     setError(''); setLoading(true); setResult(null);
+
+    // Free tier: show demo result client-side, no API call needed
+    if (ui.tier === 'free') {
+      await new Promise(r => setTimeout(r, 1200)); // brief loading feel
+      setResult(lang === 'nl' ? DEMO_RESULT_NL : DEMO_RESULT_EN);
+      setLoading(false);
+      setTimeout(() => document.getElementById('results-top')?.scrollIntoView({ behavior: 'smooth' }), 100);
+      return;
+    }
     try {
       const r = await fetch('/api/analyse', {
         method: 'POST',
