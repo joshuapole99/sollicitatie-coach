@@ -1,0 +1,12 @@
+{
+  "name": "Sollicitatie Coach",
+  "short_name": "SollCoach",
+  "description": "AI CV analyse & motivatiebrief in 30 seconden",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

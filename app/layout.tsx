@@ -20,6 +20,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="alternate" hrefLang="nl" href="https://sollicitatie-coach.vercel.app/" />
         <link rel="alternate" hrefLang="en" href="https://sollicitatie-coach.vercel.app/" />
         <link rel="alternate" hrefLang="x-default" href="https://sollicitatie-coach.vercel.app/" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#2563eb" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="SollCoach" />
       </head>
       <body>
         <style>{CSS}</style>
@@ -50,6 +56,13 @@ img,svg{display:block;max-width:100%}
 .nav-link:hover{background:#f1f5f9;color:#0f172a}
 .nav-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
 @media(max-width:640px){.nav-link{display:none}}
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;color:#475569;flex-direction:column;gap:5px}
+.hamburger span{display:block;width:22px;height:2px;background:currentColor;border-radius:2px;transition:all .2s}
+@media(max-width:640px){.hamburger{display:flex}}
+.mobile-menu{display:none;position:absolute;top:60px;left:0;right:0;background:#fff;border-bottom:1px solid #e2e8f0;padding:8px 16px 12px;flex-direction:column;gap:2px;z-index:99;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.mobile-menu.open{display:flex}
+.mobile-menu a{padding:10px 12px;font-size:15px;font-weight:500;color:#475569;border-radius:8px;display:block}
+.mobile-menu a:hover{background:#f1f5f9;color:#0f172a}
 
 /* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;font-size:14px;font-weight:600;border-radius:10px;border:none;cursor:pointer;transition:all .18s;white-space:nowrap;text-decoration:none;font-family:inherit;line-height:1}
@@ -63,7 +76,7 @@ img,svg{display:block;max-width:100%}
 .btn-ghost{background:transparent;color:#475569;border:1.5px solid #e2e8f0}
 .btn-ghost:hover{background:#f8fafc;color:#0f172a}
 .btn-lg{padding:14px 28px;font-size:16px;border-radius:12px}
-.btn-sm{padding:7px 14px;font-size:13px;border-radius:8px}
+.btn-sm{padding:7px 14px;font-size:13px;border-radius:8px;min-height:40px}
 .btn-danger{background:#fff1f2;color:#dc2626;border:1px solid #fecaca}
 .btn-danger:hover{background:#fee2e2}
 .spinner-btn{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
@@ -270,6 +283,10 @@ tr:hover td{background:#fafbff}
 .action-edit:hover{background:#eef2ff}
 .action-del{color:#dc2626;font-size:13px;background:none;border:none;cursor:pointer;padding:3px 8px;border-radius:6px;font-family:inherit}
 .action-del:hover{background:#fff1f2}
+
+/* ── FEAT PREVIEW ── */
+.feat-preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+@media(max-width:600px){.feat-preview-grid{grid-template-columns:1fr}}
 
 /* ── ANALYSE TOOL ── */
 .app-wrap{max-width:840px;margin:0 auto;padding:36px 24px 72px}

@@ -176,11 +176,11 @@ export default function AnalysePage() {
           <details className="result-card" open>
             <summary className="result-summary">{t.analyseKeywords} <span className="result-chev">▼</span></summary>
             <div className="result-body">
-              <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>{t.analysePresent}</p>
+              <p style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>{t.analysePresent}</p>
               <div className="tags-row" style={{ marginBottom: 16 }}>
                 {result.match_keywords.length ? result.match_keywords.map(k => <span key={k} className="tag-match">{k}</span>) : <span style={{ fontSize: 13, color: '#94a3b8' }}>{t.analyseNoneFound}</span>}
               </div>
-              <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>{t.analyseMissing}</p>
+              <p style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>{t.analyseMissing}</p>
               <div className="tags-row">
                 {result.mis_keywords.length ? result.mis_keywords.map(k => <span key={k} className="tag-miss">{k}</span>) : <span style={{ fontSize: 13, color: '#94a3b8' }}>{t.analyseNone}</span>}
               </div>
@@ -237,7 +237,7 @@ export default function AnalysePage() {
       )}
 
       {!result && !loading && (
-        <div style={{ marginTop: 48, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+        <div className="feat-preview-grid">
           {[
             { icon: '📊', title: t.analyseFeat1T, desc: t.analyseFeat1D },
             { icon: '🔑', title: t.analyseFeat2T, desc: t.analyseFeat2D },
