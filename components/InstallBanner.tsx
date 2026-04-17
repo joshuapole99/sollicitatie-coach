@@ -50,6 +50,7 @@ export default function InstallBanner() {
       background: 'linear-gradient(135deg,#0f172a,#1e3a8a)',
       borderTop: '1px solid rgba(255,255,255,.1)',
       padding: '14px 20px',
+      paddingBottom: 'max(14px, env(safe-area-inset-bottom))',
       display: 'flex', alignItems: 'center', gap: 14,
       boxShadow: '0 -4px 20px rgba(0,0,0,.25)',
     }}>
